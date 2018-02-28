@@ -1,8 +1,6 @@
 ----
 
-TODO list for package `coxpresdbr`
-
-----
+# TODO list for package `coxpresdbr`
 
 <!-- "Use 4-spaces to indent sublists" -->
 <!-- "Use '-' as the bullet-point icon" -->
