@@ -12,18 +12,22 @@
 
 ## `coxpresdbr_io.R`
 
-- adds function `import_coexpresdb(gene_id, db_archive)`
+- adds function `import_coex_db(gene_id, db_archive)`
 
     - returns details for all partners of a given gene `gene_id` that are
       present in the tar.bz2 file `db_archive`
+    
+    - adds code to extract a file from a tar.bz2 - use data.table::fread()
 
-- adds function `get_coexpresdb_universe(db_archive, gene_universe)`
+- adds function `get_coex_db_gene_universe(db_archive)`
 
     - returns the ids for all genes that are present in the archive
     `db_archive`
 
-    - If `gene_universe` is specified, returns the intersection of this
-      with those genes that have `coxpresdb` information
+    - Considered including a `gene_subset` so that the coxpresdb-annotated
+    universe could be automatically restricted to a subset of the user-defined
+    gene universe. Decided against this as it would give the function too many
+    responsibilities
 
 ## `coxpresdbr_parse.R`
 
@@ -44,6 +48,8 @@
       have p-values for each gene, or correlation values for each gene against
       a comparator `gene_id`
 
+    - Enrichment of gene-partners of a given gene in `significant` list
+
     - meta-analysis of p-values / z-scores for the partners of `gene_id`
 
     - average correlation of the partners of `gene_id` with `gene_id`
@@ -54,5 +60,15 @@
 ----
 
 # tests
+
+- Add a subset of the yeast coxpresdb dataset into tests/testthat for use in 
+  io testing
+    - eg, generate the data using
+        - `tar -jtf Spo.v14*.tar.bz2 | grep -v "/$" | head > selected.txt`
+        - `tar -xjf Spo.v14*.tar.bz2 $(cat selected.txt)`
+        - `REGEX=$(perl -e 'chomp(@F=<>); $f=join "\\|", map {/.*\/(.*)$/; $1} @F; print($f)' < selected.txt)`
+        - `grep -e "${REGEX}" <each_file>; <and replace the file>`
+    - Or, consider putting it in inst/extdata and providing an example of how
+    to read in the dataset
 
 ----
