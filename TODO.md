@@ -19,7 +19,7 @@
     
     - adds code to extract a file from a tar.bz2 - use data.table::fread()
 
-- adds function `get_coex_db_gene_universe(db_archive)`
+- adds function `get_coex_db_universe(db_archive)`
 
     - returns the ids for all genes that are present in the archive
     `db_archive`
