@@ -23,4 +23,10 @@ Imports: styler,
     tibble,
     data.table,
     magrittr,
-    dplyr
+    dplyr,
+    purrr
+Collate:
+    'coxpresdbr_dev.R'
+    'coxpresdbr_io.R'
+    'coxpresdbr_parse.R'
+    'coxpresdbr_stats.R'
