@@ -8,7 +8,7 @@
 
 ----
 
-# R
+# R/
 
 ## `coxpresdbr_io.R`
 
@@ -19,14 +19,16 @@
 
 ## `coxpresdbr_parse.R`
 
-- adds function `get_coex_partners(gene_id, k=100, mrank_threshold=0,
-  db_archive, gene_universe)`
+- adds function `get_coex_partners(gene_id, db_archive, gene_universe = NULL,
+  k=100, cor_threshold = -1, mr_threshold=0)`
 
     - returns the k-most coexpressed genes wrt gene `gene_id` with mutual rank
     greater than mrank_threshold
 
     - extracts these genes from `db_archive`, a tar.bz2 as downloaded from
     coxpresdb
+
+- adds function `.filter_coex_partners` that takes a coex dataframe as input
 
 ## `coxpresdbr_stats.R`
 
@@ -47,22 +49,21 @@
 
 ----
 
-# tests
+# tests/
 
-- Add a subset of the yeast coxpresdb dataset into tests/testthat for use in
-  io testing
-    - eg, generate the data using
-        - `tar -jtf Spo.v14*.tar.bz2 | grep -v "/$" | head > selected.txt`
-        - `tar -xjf Spo.v14*.tar.bz2 $(cat selected.txt)`
-        - `REGEX=$(perl -e 'chomp(@F=<>); $f=join "\\|", map {/.*\/(.*)$/; $1}
-          @F; print($f)' < selected.txt)`
-        - `grep -e "${REGEX}" <each_file>; <and replace the file>`
-    - Or, consider putting it in inst/extdata and providing an example of how
-    to read in the dataset
+## `test_coxpresdbr_parse.R`
+
+- tests subsetting a coex dataframe to just the top k genepartners for a given
+  gene
+
+- tests subsetting a coex dataframe to keep genepairs that have mutual rank or
+  correlation above some threshold
+
+- tests combining the coex dataframes for multiple genes together
 
 ----
 
-TIMELINE
+# TIMELINE
 
 ----
 
@@ -87,4 +88,23 @@ TIMELINE
     universe could be automatically restricted to a subset of the user-defined
     gene universe. Decided against this as it would give the function too many
     responsibilities
+
+## `test_coxpresdbr_io.R`
+
+- Adds a subset of the yeast coxpresdb dataset into tests/testthat for use in
+  io testing
+    - This was generated from the fission yeast dataset
+      `Spo.v14-08.G4881-S224.rma.mrgeo.d.tar.bz2`
+
+    - The original data was manipulated by selecting 10 genes and keeping the
+      files for just those 10 genes; and with each file being restricted to
+      just the selected 10 genes:
+        - `tar -jtf Spo.v14*.tar.bz2 | grep -v "/$" | head > selected.txt`
+        - `tar -xjf Spo.v14*.tar.bz2 $(cat selected.txt)`
+        - `REGEX=$(perl -e 'chomp(@F=<>); $f=join "\\|", map {/.*\/(.*)$/; $1}
+          @F; print($f)' < selected.txt)`
+        - `grep -e "${REGEX}" <each_file>; <and replace the file>`
+
+    - The data is stored in the `./tests/testthat` directory, rather than in
+    `inst/extdata` or `data`
 
