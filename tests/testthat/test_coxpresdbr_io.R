@@ -127,6 +127,15 @@ test_that("import_coex_db: valid input", {
   )
 
   expect_equal(
+    object = as.vector(sapply(coex_db_2538791, class)),
+    expected = c("character", "character", "numeric", "numeric"),
+    info = paste(
+      "Coltypes should be character for source/target-id and numeric for",
+      "mutual-rank/correlation"
+    )
+  )
+
+  expect_equal(
     object = unique(coex_db_2538791[["source_id"]]),
     expected = "2538791",
     info = paste(
@@ -140,14 +149,6 @@ test_that("import_coex_db: valid input", {
     info = paste(
       "The source-gene should be absent from the targets in its",
       "coexpression database"
-    )
-  )
-  expect_equal(
-    object = as.vector(sapply(coex_db_2538791, class)),
-    expected = c("character", "character", "numeric", "numeric"),
-    info = paste(
-      "Coltypes should be character for source/target-id and numeric for",
-      "mutual-rank/correlation"
     )
   )
 })
