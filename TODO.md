@@ -12,23 +12,9 @@
 
 ## `coxpresdbr_io.R`
 
-- adds function `import_coex_db(gene_id, db_archive)`
+- `import_coex_db(gene_id, db_archive)`
 
-    - use more than one gene in `gene_id` argument (therefore need to indicate
-    source and target in the returned dataframe)
-
-## `coxpresdbr_parse.R`
-
-- adds function `get_coex_partners(gene_id, db_archive, gene_universe = NULL,
-  k=100, cor_threshold = -1, mr_threshold=0)`
-
-    - returns the k-most coexpressed genes wrt gene `gene_id` with mutual rank
-    greater than mrank_threshold
-
-    - extracts these genes from `db_archive`, a tar.bz2 as downloaded from
-    coxpresdb
-
-- adds function `.filter_coex_partners` that takes a coex dataframe as input
+    - uses more than one gene in `gene_id` argument
 
 ## `coxpresdbr_stats.R`
 
@@ -53,13 +39,8 @@
 
 ## `test_coxpresdbr_parse.R`
 
-- tests subsetting a coex dataframe to just the top k genepartners for a given
-  gene
-
-- tests subsetting a coex dataframe to keep genepairs that have mutual rank or
-  correlation above some threshold
-
-- tests combining the coex dataframes for multiple genes together
+- tests both applying filters and combining several source-genes datasets
+  together
 
 ----
 
@@ -68,6 +49,34 @@
 ----
 
 # 2018-03-05
+
+## `coxpresdbr_parse.R`
+
+- adds function `get_coex_partners(gene_ids, db_archive, gene_universe = NULL,
+  n_partners=100, mr_threshold = 0, cor_threshold = -1)`
+
+    - returns the k-most coexpressed genes wrt each gene in `gene_ids` with
+    mutual rank at-most `mrank_threshold`, correlation at-least `cor_threshold`
+    and with each returned gene within the set `gene_universe`
+
+    - extracts these genes from `db_archive`, using `import_coex_db`. So
+      `db_archive` is a tar.bz2 as downloaded from coxpresdb.jp
+
+- adds function `.filter_coex_partners` that takes a coex dataframe as input
+  and applies all requested filters
+
+    - Currently this function only works for the partnerset of a single gene
+      (to save on manipulating large dataframes)
+
+## `test_coxpresdbr_parse.R`
+
+- tests subsetting a coex dataframe to just the top k genepartners for a given
+  gene
+
+- tests subsetting a coex dataframe to keep genepairs that have mutual rank or
+  correlation above some threshold
+
+- tests combining the coex dataframes for multiple genes together
 
 ## `coxpresdbr_io.R`
 
