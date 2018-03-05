@@ -3,5 +3,8 @@
 .RData
 .Ruserdata
 
+# Disregard computed content:
+man/
+
 # Temp files
 *.swp
