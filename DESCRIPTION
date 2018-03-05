@@ -17,4 +17,10 @@ RoxygenNote: 6.0.1
 Suggests: testthat
 Imports: styler,
     lintr,
-    devtools
+    devtools,
+    stringr,
+    gtools,
+    tibble,
+    data.table,
+    magrittr,
+    dplyr
