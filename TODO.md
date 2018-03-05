@@ -14,20 +14,8 @@
 
 - adds function `import_coex_db(gene_id, db_archive)`
 
-    - returns details for all partners of a given gene `gene_id` that are
-      present in the tar.bz2 file `db_archive`
-
-    - adds code to extract a file from a tar.bz2 - use data.table::fread()
-
-- adds function `get_coex_db_universe(db_archive)`
-
-    - returns the ids for all genes that are present in the archive
-    `db_archive`
-
-    - Considered including a `gene_subset` so that the coxpresdb-annotated
-    universe could be automatically restricted to a subset of the user-defined
-    gene universe. Decided against this as it would give the function too many
-    responsibilities
+    - use more than one gene in `gene_id` argument (therefore need to indicate
+    source and target in the returned dataframe)
 
 ## `coxpresdbr_parse.R`
 
@@ -66,9 +54,37 @@
     - eg, generate the data using
         - `tar -jtf Spo.v14*.tar.bz2 | grep -v "/$" | head > selected.txt`
         - `tar -xjf Spo.v14*.tar.bz2 $(cat selected.txt)`
-        - `REGEX=$(perl -e 'chomp(@F=<>); $f=join "\\|", map {/.*\/(.*)$/; $1} @F; print($f)' < selected.txt)`
+        - `REGEX=$(perl -e 'chomp(@F=<>); $f=join "\\|", map {/.*\/(.*)$/; $1}
+          @F; print($f)' < selected.txt)`
         - `grep -e "${REGEX}" <each_file>; <and replace the file>`
     - Or, consider putting it in inst/extdata and providing an example of how
     to read in the dataset
 
 ----
+
+TIMELINE
+
+----
+
+# 2018-03-05
+
+## `coxpresdbr_io.R`
+
+- adds function `import_coex_db(gene_id, db_archive)`
+
+    - returns details for all partners of a given gene `gene_id` that are
+      present in the tar.bz2 file `db_archive`
+
+    - adds code to extract a file from a `*.tar.bz2` using
+    `data.table::fread()`; returning a tibble
+
+- adds function `import_coex_db_universe(db_archive)`
+
+    - returns the ids for all genes that are present in the archive
+    `db_archive`
+
+    - Considered including a `gene_subset` so that the coxpresdb-annotated
+    universe could be automatically restricted to a subset of the user-defined
+    gene universe. Decided against this as it would give the function too many
+    responsibilities
+
