@@ -16,7 +16,7 @@
 
     - returns details for all partners of a given gene `gene_id` that are
       present in the tar.bz2 file `db_archive`
-    
+
     - adds code to extract a file from a tar.bz2 - use data.table::fread()
 
 - adds function `get_coex_db_universe(db_archive)`
@@ -61,7 +61,7 @@
 
 # tests
 
-- Add a subset of the yeast coxpresdb dataset into tests/testthat for use in 
+- Add a subset of the yeast coxpresdb dataset into tests/testthat for use in
   io testing
     - eg, generate the data using
         - `tar -jtf Spo.v14*.tar.bz2 | grep -v "/$" | head > selected.txt`
