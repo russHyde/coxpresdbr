@@ -9,7 +9,8 @@
 .packit <- function(pkg = ".") {
   styler::style_pkg(pkg)
 
-  lintr::lint_package(pkg)
+  # lintr doesn't push it's results into rstudio when called inside .packit()
+  # lintr::lint_package(pkg)
 
   devtools::build(pkg)
 
