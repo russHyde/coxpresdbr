@@ -25,7 +25,8 @@ Imports: styler,
     magrittr,
     dplyr,
     purrr,
-    methods
+    methods,
+    metap
 Collate:
     'coxpresdbr_dev.R'
     'coxpresdbr_io.R'
