@@ -46,6 +46,7 @@ evaluate_coex_partners <- function(
                                    ...) {
   stopifnot(methods::is(x, "data.frame"))
   stopifnot(all(c("gene_id", "p_value", "direction") %in% colnames(x)))
-
+  stopifnot(methods::is(coex_partners, "data.frame"))
+  stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
   NULL
 }
