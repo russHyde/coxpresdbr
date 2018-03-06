@@ -24,7 +24,8 @@ Imports: styler,
     data.table,
     magrittr,
     dplyr,
-    purrr
+    purrr,
+    methods
 Collate:
     'coxpresdbr_dev.R'
     'coxpresdbr_io.R'

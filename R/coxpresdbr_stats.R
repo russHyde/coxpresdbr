@@ -36,12 +36,16 @@
 #' and a summary of the number of partner-genes, the average z-score across
 #' all partner genes and the p-value equivalent to this z-score.
 #'
+#' @importFrom   methods       is
+#'
 #' @export
 #'
 evaluate_coex_partners <- function(
-  x,
-  coex_partners,
-  ...
-){
+                                   x,
+                                   coex_partners,
+                                   ...) {
+  stopifnot(methods::is(x, "data.frame"))
+  stopifnot(all(c("gene_id", "p_value", "direction") %in% colnames(x)))
+
   NULL
-  }
+}
