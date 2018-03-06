@@ -103,6 +103,7 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
   )
 
   # p-value returned should be independent of `direction`
+  # z-scores returned should be negatives if direction is switched
 
   # input p-values are identical for each target gene: returned p-value should
   # match the input p-vaue
