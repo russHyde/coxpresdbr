@@ -36,7 +36,10 @@
 #' and a summary of the number of partner-genes, the average z-score across
 #' all partner genes and the p-value equivalent to this z-score.
 #'
+#' @importFrom   dplyr         group_by_   mutate_   n   summarise_   ungroup
+#' @importFrom   magrittr      extract
 #' @importFrom   methods       is
+#' @importFrom   tibble        data_frame
 #'
 #' @export
 #'
@@ -46,7 +49,27 @@ evaluate_coex_partners <- function(
                                    ...) {
   stopifnot(methods::is(x, "data.frame"))
   stopifnot(all(c("gene_id", "p_value", "direction") %in% colnames(x)))
+
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
-  NULL
+
+  res <- merge(
+    x, coex_partners, by.x = "gene_id", by.y = "target_id"
+  ) %>%
+    dplyr::group_by_(~ source_id) %>%
+    dplyr::summarise_(
+      n_partners = ~ dplyr::n(),
+      z_score = as.numeric(NA),
+      p_value = ~ mean(p_value)
+    ) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate_(
+      gene_id = ~ source_id,
+      z_score = ~ as.numeric(z_score)
+    ) %>%
+    magrittr::extract(
+      c("gene_id", "n_partners", "z_score", "p_value")
+    )
+
+  res
 }
