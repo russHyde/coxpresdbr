@@ -16,7 +16,46 @@
 
     - uses more than one gene in `gene_id` argument
 
+## `coxpresdbr_parse.R`
+
+- Warn the user if any of the source genes is absent from the coexpression
+  database
+
 ## `coxpresdbr_stats.R`
+
+- `evaluate_coex_partners(x, coex_partners, ...)`
+
+    - [note x is a dataframe containing p-values/gene-ids/directions and must
+      come first so that I can add a generic function for DGELRT and MArrayLM
+      objects]
+
+    - adds function that takes a data-frame with columns `gene_id`, `p_value`
+      and `direction` and a coexpression database (as a data-frame)
+
+    - adds call to metap::twoToOne to convert two-sided tests to one-sided
+      tests
+
+    - joins `pval_df` and `coex_partners` on `gene_id` and `target_id`
+
+    - for each source-gene in `coex_partners`:
+
+        - computes average z-score (symmetrically wrt two-tailed test to fix
+          numerical inaccuracies in metap implementation) using metap::sumz
+          across the target-genes
+
+        - counts the number of target-genes
+
+        - converts z-score to p-value
+
+    - sets `evaluate_coex_partners` to a generic function
+
+    - adds an alternative-analysis-method switch, eg,
+      `evaluate_coex_partners(x, coex_partners, method = c("sumz",
+      "enrichment"), ...)`
+
+- `evaluate_coex_partners(x: DGELRT/DGEExact, coex_partners)`
+
+- `evaluate_coex_partners(x: MArrayLM, coex_partners)`
 
 - What would user want to compare against?
 
@@ -33,6 +72,34 @@
     - want some idea of statistical significance, by inverting the averaged
       z-scores, or by randomly sampling across the gene-universe
 
+- What data-types would the user have access to?
+
+    - edgeR::DGELRT/DGEExact objects
+
+        - would need to indicate gene_id column of `genes` component
+
+    - limma::MArrayLM/TestResults objects
+
+        - would need to indicate mappings between rows and gene_id
+
+        - if multiple copies of a gene are present, take the average of it's
+          z-scores before running analysis
+
+    - data-types that can be passed to metap::sumz (p is a vector of one-tailed
+      p-values)
+
+    - data-frame: `gene_id`, `p_value` (two-tailed), `direction`
+
+        - the above datasets should be converted into this form
+
+- Note that there are some numerical inaccuracies in `metap` implementation of
+  `sumz`
+
+    - this is due to more accurate storage of p-values near 0 than near to 1
+
+    - suggest averaging the z-score, ie, sumz(p)$z and -sumz(1-p)$z and
+      returning two-tailed p-values
+
 ----
 
 # tests/
@@ -41,6 +108,11 @@
 
 - tests both applying filters and combining several source-genes datasets
   together
+
+## `test_coxpresdbr_stats.R`
+
+- tests that the same (two-sided) p-value returns on swapping the `direction`
+  of input data-changes
 
 ----
 
