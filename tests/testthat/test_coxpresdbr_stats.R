@@ -72,8 +72,8 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
     stringsAsFactors = FALSE
   )
   coex_no_partners <- tibble::data_frame(
-    source_id = "D",
-    target_id = "E"
+    source_id = "d",
+    target_id = "e"
   )
   expect <- tibble::data_frame(
     gene_id = character(0),
@@ -93,20 +93,67 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
     source_id = "d",
     target_id = "a"
   )
+  expect <- tibble::data_frame(
+    gene_id = "d",
+    n_partners = 1L,
+    z_score = 0.5 * (
+      qnorm(5e-13, lower.tail = FALSE) -
+        qnorm(1 - 5e-13, lower.tail = FALSE)
+    ),
+    p_value = 1e-12
+  )
   expect_equal(
-    object = evaluate_coex_partners(pval, coex_one_partner)$p_value,
-    expected = 1e-12,
+    object = as.data.frame(
+      evaluate_coex_partners(pval, coex_one_partner)
+    )[, 1:2],
+    expected = as.data.frame(expect)[, 1:2],
     info = paste(
       "source gene has a single partner => p-value should match that of the",
-      "target gene"
+      "target gene (non-numeric cols)"
+    )
+  )
+  expect_equal(
+    object = evaluate_coex_partners(pval, coex_one_partner)$z_score,
+    expected = expect$z_score,
+    info = paste(
+      "source gene has a single partner => p-value should match that of the",
+      "target gene (z-score col)"
+    ),
+    tolerance = 1e-4,
+    scale = expect$z_score
+  )
+  expect_equal(
+    object = evaluate_coex_partners(pval, coex_one_partner)$p_value,
+    expected = expect$p_value,
+    info = paste(
+      "source gene has a single partner => p-value should match that of the",
+      "target gene (p_value col)"
+    ),
+    tolerance = 1e-4,
+    scale = expect$p_value
+  )
+
+  # p-value returned should be independent of `direction` and
+  # z-scores returned should be reversed if `direction` is switched
+  expect_equal(
+    object = pval %>%
+      mutate(direction = -1 * direction) %>%
+      evaluate_coex_partners(coex_one_partner) %>%
+      as.data.frame(),
+
+    expected = pval %>%
+      evaluate_coex_partners(coex_one_partner) %>%
+      mutate(z_score = -1 * z_score) %>%
+      as.data.frame(),
+
+    info = paste(
+      "if all directions change, the p-value should remain the same and the",
+      "z-score should reverse"
     )
   )
 
-  # p-value returned should be independent of `direction`
-  # z-scores returned should be negatives if direction is switched
-
-  # input p-values are identical for each target gene: returned p-value should
-  # match the input p-vaue
+  # TODO: input p-values are identical for each target gene: returned p-value
+  # should match the input p-vaue
 })
 
 ###############################################################################

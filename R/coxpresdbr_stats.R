@@ -57,7 +57,8 @@ evaluate_coex_partners <- function(
   res <- x %>%
     dplyr::mutate_(
       invert = ~ ifelse(direction < 0, TRUE, FALSE),
-      p_value_onesided = ~ metap::two2one(p_value, invert = invert)
+      p_value_onetail_forward = ~ metap::two2one(p_value, invert = invert),
+      p_value_onetail_reversed = ~ metap::two2one(p_value, invert = !invert)
     ) %>%
     merge(
       coex_partners, by.x = "gene_id", by.y = "target_id"
@@ -65,11 +66,17 @@ evaluate_coex_partners <- function(
     dplyr::group_by_(~ source_id) %>%
     dplyr::summarise_(
       n_partners = ~ n(),
-      z_score = ~ ifelse(
+      z_score_forward = ~ ifelse(
         n_partners > 1,
-        metap::sumz(p_value_onesided, ...)$z,
-        qnorm(p_value_onesided, lower.tail = FALSE)
+        metap::sumz(p_value_onetail_forward, ...)$z,
+        qnorm(p_value_onetail_forward, lower.tail = FALSE)
       ),
+      z_score_reversed = ~ ifelse(
+        n_partners > 1,
+        metap::sumz(p_value_onetail_reversed, ...)$z,
+        qnorm(p_value_onetail_reversed, lower.tail = FALSE)
+      ),
+      z_score = ~ (z_score_forward - z_score_reversed) / 2,
       p_value_onesided = ~ pnorm(z_score, lower.tail = FALSE),
       p_value = ~ ifelse(
         z_score > 0,
