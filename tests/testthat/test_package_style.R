@@ -1,7 +1,7 @@
 ###############################################################################
 
 if (requireNamespace("lintr", quietly = TRUE)) {
-  context("lints")
+  context("Tests for lints in `coxpresdbr` package")
   test_that("Package Style", {
     lintr::expect_lint_free()
   })
