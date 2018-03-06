@@ -100,13 +100,13 @@ test_that("get_coex_partners", {
   expect_equal(
     object = get_coex_partners(
       gene_ids = c("2538791", "2539499"), db_archive = test_data_file
-      ),
+    ),
     expected = bind_rows(
       import_coex_db("2538791", test_data_file),
       import_coex_db("2539499", test_data_file)
-      ),
+    ),
     info = paste(
       "a pair of source genes, without any filters"
-      )
     )
+  )
 })
