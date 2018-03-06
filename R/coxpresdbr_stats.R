@@ -38,6 +38,7 @@
 #'
 #' @importFrom   dplyr         group_by_   mutate_   n   summarise_   ungroup
 #' @importFrom   magrittr      extract
+#' @importFrom   metap         sumz   two2one
 #' @importFrom   methods       is
 #' @importFrom   tibble        data_frame
 #'
@@ -53,19 +54,35 @@ evaluate_coex_partners <- function(
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
 
-  res <- merge(
-    x, coex_partners, by.x = "gene_id", by.y = "target_id"
-  ) %>%
+  res <- x %>%
+    dplyr::mutate_(
+      invert = ~ ifelse(direction < 0, TRUE, FALSE),
+      p_value_onesided = ~ metap::two2one(p_value, invert = invert)
+    ) %>%
+    merge(
+      coex_partners, by.x = "gene_id", by.y = "target_id"
+    ) %>%
     dplyr::group_by_(~ source_id) %>%
     dplyr::summarise_(
-      n_partners = ~ dplyr::n(),
-      z_score = as.numeric(NA),
-      p_value = ~ mean(p_value)
+      n_partners = ~ n(),
+      z_score = ~ ifelse(
+        n_partners > 1,
+        metap::sumz(p_value_onesided, ...)$z,
+        qnorm(p_value_onesided, lower.tail = FALSE)
+      ),
+      p_value_onesided = ~ pnorm(z_score, lower.tail = FALSE),
+      p_value = ~ ifelse(
+        z_score > 0,
+        2 * p_value_onesided,
+        2 * (1 - p_value_onesided)
+      )
     ) %>%
     dplyr::ungroup() %>%
     dplyr::mutate_(
       gene_id = ~ source_id,
-      z_score = ~ as.numeric(z_score)
+      n_partners = ~ as.integer(n_partners),
+      z_score = ~ as.numeric(z_score),
+      p_value = ~ as.numeric(p_value)
     ) %>%
     magrittr::extract(
       c("gene_id", "n_partners", "z_score", "p_value")
