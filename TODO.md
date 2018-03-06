@@ -29,25 +29,8 @@
       come first so that I can add a generic function for DGELRT and MArrayLM
       objects]
 
-    - adds function that takes a data-frame with columns `gene_id`, `p_value`
-      and `direction` and a coexpression database (as a data-frame)
-
-    - adds call to metap::twoToOne to convert two-sided tests to one-sided
-      tests
-
-    - joins `pval_df` and `coex_partners` on `gene_id` and `target_id`
-
-    - for each source-gene in `coex_partners`:
-
-        - computes average z-score (symmetrically wrt two-tailed test to fix
-          numerical inaccuracies in metap implementation) using metap::sumz
-          across the target-genes
-
-        - counts the number of target-genes
-
-        - converts z-score to p-value
-
-    - sets `evaluate_coex_partners` to a generic function
+    - sets `evaluate_coex_partners` to a generic function over DGELRT /
+      MArrayLM etc
 
     - adds an alternative-analysis-method switch, eg,
       `evaluate_coex_partners(x, coex_partners, method = c("sumz",
@@ -92,14 +75,6 @@
 
         - the above datasets should be converted into this form
 
-- Note that there are some numerical inaccuracies in `metap` implementation of
-  `sumz`
-
-    - this is due to more accurate storage of p-values near 0 than near to 1
-
-    - suggest averaging the z-score, ie, sumz(p)$z and -sumz(1-p)$z and
-      returning two-tailed p-values
-
 ----
 
 # tests/
@@ -119,6 +94,40 @@
 # TIMELINE
 
 ----
+
+# 2018-03-06
+
+## `coxpresdbr_stats.R`
+
+- `evaluate_coex_partners(x, coex_partners, ...)`
+
+    - with x a dataframe containing p-values/gene-ids/directions
+
+    - adds function that takes a data-frame with columns `gene_id`, `p_value`
+      and `direction` and a coexpression database (as a data-frame)
+
+    - adds call to metap::twoToOne to convert two-sided tests to one-sided
+      tests
+
+    - joins `pval_df` and `coex_partners` on `gene_id` and `target_id`
+
+    - for each source-gene in `coex_partners`:
+
+        - computes average z-score (symmetrically wrt two-tailed test to fix
+          numerical inaccuracies in metap implementation) using metap::sumz
+          across the target-genes
+
+        - counts the number of target-genes
+
+        - converts z-score to p-value
+
+- Note that there are some numerical inaccuracies in `metap` implementation of
+  `sumz`
+
+    - this is due to more accurate storage of p-values near 0 than near to 1
+
+    - hence we took average of the z-scores:, ie, sumz(p)$z and -sumz(1-p)$z
+      and return two-tailed p-values
 
 # 2018-03-05
 
