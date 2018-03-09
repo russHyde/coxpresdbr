@@ -135,13 +135,6 @@ test_that(".is_coxpresdb_archive", {
 ###############################################################################
 
 test_that("get the file-paths for all genes in the archive", {
-  # TODO: REMOVE THIS TEST and remove .get_coxpresdb_file_paths
-  expect_equal(
-    object = .get_coxpresdb_file_paths(test_data_file),
-    expected = sort(file.path("spo_v14_subset", test_data_genes)),
-    info = "File contents of a valid CoxpresDB.jp archive"
-  )
-
   expected <- tibble::data_frame(
     gene_id = test_data_genes,
     file_path = file.path("spo_v14_subset", test_data_genes)

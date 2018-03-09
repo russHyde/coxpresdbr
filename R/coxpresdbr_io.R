@@ -66,7 +66,10 @@ methods::setClass(
 #' is provided, should the compressed version be deleted after decompression?
 #' See \code{remove} in \code{R.utils::bunzip2}
 #'
+#' @importFrom   methods       new
 #' @importFrom   R.utils       isBzipped   bunzip2
+#' @importFrom   tibble        data_frame
+#' @importFrom   utils         untar
 #'
 #' @export
 #'
@@ -125,6 +128,15 @@ CoxpresDbImporter <- function(
 
 ###############################################################################
 
+#' Obtains all the file-paths that are present in a CoxpresDb archive
+#'
+#' @param        x             A \code{CoxpresDbImporter} object corresponding
+#' to a CoxpresDb.jp archive
+#'
+#' @return       A data_frame of gene_id:file_path pairs, each file is present
+#' in the archive (referenced within CoxpresDbImporter) and represents the
+#' coexpression data for a particular gene.
+#'
 #' @importFrom   methods       .valueClassTest
 #'
 setGeneric("get_file_paths", valueClass = "data.frame", function(x) {
@@ -246,32 +258,6 @@ setMethod(
     coex_db
   }
 )
-
-###############################################################################
-
-#' Extracts the relative file-paths for each file within a given CoxpresDB.jp
-#' archive
-#'
-#' @inheritParams   .is_coxpresdb_archive
-#'
-#' @importFrom   gtools        mixedsort
-#' @importFrom   stringr       str_interp
-#'
-#' @return       A vector of file-paths, sorted alphanumerically, each file is
-#' present in the given archive and represents the coexpression data for a
-#' particular gene.
-#'
-#' @export
-#'
-.get_coxpresdb_file_paths <- function(
-                                      db_archive) {
-  # TODO: remove this function
-  get_file_paths(
-    CoxpresDbImporter(
-      db_archive = db_archive, overwrite_in_bunzip2 = TRUE
-    )
-  )$file_path
-}
 
 ###############################################################################
 
