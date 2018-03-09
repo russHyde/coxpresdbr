@@ -121,12 +121,14 @@ CoxpresDbImporter <- function(
 # - archive_uncompressed should be a .tar
 # - file_paths should have colnames "gene_id" and "file_path"
 
+###############################################################################
+
 # Accessors
-# - get_gene_ids
+# - get_gene_ids - done
 # - get_file_paths - done
 
 # Methods
-# - import_coex_db(gene_id)
+# - import_coex_db(CoxpresDbImporter, gene_id)
 
 #' @importFrom   methods       .valueClassTest
 #'
@@ -137,6 +139,14 @@ setGeneric("get_file_paths", valueClass = "data.frame", function(x) {
 setMethod("get_file_paths", signature("CoxpresDbImporter"), function(x) {
   x@file_paths
 })
+
+setGeneric("get_gene_ids", valueClass = "character", function(x){
+  standardGeneric("get_gene_ids")
+  })
+
+setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x){
+  get_file_paths(x)[["gene_id"]]
+  })
 
 ###############################################################################
 
@@ -253,8 +263,7 @@ import_coex_db <- function(
 #'
 import_coex_db_universe <- function(
                                     db_archive) {
-  gene_files <- .get_coxpresdb_file_paths(db_archive)
-  basename(gene_files)
+  get_gene_ids(CoxpresDbImporter(db_archive, overwrite_in_bunzip2 = TRUE))
 }
 
 ###############################################################################

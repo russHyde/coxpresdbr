@@ -138,17 +138,35 @@ test_that("import_coex_db_universe: invalid input", {
   )
 })
 
-test_that("import_coex_db_universe: valid input", {
-  expect_silent(
-    object = import_coex_db_universe(db_archive = test_data_file)
-  )
+test_that(
+  "get the genes that are defined in a CoxpresDB archive: valid input", {
+    expect_silent(
+      object = import_coex_db_universe(db_archive = test_data_file)
+    )
 
-  expect_equal(
-    object = import_coex_db_universe(db_archive = test_data_file),
-    expected = test_data_genes,
-    info = "Gene-set parsing from a coxpresdb archive"
-  )
-})
+    expect_equal(
+      object = import_coex_db_universe(db_archive = test_data_file),
+      expected = test_data_genes,
+      info = "Gene-set parsing from a coxpresdb archive"
+    )
+
+    expect_equal(
+      object = get_gene_ids(
+        CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+      ),
+      expected = test_data_genes,
+      info = "Accessor test for gene-ids from a compressed CoxpresDB archive"
+    )
+
+    expect_equal(
+      object = get_gene_ids(
+        CoxpresDbImporter(test_data_uncompressed, overwrite_in_bunzip2 = TRUE)
+      ),
+      expected = test_data_genes,
+      info = "Accessor test for gene-ids from an uncompressed CoxpresDB archive"
+    )
+  }
+)
 
 ###############################################################################
 
