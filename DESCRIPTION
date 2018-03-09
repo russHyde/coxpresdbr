@@ -26,7 +26,8 @@ Imports: styler,
     dplyr,
     purrr,
     methods,
-    metap
+    metap,
+    R.utils
 Collate:
     'coxpresdbr_dev.R'
     'coxpresdbr_io.R'

@@ -3,12 +3,14 @@
 context("Tests for dataset I/O in `coxpresdbr` package")
 
 ###############################################################################
+
 # - Test data contains files for 10 genes from the fission yeast coxpresdb
 # dataset
 # - Each file contains coexpression data for just those 10 genes
 # - NOTE: testthat tests are ran with "<pkg>/tests/testthat/" as the working
 # directory
 test_data_file <- "spo_v14_subset.tar.bz2"
+test_data_uncompressed <- "spo_v14_subset.tar"
 test_data_genes <- as.character(c(
   2538791, 2539499, 2540594, 2541560, 2541907,
   2542210, 2542294, 2543492, 3361219, 3361512
@@ -16,33 +18,103 @@ test_data_genes <- as.character(c(
 
 ###############################################################################
 
-test_that(".is_coxpresdb_archive", {
-  expect_equal(
-    object = .is_coxpresdb_archive(test_data_file),
-    expected = TRUE,
-    info = "Checks a single valid coxpresdb archive is a valid archive"
+test_that("CoxpresDbImporter: Constructor", {
+
+  # Ensure that overwrite_in_bunzip2 is true whenever running unit tests that
+  # decompress an archive - otherwise, R.utils::bunzip2 will throw an exception
+  # on re-extracting the same file.
+  expect_is(
+    object = CoxpresDbImporter(
+      db_archive = test_data_file,
+      overwrite_in_bunzip2 = TRUE
+    ),
+    "CoxpresDbImporter",
+    info = "Construction of a CoxpresDbImporter with a compressed archive"
   )
 
-  expect_equal(
+  expect_is(
+    object = CoxpresDbImporter(db_archive = test_data_uncompressed),
+    "CoxpresDbImporter",
+    info = "Construction of a CoxpresDbImporter with an uncompressed archive"
+  )
+
+  expect_error(
+    object = CoxpresDbImporter(db_archive = "NOT A FILE"),
+    info = "A valid file must be passed as db_archive to CoxpresDbImporter"
+  )
+
+  expect_error(
+    object = CoxpresDbImporter(db_archive = "test_coxpresdbr_io.R"),
+    info = "A valid file must be passed as db_archive to CoxpresDbImporter"
+  )
+})
+
+###############################################################################
+
+test_that(".is_coxpresdb_archive", {
+  expect_true(
+    object = .is_coxpresdb_archive(test_data_file),
+    info = paste(
+      "Checks a single, valid, coxpresdb archive (*.tar.bz2) is a valid",
+      "archive"
+    )
+  )
+
+  expect_true(
+    object = .is_coxpresdb_archive(test_data_uncompressed),
+    info = paste(
+      "Checks a single, valid, uncompressed coxpresdb (*.tar) is a valid",
+      "archive"
+    )
+  )
+
+  expect_false(
     object = .is_coxpresdb_archive("test_coxpresdbr_io.R"),
-    expected = FALSE,
     info = "A valid coxpresdb archive should have a `.tar.bz2 extension`"
   )
 
-  expect_equal(
+  expect_false(
     object = .is_coxpresdb_archive(rep(test_data_file, 2)),
-    expected = FALSE,
     info = "User should only use a single coxpresdb archive at a time"
   )
 })
 
 ###############################################################################
 
-test_that(".get_coxpresdb_file_paths", {
+test_that("get the file-paths for all genes in the archive", {
+  # TODO: REMOVE THIS TEST and remove .get_coxpresdb_file_paths
   expect_equal(
     object = .get_coxpresdb_file_paths(test_data_file),
     expected = sort(file.path("spo_v14_subset", test_data_genes)),
     info = "File contents of a valid CoxpresDB.jp archive"
+  )
+
+  expected <- tibble::data_frame(
+    gene_id = test_data_genes,
+    file_path = file.path("spo_v14_subset", test_data_genes)
+  ) %>%
+    dplyr::arrange(gene_id)
+
+  expect_equal(
+    object = get_file_paths(
+      CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+    ),
+    expected = expected,
+    info = paste(
+      "File paths for the gene-partner datafames in a compressed",
+      "CoxpresDB archive"
+    )
+  )
+
+  expect_equal(
+    object = get_file_paths(
+      CoxpresDbImporter(test_data_uncompressed, overwrite_in_bunzip2 = TRUE)
+    ),
+    expected = expected,
+    info = paste(
+      "File paths for the gene-partner datafames in an",
+      "uncompressed CoxpresDB archive"
+    )
   )
 })
 
