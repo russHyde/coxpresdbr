@@ -116,21 +116,14 @@ CoxpresDbImporter <- function(
   )
 }
 
-# Validate a CoxpresDbImporter
+###############################################################################
+
+# TODO: Validate a CoxpresDbImporter
 # - archive and archive_uncompressed should be files
 # - archive_uncompressed should be a .tar
 # - file_paths should have colnames "gene_id" and "file_path"
 
 ###############################################################################
-
-# Accessors
-# - get_gene_ids - done
-# - get_file_paths - done
-# - get_raw_archive - done
-# - get_uncompressed_archive - done
-
-# Methods
-# - import_coex_partners(CoxpresDbImporter, gene_id)
 
 #' @importFrom   methods       .valueClassTest
 #'
@@ -159,6 +152,17 @@ setMethod(
   }
 )
 
+###############################################################################
+
+#' Imports the gene identifiers that are represented within a given
+#' CoxpresDB.jp archive
+#'
+#' @param        x             A \code{CoexpresDbImporter} corresponding to a
+#' CoxpresDB archive.
+#'
+#' @return       A vector of gene-ids; data for each such gene is present in
+#' the user-supplied archive
+
 setGeneric("get_gene_ids", valueClass = "character", function(x) {
   standardGeneric("get_gene_ids")
 })
@@ -166,6 +170,8 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x) {
   get_file_paths(x)[["gene_id"]]
 })
+
+###############################################################################
 
 setGeneric("get_raw_archive", valueClass = "character", function(x) {
   standardGeneric("get_raw_archive")
@@ -184,6 +190,60 @@ setMethod(
   signature("CoxpresDbImporter"),
   function(x) {
     x@archive_uncompressed
+  }
+)
+
+###############################################################################
+
+setGeneric(
+  "import_all_coex_partners", valueClass = "data.frame",
+  function(gene_id, importer) {
+    standardGeneric("import_all_coex_partners")
+  }
+)
+
+setMethod(
+  "import_all_coex_partners",
+  signature("character", "CoxpresDbImporter"),
+  function(gene_id, importer) {
+    if (length(gene_id) != 1) {
+      stop(
+        "`gene_id` should be a single gene-id in `import_all_coex_partners`"
+      )
+    }
+
+    if (!(gene_id %in% get_gene_ids(importer))) {
+      stop(
+        sprintf(
+          "Gene-ID %s is not present in the CoxpresDB archive %s",
+          gene_id, get_raw_archive(importer)
+        )
+      )
+    }
+
+    gene_file <- get_file_path_for_gene(gene_id, importer)
+
+    stopifnot(length(gene_file) == 1)
+
+    expected_colnames <- c(
+      "source_id", "target_id", "mutual_rank", "correlation"
+    )
+
+    coex_db <- data.table::fread(
+      paste(
+        "tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file
+      )
+    ) %>%
+      magrittr::set_colnames(value = expected_colnames[-1]) %>%
+      tibble::as_data_frame() %>%
+      dplyr::mutate_(
+        source_id = ~ gene_id,
+        target_id = ~ as.character(target_id)
+      ) %>%
+      magrittr::extract(expected_colnames) %>%
+      dplyr::filter_(~ target_id != gene_id)
+
+    coex_db
   }
 )
 
@@ -235,61 +295,9 @@ setMethod(
 import_coex_db <- function(
                            gene_id,
                            db_archive) {
+  # TODO: remove this function
   importer <- CoxpresDbImporter(db_archive, overwrite_in_bunzip2 = TRUE)
-
-  # gene_files <- .get_coxpresdb_file_paths(db_archive)
-  if (length(gene_id) != 1) {
-    stop("`gene_id` should be a single gene-id in `import_coex_db`")
-  }
-
-  if (!(gene_id %in% get_gene_ids(importer))) {
-    stop(
-      sprintf(
-        "Gene-ID %s is not present in the CoxpresDB archive %s",
-        gene_id, db_archive
-      )
-    )
-  }
-
-  expected_colnames <- c(
-    "source_id", "target_id", "mutual_rank", "correlation"
-  )
-
-  gene_file <- get_file_path_for_gene(gene_id, importer)
-
-  stopifnot(length(gene_file) == 1)
-
-  coex_db <- data.table::fread(
-    paste("tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file)
-  ) %>%
-    magrittr::set_colnames(expected_colnames[-1]) %>%
-    tibble::as_data_frame() %>%
-    dplyr::mutate_(
-      source_id = ~ gene_id,
-      target_id = ~ as.character(target_id)
-    ) %>%
-    magrittr::extract(expected_colnames) %>%
-    dplyr::filter_(~ target_id != gene_id)
-
-  coex_db
-}
-
-###############################################################################
-
-#' Imports the gene identifiers that are represented within a given
-#' CoxpresDB.jp archive
-#'
-#' @inheritParams   .is_coxpresdb_archive
-#'
-#' @return       A vector of gene-ids; data for each such gene is present in
-#' the user-supplied archive
-#'
-#' @importFrom   gtools        mixedsort
-#' @export
-#'
-import_coex_db_universe <- function(
-                                    db_archive) {
-  get_gene_ids(CoxpresDbImporter(db_archive, overwrite_in_bunzip2 = TRUE))
+  import_all_coex_partners(gene_id, importer)
 }
 
 ###############################################################################

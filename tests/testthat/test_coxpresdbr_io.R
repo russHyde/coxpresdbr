@@ -184,34 +184,40 @@ test_that("get file path for a specific gene", {
 
 ###############################################################################
 
-test_that("import_coex_db_universe: invalid input", {
-  expect_error(
-    object = import_coex_db_universe(db_archive = "NOT A FILE"),
-    info = paste(
-      "Attempt to load a gene-universe from a missing file as",
-      "coxpresdb archive"
+test_that(
+  "get the genes that are defined in a CoxpresDb archive: invalid input", {
+    expect_error(
+      object = get_gene_ids(
+        CoxpresDbImporter(db_archive = "NOT A FILE")
+      ),
+      info = paste(
+        "Attempt to load a gene-universe from a missing file as",
+        "coxpresdb archive"
+      )
     )
-  )
 
-  expect_error(
-    object = import_coex_db_universe(db_archive = "test_coxpresdbr_io.R"),
-    info = paste(
-      "Attempt to load a gene-universe from an existing file that",
-      "is not a .tar.bz2 coxpresdb archive"
+    expect_error(
+      object = get_gene_ids(
+        CoxpresDbImporter(db_archive = "test_coxpresdbr_io.R")
+      ),
+      info = paste(
+        "Attempt to load a gene-universe from an existing file that",
+        "is not a .tar.bz2 coxpresdb archive"
+      )
     )
-  )
-})
+  }
+)
+
+###############################################################################
 
 test_that(
   "get the genes that are defined in a CoxpresDB archive: valid input", {
     expect_silent(
-      object = import_coex_db_universe(db_archive = test_data_file)
-    )
-
-    expect_equal(
-      object = import_coex_db_universe(db_archive = test_data_file),
-      expected = test_data_genes,
-      info = "Gene-set parsing from a coxpresdb archive"
+      object = get_gene_ids(
+        CoxpresDbImporter(
+          db_archive = test_data_file, overwrite_in_bunzip2 = TRUE
+        )
+      )
     )
 
     expect_equal(
