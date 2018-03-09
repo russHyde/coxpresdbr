@@ -137,13 +137,13 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
   # z-scores returned should be reversed if `direction` is switched
   expect_equal(
     object = pval %>%
-      mutate(direction = -1 * direction) %>%
+      dplyr::mutate(direction = -1 * direction) %>%
       evaluate_coex_partners(coex_one_partner) %>%
       as.data.frame(),
 
     expected = pval %>%
       evaluate_coex_partners(coex_one_partner) %>%
-      mutate(z_score = -1 * z_score) %>%
+      dplyr::mutate(z_score = -1 * z_score) %>%
       as.data.frame(),
 
     info = paste(
