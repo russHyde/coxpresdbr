@@ -23,29 +23,27 @@
 
 ## `coxpresdbr_io.R`
 
-- rewrites the IO section to use create a CoxpresdbImporter object
-
-    - automatically extracts the gene-universe and filepaths from the coxpresdb
-      archive
-
-    - allows exploding a compressed archive into a temp directory
-
-    - allows import from an exploded archive
-
-    - rewrites all import functions to use the CoxpresdbImporter rather than a
-      `db_archive` parameter
-
-- `import_coex_db(gene_id, db_archive)`
+- `import_all_coex_partners(gene_id, importer)`
 
     - uses more than one gene in `gene_id` argument
 
-    - precomputes gene-partner filepaths prior to `coex_db` import call and
-      removes call to `.get_coexdb_file_paths` from within `import_coex_db`
+- `import_coex_db(gene_id, db_archive)`
+
+    - removes this function since it has been replaced by the method
+      `import_all_coex_partners(gene_id, importer)`
 
 ## `coxpresdbr_parse.R`
 
 - Warn the user if any of the source genes is absent from the coexpression
   database
+
+- `get_coex_partners` | `.filter_coex_partners`
+
+    - rewrites these functions to work with a CoxpresDbImporter object rather
+      than a db_archive
+
+    - replaces the call to `import_coex_db` with one to
+      `import_all_coex_partners`
 
 ## `coxpresdbr_stats.R`
 
@@ -120,6 +118,22 @@
 # TIMELINE
 
 ----
+
+# 2018-03-09
+
+## `coxpresdbr_io.R`
+
+- rewrites the IO section to create a CoxpresdbImporter object
+
+    - automatically extracts the gene-universe and filepaths from the coxpresdb
+      archive
+
+    - allows exploding a compressed archive into a temp directory
+
+    - allows import from an exploded archive
+
+    - rewrites all import functions to use the CoxpresdbImporter rather than a
+      `db_archive` parameter
 
 # 2018-03-06
 
