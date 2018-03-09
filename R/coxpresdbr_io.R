@@ -128,7 +128,7 @@ CoxpresDbImporter <- function(
 # - get_file_paths - done
 
 # Methods
-# - import_coex_db(CoxpresDbImporter, gene_id)
+# - import_coex_partners(CoxpresDbImporter, gene_id)
 
 #' @importFrom   methods       .valueClassTest
 #'
@@ -140,29 +140,13 @@ setMethod("get_file_paths", signature("CoxpresDbImporter"), function(x) {
   x@file_paths
 })
 
-setGeneric("get_gene_ids", valueClass = "character", function(x){
+setGeneric("get_gene_ids", valueClass = "character", function(x) {
   standardGeneric("get_gene_ids")
-  })
+})
 
-setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x){
+setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x) {
   get_file_paths(x)[["gene_id"]]
-  })
-
-###############################################################################
-
-#' Checks whether a provided file-path points to a valid CoxpresDB.jp archive
-#'
-#' @param        db_archive    A file path. Should be a single \code{*.tar.bz2}
-#' or \code{*.tar} file as downloaded from the coxpresdb.jp website.
-#'
-#' @importFrom   stringr       str_detect
-#'
-.is_coxpresdb_archive <- function(
-                                  db_archive) {
-  length(db_archive) == 1 &&
-    file.exists(db_archive) &&
-    stringr::str_detect(db_archive, "\\.tar(.bz2)*$")
-}
+})
 
 ###############################################################################
 
