@@ -126,6 +126,8 @@ CoxpresDbImporter <- function(
 # Accessors
 # - get_gene_ids - done
 # - get_file_paths - done
+# - get_raw_archive - done
+# - get_uncompressed_archive - done
 
 # Methods
 # - import_coex_partners(CoxpresDbImporter, gene_id)
@@ -147,6 +149,26 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x) {
   get_file_paths(x)[["gene_id"]]
 })
+
+setGeneric("get_raw_archive", valueClass = "character", function(x) {
+  standardGeneric("get_raw_archive")
+})
+
+setMethod("get_raw_archive", signature("CoxpresDbImporter"), function(x) {
+  x@archive
+})
+
+setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
+  standardGeneric("get_uncompressed_archive")
+})
+
+setMethod(
+  "get_uncompressed_archive",
+  signature("CoxpresDbImporter"),
+  function(x) {
+    x@archive_uncompressed
+  }
+)
 
 ###############################################################################
 

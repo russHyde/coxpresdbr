@@ -51,6 +51,59 @@ test_that("CoxpresDbImporter: Constructor", {
 
 ###############################################################################
 
+test_that("CoxpresDbImporter: accessors for filenames", {
+  expect_equal(
+    object = get_raw_archive(
+      CoxpresDbImporter(
+        db_archive = test_data_file,
+        overwrite_in_bunzip2 = TRUE
+      )
+    ),
+    expected = test_data_file,
+    info = paste(
+      "raw_archive for a compressed archive should be the compressed",
+      "archive's filename"
+    )
+  )
+
+  expect_equal(
+    object = get_raw_archive(
+      CoxpresDbImporter(db_archive = test_data_uncompressed)
+    ),
+    expected = test_data_uncompressed,
+    info = paste(
+      "raw_archive for a uncompressed archive should be the uncompressed",
+      "archive's filename"
+    )
+  )
+
+  expect_equal(
+    object = get_uncompressed_archive(
+      CoxpresDbImporter(
+        db_archive = test_data_file,
+        overwrite_in_bunzip2 = TRUE
+      )
+    ),
+    expected = file.path(tempdir(), test_data_uncompressed),
+    info = paste(
+      "uncompressed_archive for a compressed archive should be in the tempdir"
+    )
+  )
+
+  expect_equal(
+    object = get_uncompressed_archive(
+      CoxpresDbImporter(db_archive = test_data_uncompressed)
+    ),
+    expected = test_data_uncompressed,
+    info = paste(
+      "uncompressed_archive for a uncompressed archive should be the",
+      "uncompressed archive's filename"
+    )
+  )
+})
+
+###############################################################################
+
 test_that(".is_coxpresdb_archive", {
   expect_true(
     object = .is_coxpresdb_archive(test_data_file),
