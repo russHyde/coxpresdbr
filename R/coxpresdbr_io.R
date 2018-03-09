@@ -142,6 +142,23 @@ setMethod("get_file_paths", signature("CoxpresDbImporter"), function(x) {
   x@file_paths
 })
 
+setGeneric(
+  "get_file_path_for_gene", valueClass = "character",
+  function(gene_id, importer) {
+    standardGeneric("get_file_path_for_gene")
+  }
+)
+
+setMethod(
+  "get_file_path_for_gene",
+  signature(gene_id = "character", importer = "CoxpresDbImporter"),
+  function(gene_id, importer) {
+    paths <- get_file_paths(importer)
+    rows <- which(paths$gene_id %in% gene_id)
+    paths[["file_path"]][rows]
+  }
+)
+
 setGeneric("get_gene_ids", valueClass = "character", function(x) {
   standardGeneric("get_gene_ids")
 })
@@ -218,12 +235,14 @@ setMethod(
 import_coex_db <- function(
                            gene_id,
                            db_archive) {
-  gene_files <- .get_coxpresdb_file_paths(db_archive)
+  importer <- CoxpresDbImporter(db_archive, overwrite_in_bunzip2 = TRUE)
+
+  # gene_files <- .get_coxpresdb_file_paths(db_archive)
   if (length(gene_id) != 1) {
     stop("`gene_id` should be a single gene-id in `import_coex_db`")
   }
 
-  if (!(gene_id %in% basename(gene_files))) {
+  if (!(gene_id %in% get_gene_ids(importer))) {
     stop(
       sprintf(
         "Gene-ID %s is not present in the CoxpresDB archive %s",
@@ -236,11 +255,12 @@ import_coex_db <- function(
     "source_id", "target_id", "mutual_rank", "correlation"
   )
 
-  gene_file <- gene_files[basename(gene_files) == gene_id]
+  gene_file <- get_file_path_for_gene(gene_id, importer)
+
   stopifnot(length(gene_file) == 1)
 
   coex_db <- data.table::fread(
-    paste("tar --to-stdout -xjf", db_archive, gene_file)
+    paste("tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file)
   ) %>%
     magrittr::set_colnames(expected_colnames[-1]) %>%
     tibble::as_data_frame() %>%

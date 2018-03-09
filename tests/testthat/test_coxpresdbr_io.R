@@ -161,13 +161,24 @@ test_that("get the file-paths for all genes in the archive", {
 
   expect_equal(
     object = get_file_paths(
-      CoxpresDbImporter(test_data_uncompressed, overwrite_in_bunzip2 = TRUE)
+      CoxpresDbImporter(test_data_uncompressed)
     ),
     expected = expected,
     info = paste(
       "File paths for the gene-partner datafames in an",
       "uncompressed CoxpresDB archive"
     )
+  )
+})
+
+test_that("get file path for a specific gene", {
+  expect_equal(
+    object = get_file_path_for_gene(
+      "2538791",
+      CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+    ),
+    expected = file.path("spo_v14_subset", "2538791"),
+    info = "file path for a specific gene in a CoxpresDb archive"
   )
 })
 
