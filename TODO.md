@@ -8,13 +8,39 @@
 
 ----
 
+# README.md
+
+- explain how to pull out the partners of a single gene
+
+- writes up an example workflow for use of coxpresdbr
+
+- adds a disclaimer re time-to-lookup and suggestion re reducing archive size
+  before running an analysis
+
+----
+
 # R/
 
 ## `coxpresdbr_io.R`
 
+- rewrites the IO section to use create a CoxpresdbImporter object
+
+    - automatically extracts the gene-universe and filepaths from the coxpresdb
+      archive
+
+    - allows exploding a compressed archive into a temp directory
+
+    - allows import from an exploded archive
+
+    - rewrites all import functions to use the CoxpresdbImporter rather than a
+      `db_archive` parameter
+
 - `import_coex_db(gene_id, db_archive)`
 
     - uses more than one gene in `gene_id` argument
+
+    - precomputes gene-partner filepaths prior to `coex_db` import call and
+      removes call to `.get_coexdb_file_paths` from within `import_coex_db`
 
 ## `coxpresdbr_parse.R`
 
