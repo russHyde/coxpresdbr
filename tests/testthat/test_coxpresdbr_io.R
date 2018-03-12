@@ -233,19 +233,27 @@ test_that(
 
 ###############################################################################
 
-test_that("import_coex_db: invalid input", {
-  expect_error(
-    object = import_coex_db(gene_id = "2538791", db_archive = "NOT A FILE"),
-    info = "Attempt to load a missing file as coxpresdb archive"
+test_that("import_all_coex_partners: invalid input", {
+  importer <- CoxpresDbImporter(
+    db_archive = test_data_file, overwrite_in_bunzip2 = TRUE
   )
 
   expect_error(
-    object = import_coex_db("NOT_A_GENE", db_archive = test_data_file),
+    object = import_all_coex_partners(
+      gene_id = "2538791", importer = "NOT AN IMPORTER"
+    ),
+    info = "Attempt to load gene-partners from a string, not an importer"
+  )
+
+  expect_error(
+    object = import_all_coex_partners("NOT_A_GENE", importer = importer),
     info = "Attempt to import a missing gene from a coxpresdb archive"
   )
 
   expect_error(
-    object = import_coex_db(test_data_genes[1:2], db_archive = test_data_file),
+    object = import_all_coex_partners(
+      test_data_genes[1:2], importer = importer
+    ),
     info = paste(
       "User should only request the coexpression database for a",
       "single gene"
@@ -253,15 +261,19 @@ test_that("import_coex_db: invalid input", {
   )
 })
 
-test_that("import_coex_db: valid input", {
+test_that("import_all_coex_partners: valid input", {
   message(getwd())
 
+  importer <- CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+
   expect_silent(
-    object = import_coex_db(gene_id = "2538791", db_archive = test_data_file)
+    object = import_all_coex_partners(
+      gene_id = "2538791", importer = importer
+    )
   )
 
-  coex_db_2538791 <- import_coex_db(
-    gene_id = "2538791", db_archive = test_data_file
+  coex_db_2538791 <- import_all_coex_partners(
+    gene_id = "2538791", importer = importer
   )
 
   expect_is(
