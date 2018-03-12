@@ -126,8 +126,13 @@ get_coex_partners <- function(
                               n_partners = 100,
                               mr_threshold = NULL,
                               cor_threshold = NULL) {
+  importer <- CoxpresDbImporter(
+    db_archive = db_archive,
+    overwrite_in_bunzip2 = TRUE
+  )
+
   .import_fn <- function(x) {
-    import_coex_db(x, db_archive = db_archive)
+    import_all_coex_partners(gene_id = x, importer = importer)
   }
 
   .filter_fn <- function(x) {
