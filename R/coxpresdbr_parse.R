@@ -20,7 +20,7 @@
 #' Function to filter the contents of a coxpresdb.jp gene-coexpression dataset
 #'
 #' @param        coex_df       A dataframe containing coexpression data. As
-#' returned by \code{import_coex_db}.
+#' returned by \code{import_all_coex_partners}.
 #'
 #' @param        gene_universe   The genes in the dataframe should be filtered
 #' to ensure they are all present in this set. Note that both the entries in

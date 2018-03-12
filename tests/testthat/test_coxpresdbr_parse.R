@@ -71,17 +71,18 @@ test_that("get_coex_partners", {
     2538791, 2539499, 2540594, 2541560, 2541907,
     2542210, 2542294, 2543492, 3361219, 3361512
   ))
+  importer <- CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
 
   expect_equal(
     object = get_coex_partners(
       gene_ids = "2538791", db_archive = test_data_file
     ),
-    expected = import_coex_db(
-      gene_id = "2538791", db_archive = test_data_file
+    expected = import_all_coex_partners(
+      gene_id = "2538791", importer = importer
     ),
     info = paste(
       "for a single gene and no filters, get_coex_partners should match",
-      "import_coex_db"
+      "import_all_coex_partners"
     )
   )
 
@@ -89,8 +90,8 @@ test_that("get_coex_partners", {
     object = get_coex_partners(
       gene_ids = "2538791", db_archive = test_data_file, n_partners = 3
     ),
-    expected = import_coex_db(
-      gene_id = "2538791", db_archive = test_data_file
+    expected = import_all_coex_partners(
+      gene_id = "2538791", importer = importer
     )[1:3, ],
     info = paste(
       "a single gene with a `n_partners` filter"
@@ -102,8 +103,8 @@ test_that("get_coex_partners", {
       gene_ids = c("2538791", "2539499"), db_archive = test_data_file
     ),
     expected = bind_rows(
-      import_coex_db("2538791", test_data_file),
-      import_coex_db("2539499", test_data_file)
+      import_all_coex_partners("2538791", importer = importer),
+      import_all_coex_partners("2539499", importer = importer)
     ),
     info = paste(
       "a pair of source genes, without any filters"
