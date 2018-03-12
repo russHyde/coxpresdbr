@@ -75,7 +75,7 @@ test_that("get_coex_partners", {
 
   expect_equal(
     object = get_coex_partners(
-      gene_ids = "2538791", db_archive = test_data_file
+      gene_ids = "2538791", importer = importer
     ),
     expected = import_all_coex_partners(
       gene_id = "2538791", importer = importer
@@ -88,7 +88,7 @@ test_that("get_coex_partners", {
 
   expect_equal(
     object = get_coex_partners(
-      gene_ids = "2538791", db_archive = test_data_file, n_partners = 3
+      gene_ids = "2538791", importer = importer, n_partners = 3
     ),
     expected = import_all_coex_partners(
       gene_id = "2538791", importer = importer
@@ -100,7 +100,7 @@ test_that("get_coex_partners", {
 
   expect_equal(
     object = get_coex_partners(
-      gene_ids = c("2538791", "2539499"), db_archive = test_data_file
+      gene_ids = c("2538791", "2539499"), importer = importer
     ),
     expected = bind_rows(
       import_all_coex_partners("2538791", importer = importer),

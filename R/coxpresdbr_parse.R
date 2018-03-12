@@ -109,9 +109,11 @@
 #' @param        gene_ids      A vector of gene identifiers. All of these
 #' should be annotated within the coxpresdb dataset.
 #'
+#' @param        importer      A CoxpresDbImporter. This allows access to a
+#' coxpresDb archive.
+#'
 #' @include      coxpresdbr_io.R
 #'
-#' @inheritParams   .is_coxpresdb_archive
 #' @inheritParams   .filter_coex_partners
 #'
 #' @importFrom   dplyr         bind_rows
@@ -121,16 +123,11 @@
 #'
 get_coex_partners <- function(
                               gene_ids,
-                              db_archive,
+                              importer,
                               gene_universe = NULL,
                               n_partners = 100,
                               mr_threshold = NULL,
                               cor_threshold = NULL) {
-  importer <- CoxpresDbImporter(
-    db_archive = db_archive,
-    overwrite_in_bunzip2 = TRUE
-  )
-
   .import_fn <- function(x) {
     import_all_coex_partners(gene_id = x, importer = importer)
   }
