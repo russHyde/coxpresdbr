@@ -27,23 +27,10 @@
 
     - uses more than one gene in `gene_id` argument
 
-- `import_coex_db(gene_id, db_archive)`
-
-    - removes this function since it has been replaced by the method
-      `import_all_coex_partners(gene_id, importer)`
-
 ## `coxpresdbr_parse.R`
 
 - Warn the user if any of the source genes is absent from the coexpression
   database
-
-- `get_coex_partners` | `.filter_coex_partners`
-
-    - rewrites these functions to work with a CoxpresDbImporter object rather
-      than a db_archive
-
-    - replaces the call to `import_coex_db` with one to
-      `import_all_coex_partners`
 
 ## `coxpresdbr_stats.R`
 
@@ -118,6 +105,25 @@
 # TIMELINE
 
 ----
+
+# 2018-03-12
+
+## `coxpresdbr_io.R`
+
+- `import_coex_db(gene_id, db_archive)`
+
+    - removes this function since it has been replaced by the method
+      `import_all_coex_partners(gene_id, importer)`
+
+## `coxpresdbr_parse.R`
+
+- `get_coex_partners` | `.filter_coex_partners`
+
+    - rewrites these functions to work with a CoxpresDbImporter object rather
+      than a db_archive
+
+    - replaces the call to `import_coex_db` with one to
+      `import_all_coex_partners`
 
 # 2018-03-09
 
