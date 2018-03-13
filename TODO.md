@@ -21,6 +21,30 @@
 
 # R/
 
+## `coxpresdbr_classes.R`
+
+- `CoxpresDbPartners`
+
+    - adds this class
+
+- `CoxpresDbImporter`
+
+   - moves this class from `coxpresdbr_io.R` into `coxpresdbr_classes.R`
+
+## `coxpresdbr_workflows.R`
+
+- `run_coex_partner_workflow`
+
+    - runs `get_coex_partners` then `evaluate_coex_partners` for each gene in
+      `gene_ids`
+
+    - returns partners for each gene in `gene_ids` (all data returned by
+      `get_coex_partners`) and returns z-statistics over the set of partners
+      for each gene
+
+    - results should be a named class: CoxpresDbPartners(@partners,
+      @proximity_stats)
+
 ## `coxpresdbr_io.R`
 
 - `import_all_coex_partners(gene_id, importer)`
@@ -32,13 +56,40 @@
 - Warn the user if any of the source genes is absent from the coexpression
   database
 
+- `get_coex_partners`
+
+    - rewrite to return a CoxpresDbPartners object
+
 ## `coxpresdbr_stats.R`
+
+- `cluster_by_coex_partnership(coex_partners, source_nodes_only = TRUE,
+  drop_disparities = TRUE)`
+
+    - runs on results from `run_coex_partner_workflow`
+
+    - links pairs (a, b) of genes from the `gene_ids` if the `a` is in the
+      `coex_partners` of `b` (or vice versa) returns clusters by connectivity
+
+    - appends to a CoxpresDbPartners object:
+
+        - @cluster_graph: tidygraph::tbl_graph for connectivity between genes
+
+        - @partners: data-frame of `source_id` to `target_id` where both
+          `source_id` and `target_id` are in `gene_ids` (subset of data
+          returned by get_coex_partners)
 
 - `evaluate_coex_partners(x, coex_partners, ...)`
 
-    - [note x is a dataframe containing p-values/gene-ids/directions and must
-      come first so that I can add a generic function for DGELRT and MArrayLM
-      objects]
+    - rewrites to take a CoxpresDbPartners object and return an appended
+      CoxpresDbPartners object.
+
+    - rewrites to take `coex_partners` as first argument, so that I can pipe
+      from get_coex_partners() %>% evaluate_coex_partners() %>%
+      cluster_by_coex_partnership()
+
+    - [note x is a dataframe containing p-values / gene-ids / directions and
+      must come first so that I can add a generic function for DGELRT and
+      MArrayLM objects]
 
     - sets `evaluate_coex_partners` to a generic function over DGELRT /
       MArrayLM etc
