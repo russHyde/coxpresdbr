@@ -36,6 +36,8 @@
 #' and a summary of the number of partner-genes, the average z-score across
 #' all partner genes and the p-value equivalent to this z-score.
 #'
+#' @include      coxpresdbr_data_validity.R
+#'
 #' @importFrom   dplyr         group_by_   mutate_   n   summarise_   ungroup
 #' @importFrom   magrittr      extract
 #' @importFrom   metap         sumz   two2one
@@ -48,8 +50,7 @@ evaluate_coex_partners <- function(
                                    x,
                                    coex_partners,
                                    ...) {
-  stopifnot(methods::is(x, "data.frame"))
-  stopifnot(all(c("gene_id", "p_value", "direction") %in% colnames(x)))
+  stopifnot(.is_gene_statistics_df(x))
 
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
