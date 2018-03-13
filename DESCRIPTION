@@ -27,8 +27,10 @@ Imports: styler,
     purrr,
     methods,
     metap,
-    R.utils
+    R.utils,
+    igraph
 Collate:
+    'coxpresdbr_classes.R'
     'coxpresdbr_dev.R'
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'
