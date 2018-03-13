@@ -46,6 +46,8 @@ methods::setClass(
       )
     )
   }
+
+  # TODO: data.frame tests
 }
 
 #' Template for CoxpresDbPartners class
@@ -53,8 +55,9 @@ methods::setClass(
 methods::setClass(
   "CoxpresDbPartners",
   slots = list(
+    gene_stats = "data.frame",
     partners = "data.frame",
-    partner_stats = "data.frame",
+    partner_summaries = "data.frame",
     cluster_graph = "ANY"
   ),
   validity = .validity_coxpresdb_partners
