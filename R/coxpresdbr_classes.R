@@ -59,3 +59,5 @@ methods::setClass(
   ),
   validity = .validity_coxpresdb_partners
 )
+
+###############################################################################
