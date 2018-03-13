@@ -33,7 +33,9 @@
 
 ## `coxpresdbr_workflows.R`
 
-- `run_coex_partner_workflow`
+- `run_coex_partner_workflow(
+        gene_ids, gene_statistics, importer,
+        gene_universe = NULL, n_partners = 100, ...)`
 
     - runs `get_coex_partners` then `evaluate_coex_partners` for each gene in
       `gene_ids`
@@ -42,8 +44,8 @@
       `get_coex_partners`) and returns z-statistics over the set of partners
       for each gene
 
-    - results should be a named class: CoxpresDbPartners(@partners,
-      @proximity_stats)
+    - results should be a named class: CoxpresDbPartners(`@partners`,
+      `@partner_summaries`, `@gene_stats`, `@cluster_graph`)
 
 ## `coxpresdbr_io.R`
 
@@ -62,8 +64,9 @@
 
 ## `coxpresdbr_stats.R`
 
-- `cluster_by_coex_partnership(coex_partners, source_nodes_only = TRUE,
-  drop_disparities = TRUE)`
+- `cluster_by_coex_partnership(
+       coex_partners, cluster_source_nodes_only = TRUE,
+       drop_disparities = TRUE)`
 
     - runs on results from `run_coex_partner_workflow`
 
