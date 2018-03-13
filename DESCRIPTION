@@ -29,9 +29,11 @@ Imports: styler,
     metap,
     R.utils,
     igraph
-Collate:
+Collate: 
     'coxpresdbr_classes.R'
+    'coxpresdbr_data_validity.R'
     'coxpresdbr_dev.R'
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'
     'coxpresdbr_stats.R'
+    'coxpresdbr_workflow.R'
