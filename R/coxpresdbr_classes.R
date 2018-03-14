@@ -50,17 +50,29 @@ methods::setClass(
   # TODO: data.frame tests
 }
 
+###############################################################################
+
 #' Template for CoxpresDbPartners class
 #'
 methods::setClass(
   "CoxpresDbPartners",
   slots = list(
-    gene_stats = "data.frame",
+    gene_statistics = "data.frame",
     partners = "data.frame",
     partner_summaries = "data.frame",
     cluster_graph = "ANY"
   ),
   validity = .validity_coxpresdb_partners
 )
+
+###############################################################################
+
+setGeneric("get_gene_universe", valueClass = "character", function(x) {
+  standardGeneric("get_gene_universe")
+})
+
+setMethod("get_gene_universe", signature("CoxpresDbPartners"), function(x) {
+  x@gene_statistics$gene_id
+})
 
 ###############################################################################
