@@ -189,6 +189,23 @@ test_that("run_coex_partner_workflow: valid input", {
 
   # `partners` entry should be the same as calling get_coex_partners() with the
   # same input arguments
+  expect_equal(
+    object = run_coex_partner_workflow(
+      gene_ids = test_data_genes,
+      gene_statistics = test_gene_statistics,
+      importer = test_importer,
+      gene_universe = test_data_genes
+    )@partners,
+    expected = get_coex_partners(
+      gene_ids = test_data_genes,
+      importer = test_importer,
+      gene_universe = test_data_genes
+    ),
+    info = paste(
+      "The `partners` field stored by `run_coex_partner_workflow` should",
+      "match the results obtained from directly calling get_coex_partners"
+    )
+  )
 
   # `partner_summaries` should be the same as calling evaluate_coex_partners()
   # with the same input

@@ -82,6 +82,9 @@ run_coex_partner_workflow <- function(
     "CoxpresDbPartners",
     gene_statistics = dplyr::filter_(
       gene_statistics, ~ gene_id %in% gene_universe
+    ),
+    partners = get_coex_partners(
+      gene_ids, importer, gene_universe, n_partners, ...
     )
   )
 }
