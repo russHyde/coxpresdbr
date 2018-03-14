@@ -23,29 +23,14 @@
 
 ## `coxpresdbr_classes.R`
 
-- `CoxpresDbPartners`
-
-    - adds this class
-
-- `CoxpresDbImporter`
-
-   - moves this class from `coxpresdbr_io.R` into `coxpresdbr_classes.R`
-
 ## `coxpresdbr_workflows.R`
 
 - `run_coex_partner_workflow(
         gene_ids, gene_statistics, importer,
         gene_universe = NULL, n_partners = 100, ...)`
 
-    - runs `get_coex_partners` then `evaluate_coex_partners` for each gene in
-      `gene_ids`
-
-    - returns partners for each gene in `gene_ids` (all data returned by
-      `get_coex_partners`) and returns z-statistics over the set of partners
-      for each gene
-
-    - results should be a named class: CoxpresDbPartners(`@partners`,
-      `@partner_summaries`, `@gene_stats`, `@cluster_graph`)
+    - runs `cluster_by_coex_partnership` over a CoxpresDbPartners object and
+      appends the resulting graph etc
 
 ## `coxpresdbr_io.R`
 
@@ -90,12 +75,11 @@
       from get_coex_partners() %>% evaluate_coex_partners() %>%
       cluster_by_coex_partnership()
 
-    - [note x is a dataframe containing p-values / gene-ids / directions and
-      must come first so that I can add a generic function for DGELRT and
-      MArrayLM objects]
-
     - sets `evaluate_coex_partners` to a generic function over DGELRT /
       MArrayLM etc
+
+    - removes '...' argument since it isn't going to be used in the immediate
+      future (2018-03-14)
 
     - adds an alternative-analysis-method switch, eg,
       `evaluate_coex_partners(x, coex_partners, method = c("sumz",
@@ -105,40 +89,42 @@
 
 - `evaluate_coex_partners(x: MArrayLM, coex_partners)`
 
-- What would user want to compare against?
+- notes
 
-    - Assume the user has performed a separate experiment for which they either
-      have p-values for each gene, or correlation values for each gene against
-      a comparator `gene_id`
+    - What would user want to compare against?
 
-    - Enrichment of gene-partners of a given gene in `significant` list
+        - Assume the user has performed a separate experiment for which they
+          either have p-values for each gene, or correlation values for each
+          gene against a comparator `gene_id`
 
-    - meta-analysis of p-values / z-scores for the partners of `gene_id`
+        - Enrichment of gene-partners of a given gene in `significant` list
 
-    - average correlation of the partners of `gene_id` with `gene_id`
+        - meta-analysis of p-values / z-scores for the partners of `gene_id`
 
-    - want some idea of statistical significance, by inverting the averaged
-      z-scores, or by randomly sampling across the gene-universe
+        - average correlation of the partners of `gene_id` with `gene_id`
 
-- What data-types would the user have access to?
+        - want some idea of statistical significance, by inverting the averaged
+          z-scores, or by randomly sampling across the gene-universe
 
-    - edgeR::DGELRT/DGEExact objects
+    - What data-types would the user have access to?
 
-        - would need to indicate gene_id column of `genes` component
+        - edgeR::DGELRT/DGEExact objects
 
-    - limma::MArrayLM/TestResults objects
+            - would need to indicate gene_id column of `genes` component
 
-        - would need to indicate mappings between rows and gene_id
+        - limma::MArrayLM/TestResults objects
 
-        - if multiple copies of a gene are present, take the average of it's
-          z-scores before running analysis
+            - would need to indicate mappings between rows and gene_id
 
-    - data-types that can be passed to metap::sumz (p is a vector of one-tailed
-      p-values)
+            - if multiple copies of a gene are present, take the average of
+              it's z-scores before running analysis
 
-    - data-frame: `gene_id`, `p_value` (two-tailed), `direction`
+        - data-types that can be passed to metap::sumz (p is a vector of
+          one-tailed p-values)
 
-        - the above datasets should be converted into this form
+        - data-frame: `gene_id`, `p_value` (two-tailed), `direction`
+
+            - the above datasets should be converted into this form
 
 ----
 
@@ -159,6 +145,36 @@
 # TIMELINE
 
 ----
+
+# 2018-03-13/14
+
+## `coxpresdbr_classes.R`
+
+- `CoxpresDbPartners`
+
+    - adds this class
+
+- `CoxpresDbImporter`
+
+   - moves this class from `coxpresdbr_io.R` into `coxpresdbr_classes.R`
+
+## `coxpresdbr_workflows.R`
+
+- `run_coex_partner_workflow(
+        gene_ids, gene_statistics, importer,
+        gene_universe = NULL, n_partners = 100, ...)`
+
+    - adds this function
+
+    - runs `get_coex_partners` then `evaluate_coex_partners` for each gene in
+      `gene_ids`
+
+    - returns partners for each gene in `gene_ids` (all data returned by
+      `get_coex_partners`) and returns z-statistics over the set of partners
+      for each gene
+
+    - results should be a named class: CoxpresDbPartners(`@partners`,
+      `@partner_summaries`, `@gene_statistics`, `@cluster_graph`)
 
 # 2018-03-12
 
