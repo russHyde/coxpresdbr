@@ -125,6 +125,18 @@ test_that("run_coex_partner_workflow: invalid input", {
 test_that("run_coex_partner_workflow: valid input", {
 
   # output should be a CoxpresDbPartners object
+  expect_is(
+    object = run_coex_partner_workflow(
+      gene_ids = test_data_genes,
+      gene_statistics = test_gene_statistics,
+      importer = test_importer
+    ),
+    class = "CoxpresDbPartners",
+    info = paste(
+      "the output from `get_gene_universe` should be a `CoxpresDbPartners`",
+      "object"
+    )
+  )
 
   # when gene_universe is NULL, it should equal the intersection between
   # the gene-ids present in CoxpresDB and in `gene_statistics`
@@ -155,8 +167,25 @@ test_that("run_coex_partner_workflow: valid input", {
     )
   )
 
-  # `gene_stats` entry should be the restriction of `gene_statistics` input to
-  # `gene_universe`
+  # `gene_statistics` field should be the restriction of `gene_statistics`
+  # argument to the `gene_universe`
+  expect_equal(
+    object = run_coex_partner_workflow(
+      gene_ids = test_data_genes[1:2],
+      gene_statistics = test_gene_statistics,
+      importer = test_importer,
+      gene_universe = test_data_genes[1:4]
+    )@gene_statistics,
+    expected = dplyr::filter_(
+      test_gene_statistics,
+      ~ gene_id %in% test_data_genes[1:4]
+    ),
+    info = paste(
+      "The `gene statistics` field stored by `run_coex_partner_workflow`",
+      "should be the restriction of the input `gene_statistics` arg to the",
+      "selected `gene_universe`"
+    )
+  )
 
   # `partners` entry should be the same as calling get_coex_partners() with the
   # same input arguments
