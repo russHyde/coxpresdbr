@@ -29,9 +29,6 @@
 #' by get_coex_partners. Must contain columns \code{source_id} and
 #' \code{target_id}.
 #'
-#' @param       ...            Further arguments for passing to
-#' \code{metap::sumz}.
-#'
 #' @return      A data-frame containing a row for each source gene in the input
 #' and a summary of the number of partner-genes, the average z-score across
 #' all partner genes and the p-value equivalent to this z-score.
@@ -48,8 +45,7 @@
 #'
 evaluate_coex_partners <- function(
                                    x,
-                                   coex_partners,
-                                   ...) {
+                                   coex_partners) {
   stopifnot(.is_gene_statistics_df(x))
 
   stopifnot(methods::is(coex_partners, "data.frame"))
@@ -69,12 +65,12 @@ evaluate_coex_partners <- function(
       n_partners = ~ n(),
       z_score_forward = ~ ifelse(
         n_partners > 1,
-        metap::sumz(p_value_onetail_forward, ...)$z,
+        metap::sumz(p_value_onetail_forward)$z,
         qnorm(p_value_onetail_forward, lower.tail = FALSE)
       ),
       z_score_reversed = ~ ifelse(
         n_partners > 1,
-        metap::sumz(p_value_onetail_reversed, ...)$z,
+        metap::sumz(p_value_onetail_reversed)$z,
         qnorm(p_value_onetail_reversed, lower.tail = FALSE)
       ),
       z_score = ~ (z_score_forward - z_score_reversed) / 2,
