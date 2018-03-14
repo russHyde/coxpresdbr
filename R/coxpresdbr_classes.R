@@ -47,7 +47,18 @@ methods::setClass(
     )
   }
 
-  # TODO: data.frame tests
+  if (
+    is.data.frame(object@gene_statistics) &&
+      ncol(object@gene_statistics) > 0 &&
+      !.is_gene_statistics_df(object@gene_statistics)
+  ) {
+    return(
+      paste(
+        "`gene_statistics` should be NULL or have `gene_id`, `p_value` and",
+        "`direction` columns"
+      )
+    )
+  }
 }
 
 ###############################################################################
@@ -67,12 +78,52 @@ methods::setClass(
 
 ###############################################################################
 
+#' Generic function for returning the set of all genes considered in the
+#' analysis of gene-partners
+#'
+#' @param        x             A CoxpresDbPartners object, as returned by
+#' \code{run_coex_partner_workflow}
+#'
 setGeneric("get_gene_universe", valueClass = "character", function(x) {
   standardGeneric("get_gene_universe")
 })
 
+#' Obtains the set of all genes considered in the analysis of gene-partners
+#'
+#' @param        x             A CoxpresDbPartners object, as returned by
+#' \code{run_coex_partner_workflow}
+#'
+#' @export
+#'
 setMethod("get_gene_universe", signature("CoxpresDbPartners"), function(x) {
   x@gene_statistics$gene_id
+})
+
+###############################################################################
+
+#' Generic function for obtaining the set of source genes for which partner
+#' genes were assessed
+#'
+#' @param        x             A CoxpresDbPartners object, as returned by
+#' \code{run_coex_partner_workflow}
+
+setGeneric("get_source_genes", valueClass = "character", function(x) {
+  standardGeneric("get_source_genes")
+})
+
+#' Obtains the set of source genes for which partner genes were assessed
+#'
+#' @param        x             A CoxpresDbPartners object, as returned by
+#' \code{run_coex_partner_workflow}
+#
+#' @export
+#'
+setMethod("get_source_genes", signature("CoxpresDbPartners"), function(x) {
+  if (nrow(x@partners) == 0) {
+    character(0)
+  } else {
+    unique(x@partners$source_id)
+  }
 })
 
 ###############################################################################

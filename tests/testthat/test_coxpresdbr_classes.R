@@ -41,6 +41,19 @@ test_that("CoxpresDbPartners: class definition", {
       "`CoxpresDbPartners`"
     )
   )
+
+  expect_error(
+    object = new(
+      "CoxpresDbPartners",
+      gene_statistics = tibble::data_frame(
+        GENE_ID = "NOT gene_id", P_VALUE = -1, DIRECTION = Inf
+      )
+    ),
+    info = paste(
+      "If not NULL/empty, `gene_statistics` should have `gene_id`, `p_value`",
+      "and `direction` columns"
+    )
+  )
 })
 
 test_that("CoxpresDbPartners: field matches", {
@@ -55,7 +68,9 @@ test_that("CoxpresDbPartners: field matches", {
       "should match it's output"
     )
   )
+})
 
+test_that("CoxpresDbPartners: method checks", {
   expect_equal(
     object = get_gene_universe(
       new(
@@ -68,6 +83,32 @@ test_that("CoxpresDbPartners: field matches", {
       "A CoxpresDbPartners made from just a gene_statistics",
       "should return a gene_universe that matches the gene set in the",
       "gene_statistics used to construct it"
+    )
+  )
+
+  test_partners_df <- tibble::data_frame(
+    source_id = rep(letters[1:3], each = 2),
+    target_id = rep(LETTERS[6:4], times = 2)
+  )
+
+  expect_equal(
+    object = get_source_genes(
+      new("CoxpresDbPartners", partners = test_partners_df)
+    ),
+    expected = letters[1:3],
+    info = paste(
+      "A CoxpresDbPartners made from a partners data-frame should return",
+      "the entries in the source_id column when get_source_genes() is called"
+    )
+  )
+  expect_equal(
+    object = get_source_genes(
+      new("CoxpresDbPartners")
+    ),
+    expected = character(0),
+    info = paste(
+      "A `CoxpresDbPartners` with no `partners` field should return NULL",
+      "when get_source_genes() is called"
     )
   )
 })

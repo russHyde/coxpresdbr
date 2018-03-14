@@ -2,9 +2,10 @@
 
 # TODO list for package `coxpresdbr`
 
-<!-- "Use 4-spaces to indent sublists" -->
 <!-- "Use '-' as the bullet-point icon" -->
-<!-- "Use 4-dashes for horizontal break" -->
+<!-- "Use 4 spaces to indent sublists" -->
+<!-- "Use 4 dashes for horizontal break" -->
+<!-- "Use 4 tildes to wrap code blocks" -->
 
 ----
 
@@ -153,6 +154,7 @@
 - `CoxpresDbPartners`
 
     - adds this class
+    - `get_source_genes` and `get_gene_universe` methods
 
 - `CoxpresDbImporter`
 
