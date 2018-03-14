@@ -193,14 +193,14 @@ test_that("run_coex_partner_workflow: valid input", {
     gene_ids = test_data_genes,
     importer = test_importer,
     gene_universe = test_data_genes
-    )
+  )
 
   workflow_results <- run_coex_partner_workflow(
     gene_ids = test_data_genes,
     gene_statistics = test_gene_statistics,
     importer = test_importer,
     gene_universe = test_data_genes
-    )
+  )
   expect_equal(
     object = workflow_results@partners,
     expected = test_partners,
@@ -219,8 +219,8 @@ test_that("run_coex_partner_workflow: valid input", {
       "The `partner_summaries` field stored by `run_coex_partner_workflow`",
       "should match the results obtained from directly calling",
       "`evaluate_coex_partners`"
-      )
     )
+  )
 
   # `cluster_graph`
 })
