@@ -36,4 +36,4 @@ Collate:
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'
     'coxpresdbr_stats.R'
-    'coxpresdbr_workflow.R'
+    'coxpresdbr_workflows.R'

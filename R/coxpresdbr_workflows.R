@@ -32,6 +32,9 @@
 #'
 #' @importFrom   dplyr         filter_
 #'
+#' @include      coxpresdbr_parse.R
+#' @include      coxpresdbr_stats.R
+#'
 #' @export
 #'
 run_coex_partner_workflow <- function(
