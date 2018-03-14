@@ -3,6 +3,7 @@
 export(CoxpresDbImporter)
 export(evaluate_coex_partners)
 export(get_coex_partners)
+export(run_coex_partner_workflow)
 exportMethods(get_gene_ids)
 importFrom(R.utils,bunzip2)
 importFrom(R.utils,isBzipped)
