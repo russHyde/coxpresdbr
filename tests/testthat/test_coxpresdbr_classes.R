@@ -54,6 +54,28 @@ test_that("CoxpresDbPartners: class definition", {
       "and `direction` columns"
     )
   )
+
+  expect_error(
+    object = new(
+      "CoxpresDbPartners",
+      partners = tibble::data_frame(
+        SOURCE_ID = "NOT A VALID `source_id` COLUMN",
+        target_id = "valid_col_name"
+      )
+    ),
+    info = "If not NULL/empty, partners should have a `source_id` column"
+  )
+
+  expect_error(
+    object = new(
+      "CoxpresDbPartners",
+      partners = tibble::data_frame(
+        source_id = "valid_col_name",
+        TaRget_Id = "NOT A VALID target_id COLUMN"
+      )
+    ),
+    info = "If not NULL/empty, partners should have a `target_id` column"
+  )
 })
 
 test_that("CoxpresDbPartners: field matches", {

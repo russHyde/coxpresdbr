@@ -51,8 +51,12 @@
 ## `coxpresdbr_stats.R`
 
 - `cluster_by_coex_partnership(
-       coex_partners, cluster_source_nodes_only = TRUE,
+       coex_partners,
        drop_disparities = TRUE)`
+
+    - adds this function
+
+    - adds `cluster_source_nodes_only = BOOLEAN` to formals
 
     - runs on results from `run_coex_partner_workflow`
 
@@ -142,14 +146,23 @@
 
 ----
 
-# 2018-03-13/14
+# 2018-03-13/15
 
 ## `coxpresdbr_classes.R`
 
 - `CoxpresDbPartners`
 
     - adds this class
+
     - `get_source_genes` and `get_gene_universe` methods
+
+    - adds validity-tests:
+        - non-empty `partners` data-frame has both `source_id` and `target_id`
+          columns
+
+        - non-empty `gene_statistics` passes `.is_gene_statistics_df`
+
+        - non-NULL `cluster_graph` should inherit from `igraph`
 
 - `CoxpresDbImporter`
 

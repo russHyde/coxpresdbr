@@ -48,14 +48,25 @@ methods::setClass(
   }
 
   if (
-    is.data.frame(object@gene_statistics) &&
-      ncol(object@gene_statistics) > 0 &&
+    any(dim(object@gene_statistics) > 0) &&
       !.is_gene_statistics_df(object@gene_statistics)
   ) {
     return(
       paste(
-        "`gene_statistics` should be NULL or have `gene_id`, `p_value` and",
+        "`gene_statistics` should be empty or have `gene_id`, `p_value` and",
         "`direction` columns"
+      )
+    )
+  }
+
+  if (
+    any(dim(object@partners) > 0) &&
+      !all(c("source_id", "target_id") %in% colnames(object@partners))
+  ) {
+    return(
+      paste(
+        "`partners` should be empty or (minimally) have `source_id` and",
+        "`target_id` as column names"
       )
     )
   }
