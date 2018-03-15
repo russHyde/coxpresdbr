@@ -123,7 +123,7 @@ evaluate_coex_partners <- function(
   stopifnot(all(dim(coex_partners@partners) > 0))
 
   relabelled <- coex_partners@partners %>%
-    dplyr::transmute_(from = ~ source_id, to = ~ target_id)
+    dplyr::rename_(from = ~ source_id, to = ~ target_id)
 
   if (cluster_source_nodes_only) {
     dplyr::filter_(relabelled, ~ to %in% from)
@@ -134,28 +134,52 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
-.add_direction_parities_to_coex_edges <- function(coex_partners) {
+.add_direction_parities_to_coex_edges <- function(
+                                                  coex_partners) {
   # both gene-statistics and partners should be defined in coex_partners
   # this modifies the contents of coex_partners@partners, adding the column
   # `direction_parity`
-}
+  stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
+  stopifnot(all(dim(coex_partners@gene_statistics) > 0))
+  stopifnot(all(dim(coex_partners@partners) > 0))
 
+  gene_to_gene <- coex_partners@partners[c("source_id", "target_id")]
+
+  gene_sub_statistics <- extract(
+    coex_partners@gene_statistics, c("gene_id", "direction")
+  )
+
+  direction_matches <- gene_to_gene %>%
+    merge(y = gene_sub_statistics, by.x = "source_id", by.y = "gene_id") %>%
+    merge(y = gene_sub_statistics, by.x = "target_id", by.y = "gene_id") %>%
+    dplyr::mutate_(direction_parity = ~ direction.x == direction.y) %>%
+    dplyr::select_(.dots = c("source_id", "target_id", "direction_parity"))
+
+  coex_partners@partners <- dplyr::inner_join(
+    x = coex_partners@partners,
+    y = direction_matches,
+    by = c("source_id", "target_id")
+  )
+
+  coex_partners
+}
 
 ###############################################################################
 
 cluster_by_coex_partnership <- function(
                                         coex_partners,
                                         drop_disparities = TRUE) {
+  stop("NOT YET IMPLEMENTED!: `cluster_by_coex_partnership`")
+
   stopifnot(is.logical(drop_disparities))
 
   node_attributes <- .format_unsorted_nodes_for_tidygraph(
     coex_partners
   )
 
-  # TODO: change to .add_direction_parities... %>% .format_coex_edges...
-  edges <- .format_coex_edges_for_tidygraph(
-    coex_partners, cluster_source_nodes_only = TRUE
-  )
+  edges <- coex_partners %>%
+    .add_direction_parities_to_coex_edges() %>%
+    .format_coex_edges_for_tidygraph(cluster_source_nodes_only = TRUE)
 }
 
 ###############################################################################

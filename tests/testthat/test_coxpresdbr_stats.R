@@ -278,6 +278,76 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
 
 ###############################################################################
 
+test_that(".add_direction_parities_to_coex_edges: invalid input", {
+  # coex_partners should have a non-empty partners and gene_statistics
+  #
+  expect_error(
+    object = .add_direction_parities_to_coex_edges(
+      coex_partners = "NOT A CoxpresDbPartners object"
+    ),
+    info = "`coex_partners` should be a `CoxpresDbPartners` object"
+  )
+
+  expect_error(
+    object = .add_direction_parities_to_coex_edges(
+      coex_partners = new(
+        "CoxpresDbPartners",
+        partners = tibble::data_frame(
+          source_id = "a",
+          target_id = "b"
+        )
+      )
+    ),
+    info = "`coex_partners` have a non-empty `gene_statistics` entry"
+  )
+  expect_error(
+    object = .add_direction_parities_to_coex_edges(
+      coex_partners = new(
+        "CoxpresDbPartners",
+        gene_statistics = tibble::data_frame(
+          gene_id = "abc",
+          p_value = 0.2,
+          direction = 1
+        )
+      )
+    ),
+    info = "`coex_partners` have a non-empty `partners` entry"
+  )
+})
+
+###############################################################################
+
+test_that(".add_direction_parities_to_coex_edges: valid input", {
+  test_coex_partners <- new(
+    "CoxpresDbPartners",
+    gene_statistics = tibble::data_frame(
+      gene_id = letters[1:3],
+      p_value = c(0.2, 0.5, 0.9),
+      direction = c(1, -1, 1)
+    ),
+    partners = tibble::data_frame(
+      source_id = c("a", "b"),
+      target_id = c("c", "a"),
+      some_other_col = c(1, 2)
+    )
+  )
+
+  expect_equal(
+    object = .add_direction_parities_to_coex_edges(
+      test_coex_partners
+    )@partners,
+    expected = tibble::data_frame(
+      source_id = c("a", "b"),
+      target_id = c("c", "a"),
+      some_other_col = c(1, 2),
+      direction_parity = c(TRUE, FALSE)
+    ),
+    info = "add_direction_parities_to_coex_edges"
+  )
+})
+
+###############################################################################
+
 test_that("cluster_by_coex_partnership: invalid input", {
   # - Input should be a CoxpresDbPartners object
   # - The CoxpresDbPartners object should have a valid `gene_statistics`
