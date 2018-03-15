@@ -158,6 +158,126 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
 
 ###############################################################################
 
+test_that(".format_coex_edges_for_tidygraph: invalid input", {
+  # - Input should be a CoxpresDbPartners object
+  # - Input should have a non-empty `partners` data-frame
+  expect_error(
+    object = .format_coex_edges_for_tidygraph(
+      coex_partners = "NOT A CoxpresDbPartners object",
+      cluster_source_nodes_only = TRUE
+    ),
+    info = "`coex_partners` should be a `CoxpresDbPartners` object"
+  )
+
+  expect_error(
+    object = .format_coex_edges_for_tidygraph(
+      coex_partners = new("CoxpresDbPartners"),
+      cluster_source_nodes_only = TRUE
+    ),
+    info = "`coex_partners` should have a valid/non-empty `partners` entry"
+  )
+})
+
+###############################################################################
+
+test_that(".format_coex_edges_for_tidygraph: valid input", {
+  # output should have columns `from`, `to`
+  test_partners <- tibble::data_frame(
+    source_id = c("a", "c"),
+    target_id = c("c", "b")
+  )
+
+  expect_equal(
+    object = .format_coex_edges_for_tidygraph(
+      coex_partners = new("CoxpresDbPartners", partners = test_partners),
+      cluster_source_nodes_only = TRUE
+    ),
+    expected = tibble::data_frame(
+      from = "a",
+      to = "c"
+    ),
+    info = paste(
+      "if cluster_source_nodes_only only keep rows with a source_id in the",
+      "target_id"
+    )
+  )
+
+  expect_equal(
+    object = .format_coex_edges_for_tidygraph(
+      coex_partners = new("CoxpresDbPartners", partners = test_partners),
+      cluster_source_nodes_only = FALSE
+    ),
+    expected = tibble::data_frame(
+      from = c("a", "c"),
+      to = c("c", "b")
+    ),
+    info = paste(
+      "if cluster_source_nodes_only is FALSE, keep all rows"
+    )
+  )
+})
+
+###############################################################################
+
+test_that(".format_unsorted_nodes_for_tidygraph: invalid input", {
+  # input should be a CoxpresDbPartners with a non-empty `gene_statistics`
+  # output should have columns `name`, `z`, `p_value`, `direction`
+
+  expect_error(
+    object = .format_unsorted_nodes_for_tidygraph(
+      coex_partners = "NOT A CoxpresDbPartners object"
+    ),
+    info = "`coex_partners` should be a `CoxpresDbPartners` object"
+  )
+
+  expect_error(
+    object = .format_unsorted_nodes_for_tidygraph(
+      coex_partners = new("CoxpresDbPartners")
+    ),
+    info = "`coex_partners` have a non-empty `gene_statistics` entry"
+  )
+
+  expect_error(
+    object = .format_unsorted_nodes_for_tidygraph(
+      coex_partners = new(
+        "CoxpresDbPartners",
+        gene_statistics = tibble::data_frame(
+          gene_id = "some_id", p_value = 0.5, direction = 1, NOT_Z = 3
+        )
+      )
+    ),
+    info = paste(
+      "`coex_partners` should have a valid `gene_statistics` entry with an",
+      "additional `z` column"
+    )
+  )
+})
+
+###############################################################################
+
+test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
+  test_statistics <- tibble::data_frame(
+    gene_id = "a", p_value = 0.5, direction = 1, z = 3
+  )
+
+  expect_equal(
+    object = .format_unsorted_nodes_for_tidygraph(
+      coex_partners = new(
+        "CoxpresDbPartners", gene_statistics = test_statistics
+      )
+    ),
+    expected = tibble::data_frame(
+      name = "a", z = 3, p_value = 0.5, direction = 1
+    ),
+    info = paste(
+      ".format_unsorted_nodes... replaces gene_id with name and reorders",
+      "columns"
+    )
+  )
+})
+
+###############################################################################
+
 test_that("cluster_by_coex_partnership: invalid input", {
   # - Input should be a CoxpresDbPartners object
   # - The CoxpresDbPartners object should have a valid `gene_statistics`

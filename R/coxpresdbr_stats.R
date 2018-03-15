@@ -97,13 +97,65 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
+#' @importFrom   dplyr         rename_   select_
+#' @importFrom   magrittr      %>%
+#'
+.format_unsorted_nodes_for_tidygraph <- function(
+                                                 coex_partners) {
+  stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
+  stopifnot(all(dim(coex_partners@gene_statistics) > 0))
+  stopifnot("z" %in% colnames(coex_partners@gene_statistics))
+
+  coex_partners@gene_statistics %>%
+    dplyr::rename_(.dots = list(name = "gene_id")) %>%
+    dplyr::select_(.dots = c("name", "z", "p_value", "direction"))
+}
+
+###############################################################################
+
+#' @importFrom   dplyr         filter_   transmute_
+#' @importFrom   magrittr      %>%
+#'
+.format_coex_edges_for_tidygraph <- function(
+                                             coex_partners,
+                                             cluster_source_nodes_only = TRUE) {
+  stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
+  stopifnot(all(dim(coex_partners@partners) > 0))
+
+  relabelled <- coex_partners@partners %>%
+    dplyr::transmute_(from = ~ source_id, to = ~ target_id)
+
+  if (cluster_source_nodes_only) {
+    dplyr::filter_(relabelled, ~ to %in% from)
+  } else {
+    relabelled
+  }
+}
+
+###############################################################################
+
+.add_direction_parities_to_coex_edges <- function(coex_partners) {
+  # both gene-statistics and partners should be defined in coex_partners
+  # this modifies the contents of coex_partners@partners, adding the column
+  # `direction_parity`
+}
+
+
+###############################################################################
+
 cluster_by_coex_partnership <- function(
                                         coex_partners,
                                         drop_disparities = TRUE) {
-  stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
-  stopifnot(all(dim(coex_partners@gene_statistics) > 0))
-  stopifnot(all(dim(coex_partners@partners) > 0))
   stopifnot(is.logical(drop_disparities))
+
+  node_attributes <- .format_unsorted_nodes_for_tidygraph(
+    coex_partners
+  )
+
+  # TODO: change to .add_direction_parities... %>% .format_coex_edges...
+  edges <- .format_coex_edges_for_tidygraph(
+    coex_partners, cluster_source_nodes_only = TRUE
+  )
 }
 
 ###############################################################################

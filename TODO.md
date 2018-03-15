@@ -50,6 +50,10 @@
 
 ## `coxpresdbr_stats.R`
 
+- `.format_coex_edges_for_tidygraph`
+
+    - split filtering source/target-ness into a separate function
+
 - `cluster_by_coex_partnership(
        coex_partners,
        drop_disparities = TRUE)`
