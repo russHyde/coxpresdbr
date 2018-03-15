@@ -136,11 +136,6 @@
 - tests both applying filters and combining several source-genes datasets
   together
 
-## `test_coxpresdbr_stats.R`
-
-- tests that the same (two-sided) p-value returns on swapping the `direction`
-  of input data-changes
-
 ----
 
 # TIMELINE

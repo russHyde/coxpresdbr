@@ -108,15 +108,15 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
     )[, 1:2],
     expected = as.data.frame(expect)[, 1:2],
     info = paste(
-      "source gene has a single partner => p-value should match that of the",
-      "target gene (non-numeric cols)"
+      "source gene has a single partner => gene-id/#partners for the result",
+      "should match that of the target gene (non-numeric cols)"
     )
   )
   expect_equal(
     object = evaluate_coex_partners(pval, coex_one_partner)$z_score,
     expected = expect$z_score,
     info = paste(
-      "source gene has a single partner => p-value should match that of the",
+      "source gene has a single partner => z-score should match that of the",
       "target gene (z-score col)"
     ),
     tolerance = 1e-4,
@@ -153,7 +153,7 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
   )
 
   # TODO: input p-values are identical for each target gene: returned p-value
-  # should match the input p-vaue
+  # should match the input p-vaue / sqrt(num_targets)
 })
 
 ###############################################################################
