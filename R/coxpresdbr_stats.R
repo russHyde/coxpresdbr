@@ -96,3 +96,14 @@ evaluate_coex_partners <- function(
 }
 
 ###############################################################################
+
+cluster_by_coex_partnership <- function(
+                                        coex_partners,
+                                        drop_disparities = TRUE) {
+  stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
+  stopifnot(all(dim(coex_partners@gene_statistics) > 0))
+  stopifnot(all(dim(coex_partners@partners) > 0))
+  stopifnot(is.logical(drop_disparities))
+}
+
+###############################################################################

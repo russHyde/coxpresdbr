@@ -61,9 +61,9 @@ test_that("evaluate_coex_partners-data.frame: invalid input", {
   )
 })
 
-test_that("evaluate_coex_partners-data.frame: valid input", {
-  # test using both tibble and data.frame inputs
+###############################################################################
 
+test_that("evaluate_coex_partners-data.frame: valid input", {
   # source gene has no partners: no-row data-frame returns
   pval <- data.frame(
     gene_id = letters[1:3],
@@ -154,6 +154,72 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
 
   # TODO: input p-values are identical for each target gene: returned p-value
   # should match the input p-vaue / sqrt(num_targets)
+})
+
+###############################################################################
+
+test_that("cluster_by_coex_partnership: invalid input", {
+  # - Input should be a CoxpresDbPartners object
+  # - The CoxpresDbPartners object should have a valid `gene_statistics`
+  # - The CoxpresDbPartners object should have a valid `partners`
+  # - `drop_disparities` should be Boolean
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = "NOT A CoxpresDbPartners object",
+      drop_disparities = TRUE
+    ),
+    info = "`coex_partners` should be a `CoxpresDbPartners` object"
+  )
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = new(
+        "CoxpresDbPartners",
+        partners = tibble::data_frame(source_id = "a", target_id = "b")
+      ),
+      drop_disparities = TRUE
+    ),
+    info = "`coex_partners` should have a valid `gene_statistics` entry"
+  )
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = new(
+        "CoxpresDbPartners",
+        gene_statistics = tibble::data_frame(
+          gene_id = "abc", p_value = "0.2", direction = "1"
+        )
+      ),
+      drop_disparities = TRUE
+    ),
+    info = "`coex_partners` should have a valid/non-empty `partners` entry"
+  )
+
+  test_coex_partners <- new(
+    "CoxpresDbPartners",
+    gene_statistics = tibble::data_frame(
+      gene_id = letters[1:2], p_value = c(0.1, 0.2), direction = c(-1, 1)
+    ),
+    partners = tibble::data_frame(
+      source_id = "a",
+      target_id = "b"
+    )
+  )
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = test_coex_partners,
+      drop_disparities = "NOT A BOOLEAN"
+    ),
+    info = "`drop_disparities` should be Boolean"
+  )
+})
+
+###############################################################################
+
+test_that("cluster_by_coex_partnership: valid input", {
+
 })
 
 ###############################################################################
