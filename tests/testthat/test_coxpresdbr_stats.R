@@ -409,6 +409,61 @@ test_that("cluster_by_coex_partnership: invalid input", {
 ###############################################################################
 
 test_that("cluster_by_coex_partnership: valid input", {
+  # compare cluster graph
+  # TODO: add a disparity
+  test_statistics <- tibble::data_frame(
+    gene_id = c("a", "b"),
+    p_value = c(0.5, 0.2),
+    direction = c(1, 1),
+    z = c(2, 4)
+  )
+
+  test_partners <- tibble::data_frame(
+    source_id = c("a", "b"),
+    target_id = c("b", "a")
+  )
+
+  expected_graph <- tidygraph::as_tbl_graph(
+    list(
+      nodes = tibble::data_frame(
+        name = c("a", "b"),
+        z = c(2, 4),
+        p_value = c(0.5, 0.2),
+        direction = c(1, 1)
+      ),
+      edges = tibble::data_frame(
+        from = c(1, 2),
+        to = c(2, 1),
+        direction_parity = c(TRUE, TRUE)
+      )
+    )
+  )
+  result_graph <- cluster_by_coex_partnership(
+      new(
+        "CoxpresDbPartners",
+        gene_statistics = test_statistics,
+        partners = test_partners
+      )
+    )@cluster_graph
+
+  # NOTE: problems with comparing two seemingly identical graphs
+  # expect_equal(result_graph, expected_graph) fails with uninformative message
+  # : re differences in component 9: component 1 ...
+  # : the stated components can't be accessed however, so there is no way to
+  #   debug the test
+
+  # Therefore we test the edges and nodes separately
+  expect_equal(
+    object = igraph::as_data_frame(result_graph),
+    expected = igraph::as_data_frame(expected_graph),
+    info = "Extraction of the partnership graph for a pair of nodes"
+  )
+
+  expect_equal(
+    object = igraph::vertex.attributes(result_graph),
+    expected = igraph::vertex.attributes(expected_graph),
+    info = "Extraction of the partnership graph for a pair of nodes"
+  )
 
 })
 

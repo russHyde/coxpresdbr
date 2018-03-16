@@ -166,11 +166,13 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
+#' @importFrom   dplyr         filter_   left_join
+#' @importFrom   igraph        get.vertex.attribute   vertex_attr
+#' @importFrom   tibble        as_data_frame
+#' @importFrom   tidygraph     as_tbl_graph
 cluster_by_coex_partnership <- function(
                                         coex_partners,
                                         drop_disparities = TRUE) {
-  stop("NOT YET IMPLEMENTED!: `cluster_by_coex_partnership`")
-
   stopifnot(is.logical(drop_disparities))
 
   node_attributes <- .format_unsorted_nodes_for_tidygraph(
@@ -179,7 +181,22 @@ cluster_by_coex_partnership <- function(
 
   edges <- coex_partners %>%
     .add_direction_parities_to_coex_edges() %>%
-    .format_coex_edges_for_tidygraph(cluster_source_nodes_only = TRUE)
+    .format_coex_edges_for_tidygraph(cluster_source_nodes_only = TRUE) %>%
+    dplyr::filter_(~ to %in% from) %>%
+    dplyr::filter_(~ direction_parity)
+
+  graph <- tidygraph::as_tbl_graph(
+    edges
+  )
+
+  nodes <- igraph::get.vertex.attribute(graph) %>%
+    tibble::as_data_frame() %>%
+    dplyr::left_join(node_attributes, by = "name")
+
+  igraph::vertex_attr(graph) <- as.list(nodes)
+
+  coex_partners@cluster_graph <- graph
+  coex_partners
 }
 
 ###############################################################################

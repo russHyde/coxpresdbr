@@ -28,8 +28,9 @@ Imports: styler,
     methods,
     metap,
     R.utils,
-    igraph
-Collate: 
+    igraph,
+    tidygraph
+Collate:
     'coxpresdbr_classes.R'
     'coxpresdbr_data_validity.R'
     'coxpresdbr_dev.R'
