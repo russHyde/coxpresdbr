@@ -439,12 +439,12 @@ test_that("cluster_by_coex_partnership: valid input", {
     )
   )
   result_graph <- cluster_by_coex_partnership(
-      new(
-        "CoxpresDbPartners",
-        gene_statistics = test_statistics,
-        partners = test_partners
-      )
-    )@cluster_graph
+    new(
+      "CoxpresDbPartners",
+      gene_statistics = test_statistics,
+      partners = test_partners
+    )
+  )@cluster_graph
 
   # NOTE: problems with comparing two seemingly identical graphs
   # expect_equal(result_graph, expected_graph) fails with uninformative message
@@ -464,7 +464,6 @@ test_that("cluster_by_coex_partnership: valid input", {
     expected = igraph::vertex.attributes(expected_graph),
     info = "Extraction of the partnership graph for a pair of nodes"
   )
-
 })
 
 ###############################################################################

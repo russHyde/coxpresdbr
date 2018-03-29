@@ -20,7 +20,7 @@
 #' @name         CoxpresDbImporter-class
 #' @rdname       CoxpresDbImporter-class
 #'
-#' @export       CoxpresDbImporter
+#' @exportClass       CoxpresDbImporter
 #'
 methods::setClass(
   "CoxpresDbImporter",
@@ -33,6 +33,9 @@ methods::setClass(
 
 ###############################################################################
 
+#' Validity checker for CoxpresDbPartners objects
+#'
+#' @param        object        A putative CoxpresDbPartners object
 #'
 .validity_coxpresdb_partners <- function(object) {
   # S3 tests:
@@ -74,7 +77,21 @@ methods::setClass(
 
 ###############################################################################
 
-#' Template for CoxpresDbPartners class
+#' @title        Template for CoxpresDbPartners class
+#'
+#' @description   This class stores the gene-partners of a set of genes, and
+#' some summary statistics over those partners that are obtained from analysis
+#' of a user-provided \code{gene_statistics} object.
+#'
+#' @param        gene_statistics   ABC
+#' @param        partners      DEF
+#' @param        partner_summaries   GHI
+#' @param        cluster_graph   JKL
+#'
+#' @name         CoxpresDbPartners-class
+#' @rdname       CoxpresDbPartners-class
+#'
+#' @exportClass   CoxpresDbPartners
 #'
 methods::setClass(
   "CoxpresDbPartners",

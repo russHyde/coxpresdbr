@@ -1,3 +1,5 @@
+###############################################################################
+
 #' Checks that a User-provided gene_statistics data-frame conforms to the
 #' required standard
 #'
@@ -13,3 +15,5 @@
     all(c("gene_id", "p_value", "direction") %in% colnames(x)) &&
     all(!duplicated(x$gene_id))
 }
+
+###############################################################################
