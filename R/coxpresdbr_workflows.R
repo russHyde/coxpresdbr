@@ -43,21 +43,31 @@ run_coex_partner_workflow <- function(
                                       importer,
                                       gene_universe = NULL,
                                       n_partners = 100, ...) {
-  if (missing(gene_ids) || is.null(gene_ids)) {
-    stop("`gene_ids` should be defined in `run_coex_partner_workflow`")
+  if (
+    missing(gene_ids) ||
+      missing(gene_statistics) ||
+      missing(importer)
+  ) {
+    stop(
+      paste(
+        "`gene_ids`, `gene_statistics` and `importer` should all be defined",
+        "in `run_coex_partner_workflow`"
+      )
+    )
   }
 
-  if (missing(gene_statistics) ||
-    is.null(gene_statistics) ||
-    !.is_gene_statistics_df(gene_statistics)
-  ) {
+  if (is.null(gene_ids) || is.null(gene_statistics)) {
+    stop("`gene_ids` and `gene_statistics` should be non-NULL")
+  }
+
+  if (!.is_gene_statistics_df(gene_statistics)) {
     stop(paste(
-      "`gene_statistics` should be defined and pass `.is_gene_statistics_df`",
+      "`gene_statistics` should pass `.is_gene_statistics_df`",
       "in `run_coex_partner_workflow`"
     ))
   }
 
-  if (missing(importer) || !(is(importer, "CoxpresDbImporter"))) {
+  if (!(is(importer, "CoxpresDbImporter"))) {
     stop("`importer` should be defined in `run_coex_partner_workflow`")
   }
 
