@@ -36,9 +36,10 @@
 #' @include      coxpresdbr_data_validity.R
 #'
 #' @importFrom   dplyr         group_by_   mutate_   n   summarise_   ungroup
-#' @importFrom   magrittr      extract
+#' @importFrom   magrittr      extract   %>%
 #' @importFrom   metap         sumz   two2one
 #' @importFrom   methods       is
+#' @importFrom   stats         qnorm
 #' @importFrom   tibble        data_frame
 #'
 #' @export
@@ -51,27 +52,32 @@ evaluate_coex_partners <- function(
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
 
-  res <- x %>%
+  .add_p_values <- function(.df) {
     dplyr::mutate_(
+      .df,
       invert = ~ ifelse(direction < 0, TRUE, FALSE),
       p_value_onetail_forward = ~ metap::two2one(p_value, invert = invert),
       p_value_onetail_reversed = ~ metap::two2one(p_value, invert = !invert)
-    ) %>%
-    merge(
-      coex_partners, by.x = "gene_id", by.y = "target_id"
-    ) %>%
-    dplyr::group_by_(~ source_id) %>%
+    )
+  }
+
+  .get_z_or_sumz <- function(n_partners, p_vals) {
+    ifelse(
+      n_partners > 1,
+      metap::sumz(p_vals)$z,
+      stats::qnorm(p_vals, lower.tail = FALSE)
+    )
+  }
+
+  .summarise_neighbours <- function(.df) {
     dplyr::summarise_(
+      .df,
       n_partners = ~ n(),
-      z_score_forward = ~ ifelse(
-        n_partners > 1,
-        metap::sumz(p_value_onetail_forward)$z,
-        qnorm(p_value_onetail_forward, lower.tail = FALSE)
+      z_score_forward = ~ .get_z_or_sumz(
+        n_partners, p_value_onetail_forward
       ),
-      z_score_reversed = ~ ifelse(
-        n_partners > 1,
-        metap::sumz(p_value_onetail_reversed)$z,
-        qnorm(p_value_onetail_reversed, lower.tail = FALSE)
+      z_score_reversed = ~ .get_z_or_sumz(
+        n_partners, p_value_onetail_reversed
       ),
       z_score = ~ (z_score_forward - z_score_reversed) / 2,
       p_value_onesided = ~ pnorm(z_score, lower.tail = FALSE),
@@ -80,14 +86,28 @@ evaluate_coex_partners <- function(
         2 * p_value_onesided,
         2 * (1 - p_value_onesided)
       )
-    ) %>%
-    dplyr::ungroup() %>%
+    )
+  }
+
+  .format_reported_columns <- function(.df) {
     dplyr::mutate_(
+      .df,
       gene_id = ~ source_id,
       n_partners = ~ as.integer(n_partners),
       z_score = ~ as.numeric(z_score),
       p_value = ~ as.numeric(p_value)
+    )
+  }
+
+  res <- x %>%
+    .add_p_values() %>%
+    merge(
+      coex_partners, by.x = "gene_id", by.y = "target_id"
     ) %>%
+    dplyr::group_by_(~ source_id) %>%
+    .summarise_neighbours() %>%
+    dplyr::ungroup() %>%
+    .format_reported_columns() %>%
     magrittr::extract(
       c("gene_id", "n_partners", "z_score", "p_value")
     )

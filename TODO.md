@@ -54,49 +54,39 @@
 
     - split filtering source/target-ness into a separate function
 
-- `cluster_by_coex_partnership(
-       coex_partners,
-       drop_disparities = TRUE)`
+- `cluster_by_coex_partnership`
 
-    - adds this function
+    - add `drop_disparities = FALSE` behaviour (ie, disregard direction parity
+      for each edge)
 
-    - adds `cluster_source_nodes_only = BOOLEAN` to formals
+    - add `cluster_source_nodes_only = BOOLEAN` to formals
 
-    - runs on results from `run_coex_partner_workflow`
-
-    - links pairs (a, b) of genes from the `gene_ids` if the `a` is in the
-      `coex_partners` of `b` (or vice versa) returns clusters by connectivity
-
-    - appends to a CoxpresDbPartners object:
-
-        - @cluster_graph: tidygraph::tbl_graph for connectivity between genes
+    - append to a CoxpresDbPartners object:
 
         - @partners: data-frame of `source_id` to `target_id` where both
           `source_id` and `target_id` are in `gene_ids` (subset of data
           returned by get_coex_partners)
 
-- `evaluate_coex_partners(x, coex_partners, ...)`
+- `evaluate_coex_partners(x, coex_partners)`
 
-    - rewrites to take a CoxpresDbPartners object and return an appended
+    - rewrite to take a CoxpresDbPartners object and return an appended
       CoxpresDbPartners object.
 
-    - rewrites to take `coex_partners` as first argument, so that I can pipe
+    - rewrite to take `coex_partners` as first argument, so that I can pipe
       from get_coex_partners() %>% evaluate_coex_partners() %>%
       cluster_by_coex_partnership()
 
-    - sets `evaluate_coex_partners` to a generic function over DGELRT /
+    - set `evaluate_coex_partners` to a generic function over DGELRT /
       MArrayLM etc
 
-    - removes '...' argument since it isn't going to be used in the immediate
-      future (2018-03-14)
-
-    - adds an alternative-analysis-method switch, eg,
-      `evaluate_coex_partners(x, coex_partners, method = c("sumz",
-      "enrichment"), ...)`
+    - add an alternative-analysis-method switch, eg, `evaluate_coex_partners(x,
+      coex_partners, method = c("sumz", "enrichment"))`
 
 - `evaluate_coex_partners(x: DGELRT/DGEExact, coex_partners)`
 
 - `evaluate_coex_partners(x: MArrayLM, coex_partners)`
+
+----
 
 - notes
 
@@ -144,11 +134,26 @@
 - tests both applying filters and combining several source-genes datasets
   together
 
+## `test_coxpresdbr_stats.R`
+
+- `cluster_by_coex_partnership`
+
+    - tests for `drop_disparities = FALSE`
+
 ----
 
 # TIMELINE
 
 ----
+
+# 2018-05-10
+
+## `coxpresdbr_stats.R`
+
+- `evaluate_coex_partners(x, coex_partners)`
+
+    - split code for adding p-values to the dataset from code for summarising
+      over the p-values for all partners of a given source node
 
 # 2018-03-13/15
 
