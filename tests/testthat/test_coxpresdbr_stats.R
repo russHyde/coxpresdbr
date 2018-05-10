@@ -386,10 +386,15 @@ test_that("cluster_by_coex_partnership: invalid input", {
     info = "`coex_partners` should have a valid/non-empty `partners` entry"
   )
 
+  # This is a valid CoxpresDbPartners object. But there should be no edges in
+  # cluster graph for the dataset (when drop_disparities = TRUE), since the
+  # direction of change for the two nodes differs. cluster_by_coex_partnership
+  # should be able to deal with a graph with no edges
   test_coex_partners <- new(
     "CoxpresDbPartners",
     gene_statistics = tibble::data_frame(
-      gene_id = letters[1:2], p_value = c(0.1, 0.2), direction = c(-1, 1)
+      gene_id = letters[1:2], p_value = c(0.1, 0.2), direction = c(-1, 1),
+      z = c(-0.5, 1)
     ),
     partners = tibble::data_frame(
       source_id = "a",
@@ -404,18 +409,64 @@ test_that("cluster_by_coex_partnership: invalid input", {
     ),
     info = "`drop_disparities` should be Boolean"
   )
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = test_coex_partners,
+      drop_disparities = logical(0)
+    ),
+    info = "`drop_disparities` should be a Boolean of length 1"
+  )
+
+  expect_error(
+    object = cluster_by_coex_partnership(
+      coex_partners = test_coex_partners,
+      drop_disparities = c(TRUE, FALSE)
+    ),
+    info = "`drop_disparities` should be a Boolean of length 1"
+  )
 })
 
 ###############################################################################
 
+# NOTE: problems with comparing two seemingly identical graphs
+# expect_equal(result_graph, expected_graph) fails with uninformative message
+# : re differences in component 9: component 1 ...
+# : the stated components can't be accessed however, so there is no way to
+#   debug the test
+
+expect_equal_graph <- function(object, expected, info) {
+  expect_equal(
+    object = igraph::vertex.attributes(object),
+    expected = igraph::vertex.attributes(expected),
+    info = paste(info, ": vertex-equality")
+  )
+
+  expect_equal(
+    object = igraph::as_data_frame(object),
+    expected = igraph::as_data_frame(expected),
+    info = paste(info, ": edge-equality")
+  )
+}
+
+###############################################################################
+
 test_that("cluster_by_coex_partnership: valid input", {
+  # TODO: test to use drop_disparities = FALSE
+
   # compare cluster graph
-  # TODO: add a disparity
-  test_statistics <- tibble::data_frame(
+  test_statistics_no_disparity <- tibble::data_frame(
     gene_id = c("a", "b"),
     p_value = c(0.5, 0.2),
     direction = c(1, 1),
     z = c(2, 4)
+  )
+
+  test_statistics_with_disparity <- tibble::data_frame(
+    gene_id = c("a", "b"),
+    p_value = c(0.5, 0.2),
+    direction = c(-1, 1),
+    z = c(-2, 4)
   )
 
   test_partners <- tibble::data_frame(
@@ -423,46 +474,83 @@ test_that("cluster_by_coex_partnership: valid input", {
     target_id = c("b", "a")
   )
 
-  expected_graph <- tidygraph::as_tbl_graph(
+  empty_graph <- tidygraph::as_tbl_graph(
     list(
-      nodes = tibble::data_frame(
-        name = c("a", "b"),
-        z = c(2, 4),
-        p_value = c(0.5, 0.2),
-        direction = c(1, 1)
-      ),
-      edges = tibble::data_frame(
-        from = c(1, 2),
-        to = c(2, 1),
-        direction_parity = c(TRUE, TRUE)
-      )
+      nodes = tibble::data_frame(name = character(0)),
+      edges = tibble::data_frame(from = numeric(0), to = numeric(0))
     )
   )
-  result_graph <- cluster_by_coex_partnership(
+
+  # --- #
+  nodes_no_disparity <- test_statistics_no_disparity %>%
+    dplyr::rename_(name = ~ gene_id) %>%
+    magrittr::extract(c("name", "z", "p_value", "direction"))
+
+  edges_no_disparity <- tibble::data_frame(
+    from = c(1, 2),
+    to = c(2, 1),
+    direction_parity = c(TRUE, TRUE)
+  )
+  expected_graph_no_disparity <- tidygraph::as_tbl_graph(
+    list(nodes = nodes_no_disparity, edges = edges_no_disparity)
+  )
+  result_graph_no_disparity <- cluster_by_coex_partnership(
     new(
       "CoxpresDbPartners",
-      gene_statistics = test_statistics,
+      gene_statistics = test_statistics_no_disparity,
       partners = test_partners
     )
   )@cluster_graph
 
-  # NOTE: problems with comparing two seemingly identical graphs
-  # expect_equal(result_graph, expected_graph) fails with uninformative message
-  # : re differences in component 9: component 1 ...
-  # : the stated components can't be accessed however, so there is no way to
-  #   debug the test
-
-  # Therefore we test the edges and nodes separately
-  expect_equal(
-    object = igraph::as_data_frame(result_graph),
-    expected = igraph::as_data_frame(expected_graph),
+  expect_equal_graph(
+    object = result_graph_no_disparity,
+    expected = expected_graph_no_disparity,
     info = "Extraction of the partnership graph for a pair of nodes"
   )
 
-  expect_equal(
-    object = igraph::vertex.attributes(result_graph),
-    expected = igraph::vertex.attributes(expected_graph),
-    info = "Extraction of the partnership graph for a pair of nodes"
+  # --- #
+  # With a single disparity in the expression data
+  result_graph_with_disparity <- cluster_by_coex_partnership(
+    new(
+      "CoxpresDbPartners",
+      gene_statistics = test_statistics_with_disparity,
+      partners = test_partners
+    )
+  )@cluster_graph
+
+  expect_equal_graph(
+    object = result_graph_with_disparity,
+    expected = empty_graph,
+    info = "The cluster graph should be empty for a genepair with expression
+disparity"
+  )
+
+  # --- #
+  nodes_ignoring_disparity <- test_statistics_with_disparity %>%
+    dplyr::rename_(name = ~ gene_id) %>%
+    magrittr::extract(c("name", "z", "p_value", "direction"))
+
+  edges_ignoring_disparity <- tibble::data_frame(
+    from = c(1, 2),
+    to = c(2, 1),
+    direction_parity = c(FALSE, FALSE)
+  )
+  expected_graph_ignoring_disparity <- tidygraph::as_tbl_graph(
+    list(nodes = nodes_ignoring_disparity, edges = edges_ignoring_disparity)
+  )
+  result_graph_ignoring_disparity <- cluster_by_coex_partnership(
+    new(
+      "CoxpresDbPartners",
+      gene_statistics = test_statistics_with_disparity,
+      partners = test_partners
+    ),
+    drop_disparities = FALSE
+  )@cluster_graph
+
+  expect_equal_graph(
+    object = result_graph_ignoring_disparity,
+    expected = expected_graph_ignoring_disparity,
+    info = "Make a cluster graph but ignore disparity of gene expression"
   )
 })
 

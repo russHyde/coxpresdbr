@@ -186,14 +186,37 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
+#' Obtain a graph containing clusters of genes, where known co-expression
+#' partners are linked if their expression is consistent in the user's data
+#'
+#' @param        coex_partners   A CoxpresDbPartners object containing
+#' gene-statistics from the user's experiment and gene-gene associations
+#' between highly correlated partners as derived from `coxpresdb.jp`.
+#'
+#' @param        drop_disparities   Boolean. Should the clustering of
+#' known coexpression partners disregard associations between genes that are
+#' differentially expressed in the opposite direction from each other? Default:
+#' TRUE.
+#'
 #' @importFrom   dplyr         filter_   left_join
 #' @importFrom   igraph        get.vertex.attribute   vertex_attr
-#' @importFrom   tibble        as_data_frame
+#' @importFrom   tibble        data_frame   as_data_frame
 #' @importFrom   tidygraph     as_tbl_graph
+#'
+#' @export
+
 cluster_by_coex_partnership <- function(
                                         coex_partners,
                                         drop_disparities = TRUE) {
-  stopifnot(is.logical(drop_disparities))
+  stopifnot(
+    is.logical(drop_disparities) && length(drop_disparities) == 1
+  )
+
+  .edge_filter <- if (drop_disparities) {
+    function(x) dplyr::filter_(x, ~ direction_parity)
+  } else {
+    identity
+  }
 
   node_attributes <- .format_unsorted_nodes_for_tidygraph(
     coex_partners
@@ -201,17 +224,23 @@ cluster_by_coex_partnership <- function(
 
   edges <- coex_partners %>%
     .add_direction_parities_to_coex_edges() %>%
-    .format_coex_edges_for_tidygraph(cluster_source_nodes_only = TRUE) %>%
+    .format_coex_edges_for_tidygraph(
+      cluster_source_nodes_only = TRUE
+    ) %>%
     dplyr::filter_(~ to %in% from) %>%
-    dplyr::filter_(~ direction_parity)
+    .edge_filter()
 
   graph <- tidygraph::as_tbl_graph(
     edges
   )
 
-  nodes <- igraph::get.vertex.attribute(graph) %>%
-    tibble::as_data_frame() %>%
-    dplyr::left_join(node_attributes, by = "name")
+  nodes <- if (nrow(edges) == 0) {
+    tibble::data_frame(name = character(0))
+  } else {
+    igraph::get.vertex.attribute(graph) %>%
+      tibble::as_data_frame() %>%
+      dplyr::left_join(node_attributes, by = "name")
+  }
 
   igraph::vertex_attr(graph) <- as.list(nodes)
 

@@ -56,9 +56,6 @@
 
 - `cluster_by_coex_partnership`
 
-    - add `drop_disparities = FALSE` behaviour (ie, disregard direction parity
-      for each edge)
-
     - add `cluster_source_nodes_only = BOOLEAN` to formals
 
     - append to a CoxpresDbPartners object:
@@ -154,6 +151,11 @@
 
     - split code for adding p-values to the dataset from code for summarising
       over the p-values for all partners of a given source node
+
+- `cluster_by_coex_partnership`
+
+    - add `drop_disparities = FALSE` behaviour (ie, disregard direction parity
+      for each edge)
 
 # 2018-03-13/15
 
