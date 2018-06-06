@@ -124,11 +124,14 @@ evaluate_coex_partners <- function(
                                                  coex_partners) {
   stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
   stopifnot(all(dim(coex_partners@gene_statistics) > 0))
-  stopifnot("z" %in% colnames(coex_partners@gene_statistics))
+
+  if (!("z_score" %in% colnames(coex_partners@gene_statistics))) {
+    coex_partners <- .add_z_scores(coex_partners)
+  }
 
   coex_partners@gene_statistics %>%
     dplyr::rename_(.dots = list(name = "gene_id")) %>%
-    dplyr::select_(.dots = c("name", "z", "p_value", "direction"))
+    dplyr::select_(.dots = c("name", "z_score", "p_value", "direction"))
 }
 
 ###############################################################################

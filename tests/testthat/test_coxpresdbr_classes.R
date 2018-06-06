@@ -11,7 +11,7 @@ test_data_genes <- as.character(c(
 
 test_gene_statistics <- tibble::data_frame(
   gene_id = test_data_genes,
-  p_value = runif(10),
+  p_value = c(0.1, 0.3, 0.5, 0.2, 1.0, 0.0, 0.0000001, 0.5, 0.5, 0.5),
   direction = sample(c(-1, 1), size = 10, replace = TRUE)
 )
 
@@ -136,3 +136,78 @@ test_that("CoxpresDbPartners: method checks", {
 })
 
 ###############################################################################
+
+test_that("compute z scores from 2-tailed p and direction", {
+  expect_error(
+    object = .compute_z_scores(),
+    info = "No input to .compute_z_scores"
+  )
+
+  p_vals <- c(0.5, 0.5, 0, 0, 1, 1, 1, 0.1, 0.1)
+  dirs <- c(1, -1, 1, -1, 1, -1, 0, 1, -1)
+  z_scores <- -1 * dirs * qnorm(p_vals / 2)
+
+  expect_equal(
+    object = .compute_z_scores(p_values = 1, directions = 0),
+    expected = 0,
+    info = "middling z-score"
+  )
+  expect_error(
+    object = .compute_z_scores(p_values = p_vals),
+    info = "No directions in .compute_z_scores"
+  )
+  expect_error(
+    object = .compute_z_scores(directions = dirs),
+    info = "No p-values in .compute_z_scores"
+  )
+  expect_error(
+    object = .compute_z_scores(p_values = -1, directions = 1),
+    info = "p-values should not be < 0"
+  )
+  expect_error(
+    object = .compute_z_scores(p_values = 10, directions = 1),
+    info = "p-values should not be > 1"
+  )
+
+  expect_equal(
+    object = sign(
+      .compute_z_scores(p_values = p_vals, directions = dirs)
+    ),
+    expected = sign(dirs) * (p_vals != 1),
+    info = "signs of the z-scores should match the directions (for p < 1)"
+  )
+  expect_equal(
+    object = -1 * .compute_z_scores(p_values = p_vals, directions = dirs),
+    expected = .compute_z_scores(p_values = p_vals, directions = -1 * dirs),
+    info = "negative-z-score is z-score of negative direction"
+  )
+
+  expect_equal(
+    object = .compute_z_scores(p_vals, dirs),
+    expected = z_scores,
+    info = "hand-cranked z-score values"
+  )
+})
+
+test_that(
+  "add z-scores to the gene-statistics of an existing CoxpresDbPartners", {
+    coex_partners <- new(
+      "CoxpresDbPartners", gene_statistics = test_gene_statistics
+    )
+
+    expect_is(
+      object = .add_z_scores(coex_partners),
+      "CoxpresDbPartners",
+      info = ".add_z_scores should return a CoxpresDbPartners object"
+    )
+
+    expect_equal(
+      object = .add_z_scores(coex_partners)@gene_statistics$z_score,
+      expected = .compute_z_scores(
+        coex_partners@gene_statistics$p_value,
+        coex_partners@gene_statistics$direction
+      ),
+      info = "add z-scores to a CoxpresDbPartners"
+    )
+  }
+)

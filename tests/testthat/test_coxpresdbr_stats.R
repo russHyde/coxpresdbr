@@ -221,7 +221,7 @@ test_that(".format_coex_edges_for_tidygraph: valid input", {
 
 test_that(".format_unsorted_nodes_for_tidygraph: invalid input", {
   # input should be a CoxpresDbPartners with a non-empty `gene_statistics`
-  # output should have columns `name`, `z`, `p_value`, `direction`
+  # output should have columns `name`, `z_score`, `p_value`, `direction`
 
   expect_error(
     object = .format_unsorted_nodes_for_tidygraph(
@@ -236,29 +236,17 @@ test_that(".format_unsorted_nodes_for_tidygraph: invalid input", {
     ),
     info = "`coex_partners` have a non-empty `gene_statistics` entry"
   )
-
-  expect_error(
-    object = .format_unsorted_nodes_for_tidygraph(
-      coex_partners = new(
-        "CoxpresDbPartners",
-        gene_statistics = tibble::data_frame(
-          gene_id = "some_id", p_value = 0.5, direction = 1, NOT_Z = 3
-        )
-      )
-    ),
-    info = paste(
-      "`coex_partners` should have a valid `gene_statistics` entry with an",
-      "additional `z` column"
-    )
-  )
 })
 
 ###############################################################################
 
 test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
+  z <- qnorm(0.25, lower.tail = FALSE)
+
   test_statistics <- tibble::data_frame(
-    gene_id = "a", p_value = 0.5, direction = 1, z = 3
+    gene_id = "a", p_value = 0.5, direction = 1, z_score = z
   )
+  test_statistics_no_z <- test_statistics[, 1:3]
 
   expect_equal(
     object = .format_unsorted_nodes_for_tidygraph(
@@ -267,11 +255,25 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
       )
     ),
     expected = tibble::data_frame(
-      name = "a", z = 3, p_value = 0.5, direction = 1
+      name = "a", z_score = z, p_value = 0.5, direction = 1
     ),
     info = paste(
       ".format_unsorted_nodes... replaces gene_id with name and reorders",
       "columns"
+    )
+  )
+
+  expect_equal(
+    object = .format_unsorted_nodes_for_tidygraph(
+      coex_partners = new(
+        "CoxpresDbPartners", gene_statistics = test_statistics_no_z
+      )
+    ),
+    expected = tibble::data_frame(
+      name = "a", z_score = z, p_value = 0.5, direction = 1
+    ),
+    info = paste(
+      ".format_unsorted_nodes... adds z_score if it's missing"
     )
   )
 })
@@ -453,20 +455,22 @@ expect_equal_graph <- function(object, expected, info) {
 
 test_that("cluster_by_coex_partnership: valid input", {
   # TODO: test to use drop_disparities = FALSE
+  z_05 <- qnorm(0.5 / 2, lower.tail = FALSE)
+  z_02 <- qnorm(0.2 / 2, lower.tail = FALSE)
 
   # compare cluster graph
   test_statistics_no_disparity <- tibble::data_frame(
     gene_id = c("a", "b"),
     p_value = c(0.5, 0.2),
     direction = c(1, 1),
-    z = c(2, 4)
+    z_score = c(z_05, z_02)
   )
 
   test_statistics_with_disparity <- tibble::data_frame(
     gene_id = c("a", "b"),
     p_value = c(0.5, 0.2),
     direction = c(-1, 1),
-    z = c(-2, 4)
+    z_score = c(-1 * z_05, z_02)
   )
 
   test_partners <- tibble::data_frame(
@@ -484,7 +488,7 @@ test_that("cluster_by_coex_partnership: valid input", {
   # --- #
   nodes_no_disparity <- test_statistics_no_disparity %>%
     dplyr::rename_(name = ~ gene_id) %>%
-    magrittr::extract(c("name", "z", "p_value", "direction"))
+    magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_no_disparity <- tibble::data_frame(
     from = c(1, 2),
@@ -528,7 +532,7 @@ disparity"
   # --- #
   nodes_ignoring_disparity <- test_statistics_with_disparity %>%
     dplyr::rename_(name = ~ gene_id) %>%
-    magrittr::extract(c("name", "z", "p_value", "direction"))
+    magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_ignoring_disparity <- tibble::data_frame(
     from = c(1, 2),
@@ -551,6 +555,31 @@ disparity"
     object = result_graph_ignoring_disparity,
     expected = expected_graph_ignoring_disparity,
     info = "Make a cluster graph but ignore disparity of gene expression"
+  )
+
+  # Results should be the same whether z-scores are passed in with the
+  # coex_partners object, or whether they are computed wihin
+  # cluster_by_coex_partnership
+  expect_equal_graph(
+    object = cluster_by_coex_partnership(
+      new(
+        "CoxpresDbPartners",
+        gene_statistics = test_statistics_no_disparity,
+        partners = test_partners
+      )
+    )@cluster_graph,
+    expected = cluster_by_coex_partnership(
+      new(
+        "CoxpresDbPartners",
+        gene_statistics = test_statistics_no_disparity[
+          ,
+          c("gene_id", "p_value", "direction")
+        ],
+        partners = test_partners
+      )
+    )@cluster_graph,
+    info = "Results of cluster_by_.. should be the same regardless of whether
+    z-scores are computed within the cluster_by... workflow"
   )
 })
 

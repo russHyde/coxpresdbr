@@ -155,3 +155,27 @@ setMethod("get_source_genes", signature("CoxpresDbPartners"), function(x) {
 })
 
 ###############################################################################
+
+.compute_z_scores <- function(p_values, directions) {
+  if (
+    missing(p_values) || missing(directions) ||
+      any(p_values < 0) || any(p_values > 1)
+  ) {
+    stop()
+  }
+  qnorm(p_values / 2) * -1 * sign(directions)
+}
+
+setGeneric(".add_z_scores", valueClass = "CoxpresDbPartners", function(x) {
+  standardGeneric(".add_z_scores")
+})
+
+setMethod(".add_z_scores", signature("CoxpresDbPartners"), function(x) {
+  statistics <- x@gene_statistics
+  statistics$z_score <- .compute_z_scores(
+    statistics$p_value,
+    statistics$direction
+  )
+  x@gene_statistics <- statistics
+  x
+})
