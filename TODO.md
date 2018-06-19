@@ -9,6 +9,12 @@
 
 ----
 
+# LONG-TERM
+
+- Access coxpresdb via SPARQL
+
+----
+
 # README.md
 
 - explain how to pull out the partners of a single gene
