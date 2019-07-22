@@ -5,6 +5,20 @@
 
 ###############################################################################
 
+#' checks if a file has a zip extension
+#'
+#' @noRd
+.is_zip_file <- function(x) {
+  stringr::str_ends(x, "\\.zip")
+}
+
+#' checks if a file has a tar or tar.bz2 extension
+#'
+#' @noRd
+.is_tar_file <- function(x) {
+  stringr::str_ends(x, "\\.tar(\\.bz2){0,1}")
+}
+
 #' Checks whether a provided file-path points to a valid CoxpresDB.jp archive
 #'
 #' @param        db_archive    A file path. Should be a single
@@ -17,9 +31,11 @@
                                   db_archive) {
   length(db_archive) == 1 &&
     file.exists(db_archive) &&
-    stringr::str_ends(db_archive, "\\.tar(\\.bz2){0,1}|\\.zip")
+    (
+      .is_zip_file(db_archive) ||
+        .is_tar_file(db_archive)
+    )
 }
-
 
 ###############################################################################
 
@@ -84,12 +100,21 @@ CoxpresDbImporter <- function(
     db_archive
   }
 
-  gene_files <- sort(grep(
-    pattern = ".*/$",
-    utils::untar(db_uncompressed, list = TRUE),
-    value = TRUE,
-    invert = TRUE
-  ))
+  file_listing_function <- if (.is_zip_file(db_archive)) {
+    function(x) utils::unzip(x, list = TRUE)[["Name"]]
+  } else {
+    function(x) utils::untar(x, list = TRUE)
+  }
+
+  gene_files <- sort(
+    grep(
+      pattern = ".*/$",
+      file_listing_function(db_uncompressed),
+      value = TRUE,
+      invert = TRUE
+    )
+  )
+
   gene_file_df <- tibble::tibble(
     gene_id = basename(gene_files),
     file_path = gene_files
