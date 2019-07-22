@@ -48,7 +48,7 @@
 #'
 #' @importFrom   methods       new
 #' @importFrom   R.utils       isBzipped   bunzip2
-#' @importFrom   tibble        data_frame
+#' @importFrom   tibble        tibble
 #' @importFrom   utils         untar
 #'
 #' @include      coxpresdbr_classes.R
@@ -89,7 +89,7 @@ CoxpresDbImporter <- function(
     value = TRUE,
     invert = TRUE
   ))
-  gene_file_df <- tibble::data_frame(
+  gene_file_df <- tibble::tibble(
     gene_id = basename(gene_files),
     file_path = gene_files
   )
@@ -109,7 +109,7 @@ CoxpresDbImporter <- function(
 #' @param        x             A \code{CoxpresDbImporter} object corresponding
 #' to a CoxpresDb.jp archive
 #'
-#' @return       A data_frame of gene_id:file_path pairs, each file is present
+#' @return       A tibble of gene_id:file_path pairs, each file is present
 #' in the archive (referenced within CoxpresDbImporter) and represents the
 #' coexpression data for a particular gene.
 #'
@@ -220,7 +220,7 @@ setGeneric(
 #' @importFrom   data.table    fread
 #' @importFrom   dplyr         filter_   mutate_
 #' @importFrom   magrittr      %>%   set_colnames
-#' @importFrom   tibble        as_data_frame   data_frame
+#' @importFrom   tibble        as_tibble   tibble
 #'
 setMethod(
   "import_all_coex_partners",
@@ -255,7 +255,7 @@ setMethod(
       )
     ) %>%
       magrittr::set_colnames(value = expected_colnames[-1]) %>%
-      tibble::as_data_frame() %>%
+      tibble::as_tibble() %>%
       dplyr::mutate_(
         source_id = ~gene_id,
         target_id = ~ as.character(target_id)
