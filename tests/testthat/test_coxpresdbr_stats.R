@@ -251,7 +251,8 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
   expect_equal(
     object = .format_unsorted_nodes_for_tidygraph(
       coex_partners = new(
-        "CoxpresDbPartners", gene_statistics = test_statistics
+        "CoxpresDbPartners",
+        gene_statistics = test_statistics
       )
     ),
     expected = tibble::data_frame(
@@ -266,7 +267,8 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
   expect_equal(
     object = .format_unsorted_nodes_for_tidygraph(
       coex_partners = new(
-        "CoxpresDbPartners", gene_statistics = test_statistics_no_z
+        "CoxpresDbPartners",
+        gene_statistics = test_statistics_no_z
       )
     ),
     expected = tibble::data_frame(
@@ -487,7 +489,7 @@ test_that("cluster_by_coex_partnership: valid input", {
 
   # --- #
   nodes_no_disparity <- test_statistics_no_disparity %>%
-    dplyr::rename_(name = ~ gene_id) %>%
+    dplyr::rename_(name = ~gene_id) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_no_disparity <- tibble::data_frame(
@@ -531,7 +533,7 @@ disparity"
 
   # --- #
   nodes_ignoring_disparity <- test_statistics_with_disparity %>%
-    dplyr::rename_(name = ~ gene_id) %>%
+    dplyr::rename_(name = ~gene_id) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_ignoring_disparity <- tibble::data_frame(

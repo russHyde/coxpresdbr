@@ -92,7 +92,7 @@ evaluate_coex_partners <- function(
   .format_reported_columns <- function(.df) {
     dplyr::mutate_(
       .df,
-      gene_id = ~ source_id,
+      gene_id = ~source_id,
       n_partners = ~ as.integer(n_partners),
       z_score = ~ as.numeric(z_score),
       p_value = ~ as.numeric(p_value)
@@ -102,9 +102,10 @@ evaluate_coex_partners <- function(
   res <- x %>%
     .add_p_values() %>%
     merge(
-      coex_partners, by.x = "gene_id", by.y = "target_id"
+      coex_partners,
+      by.x = "gene_id", by.y = "target_id"
     ) %>%
-    dplyr::group_by_(~ source_id) %>%
+    dplyr::group_by_(~source_id) %>%
     .summarise_neighbours() %>%
     dplyr::ungroup() %>%
     .format_reported_columns() %>%
@@ -146,7 +147,7 @@ evaluate_coex_partners <- function(
   stopifnot(all(dim(coex_partners@partners) > 0))
 
   relabelled <- coex_partners@partners %>%
-    dplyr::rename_(from = ~ source_id, to = ~ target_id)
+    dplyr::rename_(from = ~source_id, to = ~target_id)
 
   if (cluster_source_nodes_only) {
     dplyr::filter_(relabelled, ~ to %in% from)
@@ -216,7 +217,7 @@ cluster_by_coex_partnership <- function(
   )
 
   .edge_filter <- if (drop_disparities) {
-    function(x) dplyr::filter_(x, ~ direction_parity)
+    function(x) dplyr::filter_(x, ~direction_parity)
   } else {
     identity
   }

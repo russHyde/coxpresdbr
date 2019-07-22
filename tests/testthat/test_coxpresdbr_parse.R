@@ -46,7 +46,8 @@ test_that(".filter_coex_partners", {
 
   expect_equal(
     object = .filter_coex_partners(
-      df1[sample(1:nrow(df1)), ], mr_threshold = 4
+      df1[sample(1:nrow(df1)), ],
+      mr_threshold = 4
     ),
     expected = df1[1:4, ],
     info = "`mr_threshold` imposes a filter on the mutual_rank value"
@@ -54,7 +55,8 @@ test_that(".filter_coex_partners", {
 
   expect_equal(
     object = .filter_coex_partners(
-      df1[sample(1:nrow(df1)), ], cor_threshold = 0.999
+      df1[sample(1:nrow(df1)), ],
+      cor_threshold = 0.999
     ),
     expected = df1[1:3, ],
     info = "`cor_threshold` imposes a filter on the correlation value"

@@ -126,7 +126,8 @@ setMethod("get_file_paths", signature("CoxpresDbImporter"), function(x) {
 ###############################################################################
 
 setGeneric(
-  "get_file_path_for_gene", valueClass = "character",
+  "get_file_path_for_gene",
+  valueClass = "character",
   function(gene_id, importer) {
     standardGeneric("get_file_path_for_gene")
   }
@@ -196,7 +197,8 @@ setMethod(
 ###############################################################################
 
 setGeneric(
-  "import_all_coex_partners", valueClass = "data.frame",
+  "import_all_coex_partners",
+  valueClass = "data.frame",
   function(gene_id, importer) {
     standardGeneric("import_all_coex_partners")
   }
@@ -255,7 +257,7 @@ setMethod(
       magrittr::set_colnames(value = expected_colnames[-1]) %>%
       tibble::as_data_frame() %>%
       dplyr::mutate_(
-        source_id = ~ gene_id,
+        source_id = ~gene_id,
         target_id = ~ as.character(target_id)
       ) %>%
       magrittr::extract(expected_colnames) %>%

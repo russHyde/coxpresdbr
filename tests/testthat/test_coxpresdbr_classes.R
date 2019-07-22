@@ -192,7 +192,8 @@ test_that("compute z scores from 2-tailed p and direction", {
 test_that(
   "add z-scores to the gene-statistics of an existing CoxpresDbPartners", {
     coex_partners <- new(
-      "CoxpresDbPartners", gene_statistics = test_gene_statistics
+      "CoxpresDbPartners",
+      gene_statistics = test_gene_statistics
     )
 
     expect_is(

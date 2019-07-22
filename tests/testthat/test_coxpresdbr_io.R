@@ -252,7 +252,8 @@ test_that("import_all_coex_partners: invalid input", {
 
   expect_error(
     object = import_all_coex_partners(
-      test_data_genes[1:2], importer = importer
+      test_data_genes[1:2],
+      importer = importer
     ),
     info = paste(
       "User should only request the coexpression database for a",
