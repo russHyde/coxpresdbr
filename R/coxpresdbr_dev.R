@@ -5,9 +5,10 @@
 #' Nonexported function
 #'
 #' @importFrom   styler        style_pkg
-#' @importFrom   lintr         lint_package
-#' @importFrom   devtools      build   check
+#' @importFrom   devtools      build   check   document
 #'
+#' @noRd
+
 .packit <- function(pkg = ".") {
   styler::style_pkg(pkg)
 
