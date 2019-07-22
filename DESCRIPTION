@@ -12,6 +12,8 @@ Description: Parses and summarises data from coxpresdb.jp. Identifies genes
 Depends: R (>= 3.3)
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
+URL: https://github.com/russHyde/coxpresdbr
+BugReports: https://github.com/russHyde/coxpresdbr/issues
 LazyData: true
 RoxygenNote: 6.1.1
 Suggests: testthat,
