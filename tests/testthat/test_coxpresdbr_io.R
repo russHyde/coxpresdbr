@@ -267,11 +267,11 @@ test_that("import_all_coex_partners: valid input", {
 
   importer <- CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
 
-  #expect_silent(
+  # expect_silent(
   #  object = import_all_coex_partners(
   #    gene_id = "2538791", importer = importer
   #  )
-  #)
+  # )
 
   coex_db_2538791 <- import_all_coex_partners(
     gene_id = "2538791", importer = importer
@@ -293,7 +293,11 @@ test_that("import_all_coex_partners: valid input", {
   )
 
   expect_equal(
-    object = as.vector(sapply(coex_db_2538791, class)),
+    object = vapply(
+      coex_db_2538791, function(x) class(x)[1],
+      FUN.VALUE = character(1),
+      USE.NAMES = FALSE
+    ),
     expected = c("character", "character", "numeric", "numeric"),
     info = paste(
       "Coltypes should be character for source/target-id and numeric for",

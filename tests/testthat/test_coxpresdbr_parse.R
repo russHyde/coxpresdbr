@@ -14,7 +14,9 @@ test_that(".filter_coex_partners", {
     source_id = rep("A", 5),
     target_id = LETTERS[2:6],
     mutual_rank = 1:5,
-    correlation = 1 - 0.1 ^ seq(5, 1)
+    # nolint start
+    correlation = 1 - 0.1^seq(5, 1)
+    # nolint end
   )
 
   expect_equal(
@@ -39,14 +41,17 @@ test_that(".filter_coex_partners", {
   )
 
   expect_equal(
-    object = .filter_coex_partners(df1[sample(1:nrow(df1)), ], n_partners = 2),
+    object = .filter_coex_partners(
+      df1[sample(seq(nrow(df1))), ],
+      n_partners = 2
+    ),
     expected = df1[1:2, ],
     info = "`n_partners` imposes a filter on the number of returned entries"
   )
 
   expect_equal(
     object = .filter_coex_partners(
-      df1[sample(1:nrow(df1)), ],
+      df1[sample(seq(nrow(df1))), ],
       mr_threshold = 4
     ),
     expected = df1[1:4, ],
@@ -55,7 +60,7 @@ test_that(".filter_coex_partners", {
 
   expect_equal(
     object = .filter_coex_partners(
-      df1[sample(1:nrow(df1)), ],
+      df1[sample(seq(nrow(df1))), ],
       cor_threshold = 0.999
     ),
     expected = df1[1:3, ],
