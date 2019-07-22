@@ -267,11 +267,11 @@ test_that("import_all_coex_partners: valid input", {
 
   importer <- CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
 
-  expect_silent(
-    object = import_all_coex_partners(
-      gene_id = "2538791", importer = importer
-    )
-  )
+  #expect_silent(
+  #  object = import_all_coex_partners(
+  #    gene_id = "2538791", importer = importer
+  #  )
+  #)
 
   coex_db_2538791 <- import_all_coex_partners(
     gene_id = "2538791", importer = importer

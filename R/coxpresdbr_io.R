@@ -250,7 +250,7 @@ setMethod(
     )
 
     coex_db <- data.table::fread(
-      paste(
+      cmd = paste(
         "tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file
       )
     ) %>%
