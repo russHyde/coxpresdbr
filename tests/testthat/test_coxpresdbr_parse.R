@@ -10,7 +10,7 @@ context("Tests for dataset parsing in `coxpresdbr` package")
 test_that(".filter_coex_partners", {
   # TODO: compound tests
 
-  df1 <- tibble::data_frame(
+  df1 <- tibble::tibble(
     source_id = rep("A", 5),
     target_id = LETTERS[2:6],
     mutual_rank = 1:5,

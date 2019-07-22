@@ -8,13 +8,13 @@ context("Tests for geneset-combination statistics in `coxpresdbr` package")
 ###############################################################################
 
 test_that("evaluate_coex_partners-data.frame: invalid input", {
-  pval_empty <- tibble::data_frame(
+  pval_empty <- tibble::tibble(
     gene_id = character(0),
     p_value = numeric(0),
     direction = integer(0)
   )
 
-  coex_empty <- tibble::data_frame(
+  coex_empty <- tibble::tibble(
     source_id = character(0),
     target_id = character(0)
   )
@@ -31,7 +31,7 @@ test_that("evaluate_coex_partners-data.frame: invalid input", {
 
   expect_error(
     object = evaluate_coex_partners(
-      x = tibble::data_frame(
+      x = tibble::tibble(
         GENE_ID = character(0),
         P_VALUE = numeric(0),
         DIRECTION = integer(0)
@@ -52,7 +52,7 @@ test_that("evaluate_coex_partners-data.frame: invalid input", {
   expect_error(
     object = evaluate_coex_partners(
       x = pval_empty,
-      coex_partners = tibble::data_frame(
+      coex_partners = tibble::tibble(
         SOURCE_ID = character(0),
         TARGET_ID = character(0)
       )
@@ -71,11 +71,11 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
     direction = c(1L, -1L, 1L),
     stringsAsFactors = FALSE
   )
-  coex_no_partners <- tibble::data_frame(
+  coex_no_partners <- tibble::tibble(
     source_id = "d",
     target_id = "e"
   )
-  expect <- tibble::data_frame(
+  expect <- tibble::tibble(
     gene_id = character(0),
     n_partners = integer(0),
     z_score = numeric(0),
@@ -89,11 +89,11 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
 
   # source gene has a single partner: the returned p-value should match the
   # input p-value
-  coex_one_partner <- tibble::data_frame(
+  coex_one_partner <- tibble::tibble(
     source_id = "d",
     target_id = "a"
   )
-  expect <- tibble::data_frame(
+  expect <- tibble::tibble(
     gene_id = "d",
     n_partners = 1L,
     z_score = 0.5 * (
@@ -182,7 +182,7 @@ test_that(".format_coex_edges_for_tidygraph: invalid input", {
 
 test_that(".format_coex_edges_for_tidygraph: valid input", {
   # output should have columns `from`, `to`
-  test_partners <- tibble::data_frame(
+  test_partners <- tibble::tibble(
     source_id = c("a", "c"),
     target_id = c("c", "b")
   )
@@ -192,7 +192,7 @@ test_that(".format_coex_edges_for_tidygraph: valid input", {
       coex_partners = new("CoxpresDbPartners", partners = test_partners),
       cluster_source_nodes_only = TRUE
     ),
-    expected = tibble::data_frame(
+    expected = tibble::tibble(
       from = "a",
       to = "c"
     ),
@@ -207,7 +207,7 @@ test_that(".format_coex_edges_for_tidygraph: valid input", {
       coex_partners = new("CoxpresDbPartners", partners = test_partners),
       cluster_source_nodes_only = FALSE
     ),
-    expected = tibble::data_frame(
+    expected = tibble::tibble(
       from = c("a", "c"),
       to = c("c", "b")
     ),
@@ -243,7 +243,7 @@ test_that(".format_unsorted_nodes_for_tidygraph: invalid input", {
 test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
   z <- qnorm(0.25, lower.tail = FALSE)
 
-  test_statistics <- tibble::data_frame(
+  test_statistics <- tibble::tibble(
     gene_id = "a", p_value = 0.5, direction = 1, z_score = z
   )
   test_statistics_no_z <- test_statistics[, 1:3]
@@ -255,7 +255,7 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
         gene_statistics = test_statistics
       )
     ),
-    expected = tibble::data_frame(
+    expected = tibble::tibble(
       name = "a", z_score = z, p_value = 0.5, direction = 1
     ),
     info = paste(
@@ -271,7 +271,7 @@ test_that(".format_unsorted_nodes_for_tidygraph: valid input", {
         gene_statistics = test_statistics_no_z
       )
     ),
-    expected = tibble::data_frame(
+    expected = tibble::tibble(
       name = "a", z_score = z, p_value = 0.5, direction = 1
     ),
     info = paste(
@@ -296,7 +296,7 @@ test_that(".add_direction_parities_to_coex_edges: invalid input", {
     object = .add_direction_parities_to_coex_edges(
       coex_partners = new(
         "CoxpresDbPartners",
-        partners = tibble::data_frame(
+        partners = tibble::tibble(
           source_id = "a",
           target_id = "b"
         )
@@ -308,7 +308,7 @@ test_that(".add_direction_parities_to_coex_edges: invalid input", {
     object = .add_direction_parities_to_coex_edges(
       coex_partners = new(
         "CoxpresDbPartners",
-        gene_statistics = tibble::data_frame(
+        gene_statistics = tibble::tibble(
           gene_id = "abc",
           p_value = 0.2,
           direction = 1
@@ -324,12 +324,12 @@ test_that(".add_direction_parities_to_coex_edges: invalid input", {
 test_that(".add_direction_parities_to_coex_edges: valid input", {
   test_coex_partners <- new(
     "CoxpresDbPartners",
-    gene_statistics = tibble::data_frame(
+    gene_statistics = tibble::tibble(
       gene_id = letters[1:3],
       p_value = c(0.2, 0.5, 0.9),
       direction = c(1, -1, 1)
     ),
-    partners = tibble::data_frame(
+    partners = tibble::tibble(
       source_id = c("a", "b"),
       target_id = c("c", "a"),
       some_other_col = c(1, 2)
@@ -340,7 +340,7 @@ test_that(".add_direction_parities_to_coex_edges: valid input", {
     object = .add_direction_parities_to_coex_edges(
       test_coex_partners
     )@partners,
-    expected = tibble::data_frame(
+    expected = tibble::tibble(
       source_id = c("a", "b"),
       target_id = c("c", "a"),
       some_other_col = c(1, 2),
@@ -370,7 +370,7 @@ test_that("cluster_by_coex_partnership: invalid input", {
     object = cluster_by_coex_partnership(
       coex_partners = new(
         "CoxpresDbPartners",
-        partners = tibble::data_frame(source_id = "a", target_id = "b")
+        partners = tibble::tibble(source_id = "a", target_id = "b")
       ),
       drop_disparities = TRUE
     ),
@@ -381,7 +381,7 @@ test_that("cluster_by_coex_partnership: invalid input", {
     object = cluster_by_coex_partnership(
       coex_partners = new(
         "CoxpresDbPartners",
-        gene_statistics = tibble::data_frame(
+        gene_statistics = tibble::tibble(
           gene_id = "abc", p_value = "0.2", direction = "1"
         )
       ),
@@ -396,11 +396,11 @@ test_that("cluster_by_coex_partnership: invalid input", {
   # should be able to deal with a graph with no edges
   test_coex_partners <- new(
     "CoxpresDbPartners",
-    gene_statistics = tibble::data_frame(
+    gene_statistics = tibble::tibble(
       gene_id = letters[1:2], p_value = c(0.1, 0.2), direction = c(-1, 1),
       z = c(-0.5, 1)
     ),
-    partners = tibble::data_frame(
+    partners = tibble::tibble(
       source_id = "a",
       target_id = "b"
     )
@@ -461,29 +461,29 @@ test_that("cluster_by_coex_partnership: valid input", {
   z_02 <- qnorm(0.2 / 2, lower.tail = FALSE)
 
   # compare cluster graph
-  test_statistics_no_disparity <- tibble::data_frame(
+  test_statistics_no_disparity <- tibble::tibble(
     gene_id = c("a", "b"),
     p_value = c(0.5, 0.2),
     direction = c(1, 1),
     z_score = c(z_05, z_02)
   )
 
-  test_statistics_with_disparity <- tibble::data_frame(
+  test_statistics_with_disparity <- tibble::tibble(
     gene_id = c("a", "b"),
     p_value = c(0.5, 0.2),
     direction = c(-1, 1),
     z_score = c(-1 * z_05, z_02)
   )
 
-  test_partners <- tibble::data_frame(
+  test_partners <- tibble::tibble(
     source_id = c("a", "b"),
     target_id = c("b", "a")
   )
 
   empty_graph <- tidygraph::as_tbl_graph(
     list(
-      nodes = tibble::data_frame(name = character(0)),
-      edges = tibble::data_frame(from = numeric(0), to = numeric(0))
+      nodes = tibble::tibble(name = character(0)),
+      edges = tibble::tibble(from = numeric(0), to = numeric(0))
     )
   )
 
@@ -492,7 +492,7 @@ test_that("cluster_by_coex_partnership: valid input", {
     dplyr::rename_(name = ~gene_id) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
-  edges_no_disparity <- tibble::data_frame(
+  edges_no_disparity <- tibble::tibble(
     from = c(1, 2),
     to = c(2, 1),
     direction_parity = c(TRUE, TRUE)
@@ -536,7 +536,7 @@ disparity"
     dplyr::rename_(name = ~gene_id) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
-  edges_ignoring_disparity <- tibble::data_frame(
+  edges_ignoring_disparity <- tibble::tibble(
     from = c(1, 2),
     to = c(2, 1),
     direction_parity = c(FALSE, FALSE)

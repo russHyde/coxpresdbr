@@ -17,7 +17,7 @@ test_data_genes <- as.character(c(
   2542210, 2542294, 2543492, 3361219, 3361512
 ))
 
-test_gene_statistics <- tibble::data_frame(
+test_gene_statistics <- tibble::tibble(
   gene_id = test_data_genes,
   p_value = runif(10),
   direction = sample(c(-1, 1), size = 10, replace = TRUE)
@@ -75,7 +75,7 @@ test_that("run_coex_partner_workflow: invalid input", {
   expect_error(
     object = run_coex_partner_workflow(
       gene_ids = test_data_genes,
-      gene_statistics = tibble::data_frame(
+      gene_statistics = tibble::tibble(
         Gene_id = "a", P_VALUE = 1, direktion = -1
       ),
       importer = test_importer
@@ -142,7 +142,7 @@ test_that("run_coex_partner_workflow: valid input", {
   # the gene-ids present in CoxpresDB and in `gene_statistics`
   non_overlap_gene_statistics <- bind_rows(
     test_gene_statistics[-c(1:2), ],
-    tibble::data_frame(
+    tibble::tibble(
       gene_id = "1234567", p_value = 0.4, direction = -1
     )
   )

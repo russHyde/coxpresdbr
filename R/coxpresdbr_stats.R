@@ -9,7 +9,7 @@
 
 # Where a `fit` object from edgeR or limma is used, the stats functions should
 # convert this into a gene-per-row data-frame containing the two-tailed pvals
-# and directions and pass this into the data_frame statistics function
+# and directions and pass this into the tibble statistics function
 
 # As of 2018-03-06, we only combine genes by using metap::sumz approach
 
@@ -40,7 +40,7 @@
 #' @importFrom   metap         sumz   two2one
 #' @importFrom   methods       is
 #' @importFrom   stats         qnorm
-#' @importFrom   tibble        data_frame
+#' @importFrom   tibble        tibble
 #'
 #' @export
 #'
@@ -204,7 +204,7 @@ evaluate_coex_partners <- function(
 #'
 #' @importFrom   dplyr         filter_   left_join
 #' @importFrom   igraph        get.vertex.attribute   vertex_attr
-#' @importFrom   tibble        data_frame   as_data_frame
+#' @importFrom   tibble        tibble   as_tibble
 #' @importFrom   tidygraph     as_tbl_graph
 #'
 #' @export
@@ -239,10 +239,10 @@ cluster_by_coex_partnership <- function(
   )
 
   nodes <- if (nrow(edges) == 0) {
-    tibble::data_frame(name = character(0))
+    tibble::tibble(name = character(0))
   } else {
     igraph::get.vertex.attribute(graph) %>%
-      tibble::as_data_frame() %>%
+      tibble::as_tibble() %>%
       dplyr::left_join(node_attributes, by = "name")
   }
 

@@ -135,7 +135,7 @@ test_that(".is_coxpresdb_archive", {
 ###############################################################################
 
 test_that("get the file-paths for all genes in the archive", {
-  expected <- tibble::data_frame(
+  expected <- tibble::tibble(
     gene_id = test_data_genes,
     file_path = file.path("spo_v14_subset", test_data_genes)
   ) %>%

@@ -9,7 +9,7 @@ test_data_genes <- as.character(c(
   2542210, 2542294, 2543492, 3361219, 3361512
 ))
 
-test_gene_statistics <- tibble::data_frame(
+test_gene_statistics <- tibble::tibble(
   gene_id = test_data_genes,
   p_value = c(0.1, 0.3, 0.5, 0.2, 1.0, 0.0, 0.0000001, 0.5, 0.5, 0.5),
   direction = sample(c(-1, 1), size = 10, replace = TRUE)
@@ -45,7 +45,7 @@ test_that("CoxpresDbPartners: class definition", {
   expect_error(
     object = new(
       "CoxpresDbPartners",
-      gene_statistics = tibble::data_frame(
+      gene_statistics = tibble::tibble(
         GENE_ID = "NOT gene_id", P_VALUE = -1, DIRECTION = Inf
       )
     ),
@@ -58,7 +58,7 @@ test_that("CoxpresDbPartners: class definition", {
   expect_error(
     object = new(
       "CoxpresDbPartners",
-      partners = tibble::data_frame(
+      partners = tibble::tibble(
         SOURCE_ID = "NOT A VALID `source_id` COLUMN",
         target_id = "valid_col_name"
       )
@@ -69,7 +69,7 @@ test_that("CoxpresDbPartners: class definition", {
   expect_error(
     object = new(
       "CoxpresDbPartners",
-      partners = tibble::data_frame(
+      partners = tibble::tibble(
         source_id = "valid_col_name",
         TaRget_Id = "NOT A VALID target_id COLUMN"
       )
@@ -108,7 +108,7 @@ test_that("CoxpresDbPartners: method checks", {
     )
   )
 
-  test_partners_df <- tibble::data_frame(
+  test_partners_df <- tibble::tibble(
     source_id = rep(letters[1:3], each = 2),
     target_id = rep(LETTERS[6:4], times = 2)
   )
