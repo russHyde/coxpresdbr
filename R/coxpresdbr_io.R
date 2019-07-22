@@ -218,9 +218,7 @@ setGeneric(
 #' and both the mutual ranks and correlations between the gene pairs.
 #'
 #' @importFrom   data.table    fread
-#' @importFrom   dplyr         filter_   mutate_
-#' @importFrom   magrittr      %>%   set_colnames
-#' @importFrom   tibble        as_tibble   tibble
+#' @importFrom   tibble        tibble
 #'
 setMethod(
   "import_all_coex_partners",
@@ -249,21 +247,20 @@ setMethod(
       "source_id", "target_id", "mutual_rank", "correlation"
     )
 
-    coex_db <- data.table::fread(
+    initial_db <- data.table::fread(
       cmd = paste(
         "tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file
       )
-    ) %>%
-      magrittr::set_colnames(value = expected_colnames[-1]) %>%
-      tibble::as_tibble() %>%
-      dplyr::mutate_(
-        source_id = ~gene_id,
-        target_id = ~ as.character(target_id)
-      ) %>%
-      magrittr::extract(expected_colnames) %>%
-      dplyr::filter_(~ target_id != gene_id)
+    )
 
-    coex_db
+    coex_db <- tibble::tibble(
+      source_id = gene_id,
+      target_id = as.character(initial_db[[1]]),
+      mutual_rank = initial_db[[2]],
+      correlation = initial_db[[3]]
+    )
+
+    coex_db[coex_db[["target_id"]] != gene_id, ]
   }
 )
 
