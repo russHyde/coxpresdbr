@@ -20,8 +20,7 @@ Suggests:
     testthat,
     lintr,
     covr
-Imports: styler,
-    devtools,
+Imports:
     stringr,
     tibble,
     data.table,
@@ -36,7 +35,6 @@ Imports: styler,
 Collate:
     'coxpresdbr_classes.R'
     'coxpresdbr_data_validity.R'
-    'coxpresdbr_dev.R'
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'
     'coxpresdbr_stats.R'
