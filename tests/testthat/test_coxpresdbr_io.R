@@ -178,9 +178,15 @@ test_that(".is_coxpresdb_archive", {
 ###############################################################################
 
 test_that("get the file-paths for all genes in the archive", {
-  expected <- tibble::tibble(
+  expected_tar <- tibble::tibble(
     gene_id = test_data_genes,
     file_path = file.path("spo_v14_subset", test_data_genes)
+  ) %>%
+    dplyr::arrange(gene_id)
+
+  expected_zip <- tibble::tibble(
+    gene_id = test_data_genes,
+    file_path = file.path("spo_v14_subset_two_cols", test_data_genes)
   ) %>%
     dplyr::arrange(gene_id)
 
@@ -188,7 +194,7 @@ test_that("get the file-paths for all genes in the archive", {
     object = get_file_paths(
       CoxpresDbImporter(test_data_bz2, overwrite_in_bunzip2 = TRUE)
     ),
-    expected = expected,
+    expected = expected_tar,
     info = paste(
       "File paths for the gene-partner datafames in a compressed",
       "CoxpresDB archive"
@@ -199,10 +205,21 @@ test_that("get the file-paths for all genes in the archive", {
     object = get_file_paths(
       CoxpresDbImporter(test_data_tar)
     ),
-    expected = expected,
+    expected = expected_tar,
     info = paste(
       "File paths for the gene-partner datafames in an",
       "uncompressed CoxpresDB archive"
+    )
+  )
+
+  expect_equal(
+    object = get_file_paths(
+      CoxpresDbImporter(test_data_zip)
+    ),
+    expected = expected_zip,
+    info = paste(
+      "File paths for the gene-partner dataframes as obtained from a .zip",
+      "CoxpresDB archive"
     )
   )
 })
