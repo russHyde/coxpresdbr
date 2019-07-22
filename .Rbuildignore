@@ -3,3 +3,5 @@
 .lintr
 TODO.md
 requirements.txt
+^\.travis\.yml$
+^codecov\.yml$
