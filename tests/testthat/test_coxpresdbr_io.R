@@ -235,6 +235,15 @@ test_that("get file path for a specific gene", {
     expected = file.path("spo_v14_subset", "2538791"),
     info = "file path for a specific gene in a CoxpresDb archive"
   )
+
+  expect_equal(
+    object = get_file_path_for_gene(
+      "2538791",
+      CoxpresDbImporter(test_data_zip)
+    ),
+    expected = file.path("spo_v14_subset_two_cols", "2538791"),
+    info = "file path for a specific gene in a .zip Coxpresdb archive"
+  )
 })
 
 ###############################################################################
@@ -290,9 +299,16 @@ test_that(
       expected = test_data_genes,
       info = "Accessor test for gene-ids from an uncompressed CoxpresDB archive"
     )
+
+    expect_equal(
+      object = get_gene_ids(
+        CoxpresDbImporter(test_data_zip)
+      ),
+      expected = test_data_genes,
+      info = "Accessor test for gene-ids from a .zip CoxpresDb archive"
+    )
   }
 )
-
 ###############################################################################
 
 test_that("import_all_coex_partners: invalid input", {
@@ -389,6 +405,6 @@ test_that("import_all_coex_partners: valid input", {
 
 ###############################################################################
 
-test_that("import data from a .zip archive", {
-
+test_that("import all coex partners from a .zip archive", {
+  # TODO
 })
