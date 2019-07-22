@@ -7,16 +7,17 @@
 
 #' Checks whether a provided file-path points to a valid CoxpresDB.jp archive
 #'
-#' @param        db_archive    A file path. Should be a single \code{*.tar.bz2}
-#' or \code{*.tar} file as downloaded from the coxpresdb.jp website.
+#' @param        db_archive    A file path. Should be a single
+#'   \code{`*`.tar.bz2}, \code{`*`.tar}, or \code{`*`.zip} file as downloaded
+#'   from the _coxpresdb.jp_ website.
 #'
-#' @importFrom   stringr       str_detect
+#' @importFrom   stringr       str_ends
 #'
 .is_coxpresdb_archive <- function(
                                   db_archive) {
   length(db_archive) == 1 &&
     file.exists(db_archive) &&
-    stringr::str_detect(db_archive, "\\.tar(.bz2)*$")
+    stringr::str_ends(db_archive, "\\.tar(\\.bz2){0,1}|\\.zip")
 }
 
 
