@@ -5,20 +5,35 @@
 
 ###############################################################################
 
+#' checks if a file has a zip extension
+#'
+#' @noRd
+.is_zip_file <- function(x) {
+  grepl(pattern = ".*\\.zip$", x = x)
+}
+
+#' checks if a file has a tar or tar.bz2 extension
+#'
+#' @noRd
+.is_tar_file <- function(x) {
+  grepl(pattern = ".*\\.tar(\\.bz2){0,1}", x)
+}
+
 #' Checks whether a provided file-path points to a valid CoxpresDB.jp archive
 #'
-#' @param        db_archive    A file path. Should be a single \code{*.tar.bz2}
-#' or \code{*.tar} file as downloaded from the coxpresdb.jp website.
-#'
-#' @importFrom   stringr       str_detect
+#' @param        db_archive    A file path. Should be a single
+#'   \code{`*`.tar.bz2}, \code{`*`.tar}, or \code{`*`.zip} file as downloaded
+#'   from the _coxpresdb.jp_ website.
 #'
 .is_coxpresdb_archive <- function(
                                   db_archive) {
   length(db_archive) == 1 &&
     file.exists(db_archive) &&
-    stringr::str_detect(db_archive, "\\.tar(.bz2)*$")
+    (
+      .is_zip_file(db_archive) ||
+        .is_tar_file(db_archive)
+    )
 }
-
 
 ###############################################################################
 
@@ -83,12 +98,21 @@ CoxpresDbImporter <- function(
     db_archive
   }
 
-  gene_files <- sort(grep(
-    pattern = ".*/$",
-    utils::untar(db_uncompressed, list = TRUE),
-    value = TRUE,
-    invert = TRUE
-  ))
+  file_listing_function <- if (.is_zip_file(db_archive)) {
+    function(x) utils::unzip(x, list = TRUE)[["Name"]]
+  } else {
+    function(x) utils::untar(x, list = TRUE)
+  }
+
+  gene_files <- sort(
+    grep(
+      pattern = ".*/$",
+      file_listing_function(db_uncompressed),
+      value = TRUE,
+      invert = TRUE
+    )
+  )
+
   gene_file_df <- tibble::tibble(
     gene_id = basename(gene_files),
     file_path = gene_files
@@ -243,21 +267,35 @@ setMethod(
 
     stopifnot(length(gene_file) == 1)
 
-    expected_colnames <- c(
-      "source_id", "target_id", "mutual_rank", "correlation"
-    )
+    archive <- get_uncompressed_archive(importer)
 
-    initial_db <- data.table::fread(
-      cmd = paste(
-        "tar --to-stdout -xf", get_uncompressed_archive(importer), gene_file
-      )
-    )
+    import_command <- if (.is_tar_file(archive)) {
+      paste("tar --to-stdout -xf", archive, gene_file)
+    } else if (.is_zip_file(archive)) {
+      paste("unzip -p", archive, gene_file)
+    } else {
+      stop("archive should be either .zip or .tar in import_all_coex_partners")
+    }
 
+    initial_db <- data.table::fread(cmd = import_command)
+
+    # Original versions of coxpresdb files were of the format (target_id,
+    # mutual_rank, correlation), with each seed gene having a separate file
+    #
+    # In 2019, versions of the coxpresdb files do not contain a correlation
+    # coefficient column (ie, target_id, mutual_rank)
+    #
+    # For backwards compatibility, we include a correlation column in the
+    # returned dataset
     coex_db <- tibble::tibble(
       source_id = gene_id,
       target_id = as.character(initial_db[[1]]),
       mutual_rank = initial_db[[2]],
-      correlation = initial_db[[3]]
+      correlation = if (ncol(initial_db) >= 3) {
+        initial_db[[3]]
+      } else {
+        as.numeric(NA)
+      }
     )
 
     coex_db[coex_db[["target_id"]] != gene_id, ]

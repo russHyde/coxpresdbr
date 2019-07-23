@@ -7,8 +7,9 @@
 .is_coxpresdb_archive(db_archive)
 }
 \arguments{
-\item{db_archive}{A file path. Should be a single \code{*.tar.bz2}
-or \code{*.tar} file as downloaded from the coxpresdb.jp website.}
+\item{db_archive}{A file path. Should be a single
+\code{`*`.tar.bz2}, \code{`*`.tar}, or \code{`*`.zip} file as downloaded
+from the _coxpresdb.jp_ website.}
 }
 \description{
 Checks whether a provided file-path points to a valid CoxpresDB.jp archive

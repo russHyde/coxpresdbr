@@ -9,8 +9,10 @@ context("Tests for dataset I/O in `coxpresdbr` package")
 # - Each file contains coexpression data for just those 10 genes
 # - NOTE: testthat tests are ran with "<pkg>/tests/testthat/" as the working
 # directory
-test_data_file <- "spo_v14_subset.tar.bz2"
-test_data_uncompressed <- "spo_v14_subset.tar"
+test_data_bz2 <- "spo_v14_subset.tar.bz2"
+test_data_tar <- "spo_v14_subset.tar"
+test_data_zip <- "spo_v14_subset_two_cols.zip"
+
 test_data_genes <- as.character(c(
   2538791, 2539499, 2540594, 2541560, 2541907,
   2542210, 2542294, 2543492, 3361219, 3361512
@@ -25,17 +27,23 @@ test_that("CoxpresDbImporter: Constructor", {
   # on re-extracting the same file.
   expect_is(
     object = CoxpresDbImporter(
-      db_archive = test_data_file,
+      db_archive = test_data_bz2,
       overwrite_in_bunzip2 = TRUE
     ),
     "CoxpresDbImporter",
-    info = "Construction of a CoxpresDbImporter with a compressed archive"
+    info = "Construction of a CoxpresDbImporter from a bz2-compressed archive"
   )
 
   expect_is(
-    object = CoxpresDbImporter(db_archive = test_data_uncompressed),
+    object = CoxpresDbImporter(db_archive = test_data_tar),
     "CoxpresDbImporter",
-    info = "Construction of a CoxpresDbImporter with an uncompressed archive"
+    info = "Construction of a CoxpresDbImporter from an uncompressed archive"
+  )
+
+  expect_is(
+    object = CoxpresDbImporter(db_archive = test_data_zip),
+    "CoxpresDbImporter",
+    info = "Construction of a CoxpresDbImporter from a zip-compressed archive"
   )
 
   expect_error(
@@ -45,7 +53,10 @@ test_that("CoxpresDbImporter: Constructor", {
 
   expect_error(
     object = CoxpresDbImporter(db_archive = "test_coxpresdbr_io.R"),
-    info = "A valid file must be passed as db_archive to CoxpresDbImporter"
+    info = paste(
+      "A valid (.tar.bz2, .tar or .zip) file must be passed as",
+      "db_archive to CoxpresDbImporter"
+    )
   )
 })
 
@@ -55,11 +66,11 @@ test_that("CoxpresDbImporter: accessors for filenames", {
   expect_equal(
     object = get_raw_archive(
       CoxpresDbImporter(
-        db_archive = test_data_file,
+        db_archive = test_data_bz2,
         overwrite_in_bunzip2 = TRUE
       )
     ),
-    expected = test_data_file,
+    expected = test_data_bz2,
     info = paste(
       "raw_archive for a compressed archive should be the compressed",
       "archive's filename"
@@ -68,36 +79,58 @@ test_that("CoxpresDbImporter: accessors for filenames", {
 
   expect_equal(
     object = get_raw_archive(
-      CoxpresDbImporter(db_archive = test_data_uncompressed)
+      CoxpresDbImporter(db_archive = test_data_tar)
     ),
-    expected = test_data_uncompressed,
+    expected = test_data_tar,
     info = paste(
-      "raw_archive for a uncompressed archive should be the uncompressed",
+      "raw_archive for a uncompressed .tar archive should be the uncompressed",
       "archive's filename"
+    )
+  )
+
+  expect_equal(
+    object = get_raw_archive(
+      CoxpresDbImporter(db_archive = test_data_zip)
+    ),
+    expected = test_data_zip,
+    info = paste(
+      "raw_archive for a .zip archive should be the .zip file itself"
     )
   )
 
   expect_equal(
     object = get_uncompressed_archive(
       CoxpresDbImporter(
-        db_archive = test_data_file,
+        db_archive = test_data_bz2,
         overwrite_in_bunzip2 = TRUE
       )
     ),
-    expected = file.path(tempdir(), test_data_uncompressed),
+    expected = file.path(tempdir(), test_data_tar),
     info = paste(
-      "uncompressed_archive for a compressed archive should be in the tempdir"
+      "uncompressed_archive for a compressed archive should be in the tempdir",
+      "by default"
     )
   )
 
   expect_equal(
     object = get_uncompressed_archive(
-      CoxpresDbImporter(db_archive = test_data_uncompressed)
+      CoxpresDbImporter(db_archive = test_data_tar)
     ),
-    expected = test_data_uncompressed,
+    expected = test_data_tar,
     info = paste(
       "uncompressed_archive for a uncompressed archive should be the",
       "uncompressed archive's filename"
+    )
+  )
+
+  expect_equal(
+    object = get_uncompressed_archive(
+      CoxpresDbImporter(db_archive = test_data_zip)
+    ),
+    expected = test_data_zip,
+    info = paste(
+      "since we can access files from a .zip, we don't need to uncompress it",
+      "so the uncompressed archive's filename should match the .zips filename"
     )
   )
 })
@@ -106,7 +139,7 @@ test_that("CoxpresDbImporter: accessors for filenames", {
 
 test_that(".is_coxpresdb_archive", {
   expect_true(
-    object = .is_coxpresdb_archive(test_data_file),
+    object = .is_coxpresdb_archive(test_data_bz2),
     info = paste(
       "Checks a single, valid, coxpresdb archive (*.tar.bz2) is a valid",
       "archive"
@@ -114,20 +147,30 @@ test_that(".is_coxpresdb_archive", {
   )
 
   expect_true(
-    object = .is_coxpresdb_archive(test_data_uncompressed),
+    object = .is_coxpresdb_archive(test_data_tar),
     info = paste(
       "Checks a single, valid, uncompressed coxpresdb (*.tar) is a valid",
       "archive"
     )
   )
 
-  expect_false(
-    object = .is_coxpresdb_archive("test_coxpresdbr_io.R"),
-    info = "A valid coxpresdb archive should have a `.tar.bz2 extension`"
+  expect_true(
+    .is_coxpresdb_archive(test_data_zip),
+    info = paste(
+      "A .zip archive is a valid coxpresdb archive"
+    )
   )
 
   expect_false(
-    object = .is_coxpresdb_archive(rep(test_data_file, 2)),
+    object = .is_coxpresdb_archive("test_coxpresdbr_io.R"),
+    info = paste(
+      "A valid coxpresdb archive should have a `.tar`, `.tar.bz2` or `.zip`",
+      "extension`"
+    )
+  )
+
+  expect_false(
+    object = .is_coxpresdb_archive(rep(test_data_bz2, 2)),
     info = "User should only use a single coxpresdb archive at a time"
   )
 })
@@ -135,17 +178,23 @@ test_that(".is_coxpresdb_archive", {
 ###############################################################################
 
 test_that("get the file-paths for all genes in the archive", {
-  expected <- tibble::tibble(
+  expected_tar <- tibble::tibble(
     gene_id = test_data_genes,
     file_path = file.path("spo_v14_subset", test_data_genes)
   ) %>%
     dplyr::arrange(gene_id)
 
+  expected_zip <- tibble::tibble(
+    gene_id = test_data_genes,
+    file_path = file.path("spo_v14_subset_two_cols", test_data_genes)
+  ) %>%
+    dplyr::arrange(gene_id)
+
   expect_equal(
     object = get_file_paths(
-      CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+      CoxpresDbImporter(test_data_bz2, overwrite_in_bunzip2 = TRUE)
     ),
-    expected = expected,
+    expected = expected_tar,
     info = paste(
       "File paths for the gene-partner datafames in a compressed",
       "CoxpresDB archive"
@@ -154,24 +203,46 @@ test_that("get the file-paths for all genes in the archive", {
 
   expect_equal(
     object = get_file_paths(
-      CoxpresDbImporter(test_data_uncompressed)
+      CoxpresDbImporter(test_data_tar)
     ),
-    expected = expected,
+    expected = expected_tar,
     info = paste(
       "File paths for the gene-partner datafames in an",
       "uncompressed CoxpresDB archive"
     )
   )
+
+  expect_equal(
+    object = get_file_paths(
+      CoxpresDbImporter(test_data_zip)
+    ),
+    expected = expected_zip,
+    info = paste(
+      "File paths for the gene-partner dataframes as obtained from a .zip",
+      "CoxpresDB archive"
+    )
+  )
 })
+
+###############################################################################
 
 test_that("get file path for a specific gene", {
   expect_equal(
     object = get_file_path_for_gene(
       "2538791",
-      CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+      CoxpresDbImporter(test_data_bz2, overwrite_in_bunzip2 = TRUE)
     ),
     expected = file.path("spo_v14_subset", "2538791"),
     info = "file path for a specific gene in a CoxpresDb archive"
+  )
+
+  expect_equal(
+    object = get_file_path_for_gene(
+      "2538791",
+      CoxpresDbImporter(test_data_zip)
+    ),
+    expected = file.path("spo_v14_subset_two_cols", "2538791"),
+    info = "file path for a specific gene in a .zip Coxpresdb archive"
   )
 })
 
@@ -208,14 +279,14 @@ test_that(
     expect_silent(
       object = get_gene_ids(
         CoxpresDbImporter(
-          db_archive = test_data_file, overwrite_in_bunzip2 = TRUE
+          db_archive = test_data_bz2, overwrite_in_bunzip2 = TRUE
         )
       )
     )
 
     expect_equal(
       object = get_gene_ids(
-        CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+        CoxpresDbImporter(test_data_bz2, overwrite_in_bunzip2 = TRUE)
       ),
       expected = test_data_genes,
       info = "Accessor test for gene-ids from a compressed CoxpresDB archive"
@@ -223,19 +294,26 @@ test_that(
 
     expect_equal(
       object = get_gene_ids(
-        CoxpresDbImporter(test_data_uncompressed, overwrite_in_bunzip2 = TRUE)
+        CoxpresDbImporter(test_data_tar, overwrite_in_bunzip2 = TRUE)
       ),
       expected = test_data_genes,
       info = "Accessor test for gene-ids from an uncompressed CoxpresDB archive"
     )
+
+    expect_equal(
+      object = get_gene_ids(
+        CoxpresDbImporter(test_data_zip)
+      ),
+      expected = test_data_genes,
+      info = "Accessor test for gene-ids from a .zip CoxpresDb archive"
+    )
   }
 )
-
 ###############################################################################
 
 test_that("import_all_coex_partners: invalid input", {
   importer <- CoxpresDbImporter(
-    db_archive = test_data_file, overwrite_in_bunzip2 = TRUE
+    db_archive = test_data_bz2, overwrite_in_bunzip2 = TRUE
   )
 
   expect_error(
@@ -262,10 +340,12 @@ test_that("import_all_coex_partners: invalid input", {
   )
 })
 
+###############################################################################
+
 test_that("import_all_coex_partners: valid input", {
   message(getwd())
 
-  importer <- CoxpresDbImporter(test_data_file, overwrite_in_bunzip2 = TRUE)
+  importer <- CoxpresDbImporter(test_data_bz2, overwrite_in_bunzip2 = TRUE)
 
   # expect_silent(
   #  object = import_all_coex_partners(
@@ -276,6 +356,9 @@ test_that("import_all_coex_partners: valid input", {
   coex_db_2538791 <- import_all_coex_partners(
     gene_id = "2538791", importer = importer
   )
+
+  # TODO: replace these separate tests with an explicit test against the
+  # contents of the coexpression file for 2538791
 
   expect_is(
     object = coex_db_2538791,
@@ -322,3 +405,23 @@ test_that("import_all_coex_partners: valid input", {
     )
   )
 })
+
+###############################################################################
+
+test_that("import all coex partners from a .zip archive", {
+  importer <- CoxpresDbImporter(test_data_zip)
+
+  coex_db_2538791 <- import_all_coex_partners(
+    gene_id = "2538791", importer = importer
+  )
+  expect_is(
+    object = coex_db_2538791,
+    class = "tbl_df",
+    info = "Coexpression database should be returned as a tibble::tbl_df"
+  )
+})
+
+# TODO: correlations should be NA if extracted from a two-column file
+# TODO: exact matching of the contents of the coex_db_2538791 files
+
+###############################################################################

@@ -21,7 +21,6 @@ Suggests:
     lintr,
     covr
 Imports:
-    stringr,
     tibble,
     data.table,
     magrittr,

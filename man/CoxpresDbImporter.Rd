@@ -9,8 +9,9 @@ CoxpresDbImporter(db_archive, temp_dir = tempdir(),
   overwrite_in_bunzip2 = FALSE, remove_in_bunzip2 = FALSE)
 }
 \arguments{
-\item{db_archive}{A file path. Should be a single \code{*.tar.bz2}
-or \code{*.tar} file as downloaded from the coxpresdb.jp website.}
+\item{db_archive}{A file path. Should be a single
+\code{`*`.tar.bz2}, \code{`*`.tar}, or \code{`*`.zip} file as downloaded
+from the _coxpresdb.jp_ website.}
 
 \item{temp_dir}{A directory into which a compressed CoxpresDB
 archive will be decompressed. By default this is the temp_dir for the
