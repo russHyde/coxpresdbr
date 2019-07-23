@@ -25,7 +25,6 @@ Imports:
     data.table,
     magrittr,
     dplyr,
-    purrr,
     methods,
     metap,
     R.utils,

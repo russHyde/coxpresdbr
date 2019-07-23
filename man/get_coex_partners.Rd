@@ -9,19 +9,19 @@ get_coex_partners(gene_ids, importer, gene_universe = NULL,
 }
 \arguments{
 \item{gene_ids}{A vector of gene identifiers. All of these
-should be annotated within the coxpresdb dataset.}
+should be annotated within the 'coxpresDb' dataset.}
 
-\item{importer}{A CoxpresDbImporter. This allows access to a
-coxpresDb archive.}
+\item{importer}{A \code{CoxpresDbImporter}. This allows access
+to a 'coxpresDb' archive.}
 
 \item{gene_universe}{The genes in the dataframe should be filtered
 to ensure they are all present in this set. Note that both the entries in
 \code{source_id} and \code{target_id} are filtered to be in this set.}
 
-\item{n_partners}{The maximum number of partners to return for
-the source gene(s) in \code{coex_df}. Gene partners will be sorted in
-order of mutual-rank and then correlation-coefficient before selecting the
-top partners.}
+\item{n_partners}{The maximum number of partners to return for the
+source gene(s) in \code{coex_df}. Gene partners will be sorted in order of
+mutual-rank and then correlation-coefficient before selecting the top
+partners.}
 
 \item{mr_threshold}{All gene-pairs in the returned dataset will
 have a mutual-rank of at most this value.}
@@ -40,6 +40,6 @@ If the user provides a \code{gene_universe}, the dataframe will only contain
 genes that are present in this set (the default universe is the entirety of
 the genes present in the coxpresDB archive).
 
-If the thresholds, number-of-partners or gene_universe are set to NULL,
-the corresponding filters are not applied to the dataset.
+If the thresholds, number-of-partners or gene_universe are set to
+\code{NULL}, the corresponding filters are not applied to the dataset.
 }
