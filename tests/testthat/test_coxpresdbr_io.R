@@ -357,6 +357,9 @@ test_that("import_all_coex_partners: valid input", {
     gene_id = "2538791", importer = importer
   )
 
+  # TODO: replace these separate tests with an explicit test against the
+  # contents of the coexpression file for 2538791
+
   expect_is(
     object = coex_db_2538791,
     class = "tbl_df",
@@ -406,5 +409,19 @@ test_that("import_all_coex_partners: valid input", {
 ###############################################################################
 
 test_that("import all coex partners from a .zip archive", {
-  # TODO
+  importer <- CoxpresDbImporter(test_data_zip)
+
+  coex_db_2538791 <- import_all_coex_partners(
+    gene_id = "2538791", importer = importer
+  )
+  expect_is(
+    object = coex_db_2538791,
+    class = "tbl_df",
+    info = "Coexpression database should be returned as a tibble::tbl_df"
+  )
 })
+
+# TODO: correlations should be NA if extracted from a two-column file
+# TODO: exact matching of the contents of the coex_db_2538791 files
+
+###############################################################################
