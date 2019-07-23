@@ -5,3 +5,5 @@ TODO.md
 requirements.txt
 ^\.travis\.yml$
 ^codecov\.yml$
+^README\.md$
+^README\.Rmd$
