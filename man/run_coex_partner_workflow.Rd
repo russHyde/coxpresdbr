@@ -13,21 +13,21 @@ run_coex_partner_workflow(gene_ids, gene_statistics, importer,
 the genes in \code{gene_statistics} and (if defined) \code{gene_universe}.}
 
 \item{gene_statistics}{A table containing the two-tailed p-values,
-direction-of-change and gene-ids for all genes that are to be considered in
-the analysis (any genes that are not in the `gene_universe` are
+direction-of-change and gene-ids for all genes that are to be considered
+in the analysis (any genes that are not in the \code{gene_universe} are
 disregarded).}
 
-\item{importer}{A CoxpresDbImporter object.}
+\item{importer}{A \code{CoxpresDbImporter} object.}
 
-\item{gene_universe}{A set of gene identifiers or NULL. If defined,
-each of the gene-identifiers should have data present in a row of
+\item{gene_universe}{A set of gene identifiers or \code{NULL}. If
+defined, each of the gene-identifiers should have data present in a row of
 \code{gene_statistics}. If undefined, the universe is taken to be the
-intersection of all genes in \code{gene_statistics} and all genes accessible
-through the CoxpresDB dataset in \code{importer}. Once defined, all genes in
-\code{gene_ids} should be present in \code{gene_universe}.}
+intersection of all genes in \code{gene_statistics} and all genes
+accessible through the CoxpresDB dataset in \code{importer}. Once defined,
+all genes in \code{gene_ids} should be present in \code{gene_universe}.}
 
-\item{n_partners}{The maximum number of partners to pull out for
-a given source gene from the CoxpresDb database.}
+\item{n_partners}{The maximum number of partners to pull out for a
+given source gene from the CoxpresDb database.}
 
 \item{...}{Other arguments passed to
 \code{get_coex_partners}.}

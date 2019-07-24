@@ -489,7 +489,7 @@ test_that("cluster_by_coex_partnership: valid input", {
 
   # --- #
   nodes_no_disparity <- test_statistics_no_disparity %>%
-    dplyr::rename_(name = ~gene_id) %>%
+    dplyr::rename(name = .data[["gene_id"]]) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_no_disparity <- tibble::tibble(
@@ -533,7 +533,7 @@ disparity"
 
   # --- #
   nodes_ignoring_disparity <- test_statistics_with_disparity %>%
-    dplyr::rename_(name = ~gene_id) %>%
+    dplyr::rename(name = .data[["gene_id"]]) %>%
     magrittr::extract(c("name", "z_score", "p_value", "direction"))
 
   edges_ignoring_disparity <- tibble::tibble(

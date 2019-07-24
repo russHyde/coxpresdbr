@@ -34,7 +34,8 @@
 #' @param        mr_threshold   All gene-pairs in the returned dataset will
 #'   have a mutual-rank of at most this value.
 #'
-#' @importFrom   dplyr         arrange_   filter_
+#' @importFrom   dplyr         arrange
+#' @importFrom   rlang         .data
 #' @importFrom   utils         head
 #'
 .filter_coex_partners <- function(
@@ -66,13 +67,17 @@
     mr_threshold
   }
 
-  coex_df %>%
-    dplyr::filter_(
-      ~ source_id %in% gene_universe &
+  keep_rows <- with(
+    coex_df,
+    which(
+      source_id %in% gene_universe &
         target_id %in% gene_universe &
         mutual_rank <= mr_threshold
-    ) %>%
-    dplyr::arrange_(~mutual_rank) %>%
+    )
+  )
+
+  coex_df[keep_rows, ] %>%
+    dplyr::arrange(.data[["mutual_rank"]]) %>%
     head(n = n_partners)
 }
 

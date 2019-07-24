@@ -8,29 +8,27 @@
 #' those neighbours and then cluster the initial gene-ids
 #'
 #' @param        gene_ids     A set of gene identifiers. Should be a subset of
-#' the genes in \code{gene_statistics} and (if defined) \code{gene_universe}.
+#'   the genes in \code{gene_statistics} and (if defined) \code{gene_universe}.
 #'
 #' @param        gene_statistics   A table containing the two-tailed p-values,
-#' direction-of-change and gene-ids for all genes that are to be considered in
-#' the analysis (any genes that are not in the `gene_universe` are
-#' disregarded).
+#'   direction-of-change and gene-ids for all genes that are to be considered
+#'   in the analysis (any genes that are not in the \code{gene_universe} are
+#'   disregarded).
 #'
-#' @param        importer      A CoxpresDbImporter object.
+#' @param        importer      A \code{CoxpresDbImporter} object.
 #'
-#' @param        gene_universe   A set of gene identifiers or NULL. If defined,
-#' each of the gene-identifiers should have data present in a row of
-#' \code{gene_statistics}. If undefined, the universe is taken to be the
-#' intersection of all genes in \code{gene_statistics} and all genes accessible
-#' through the CoxpresDB dataset in \code{importer}. Once defined, all genes in
-#' \code{gene_ids} should be present in \code{gene_universe}.
+#' @param        gene_universe   A set of gene identifiers or \code{NULL}. If
+#'   defined, each of the gene-identifiers should have data present in a row of
+#'   \code{gene_statistics}. If undefined, the universe is taken to be the
+#'   intersection of all genes in \code{gene_statistics} and all genes
+#'   accessible through the CoxpresDB dataset in \code{importer}. Once defined,
+#'   all genes in \code{gene_ids} should be present in \code{gene_universe}.
 #'
-#' @param        n_partners    The maximum number of partners to pull out for
-#' a given source gene from the CoxpresDb database.
+#' @param        n_partners    The maximum number of partners to pull out for a
+#'   given source gene from the CoxpresDb database.
 #'
 #' @param        ...           Other arguments passed to
-#' \code{get_coex_partners}.
-#'
-#' @importFrom   dplyr         filter_
+#'   \code{get_coex_partners}.
 #'
 #' @include      coxpresdbr_parse.R
 #' @include      coxpresdbr_stats.R
@@ -91,9 +89,8 @@ run_coex_partner_workflow <- function(
     ))
   }
 
-  gene_statistics <- dplyr::filter_(
-    gene_statistics, ~ gene_id %in% gene_universe
-  )
+  keep_rows <- gene_statistics[["gene_id"]] %in% gene_universe
+  gene_statistics <- gene_statistics[keep_rows, ]
 
   partners <- get_coex_partners(
     gene_ids, importer, gene_universe, n_partners, ...

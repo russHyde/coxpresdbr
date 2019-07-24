@@ -35,11 +35,12 @@
 #'
 #' @include      coxpresdbr_data_validity.R
 #'
-#' @importFrom   dplyr         group_by_   mutate_   n   summarise_   ungroup
+#' @importFrom   dplyr         group_by   mutate   n   summarise   ungroup
 #' @importFrom   magrittr      extract   %>%
 #' @importFrom   metap         sumz   two2one
 #' @importFrom   methods       is
-#' @importFrom   stats         qnorm
+#' @importFrom   rlang         .data
+#' @importFrom   stats         pnorm   qnorm
 #' @importFrom   tibble        tibble
 #'
 #' @export
@@ -53,11 +54,17 @@ evaluate_coex_partners <- function(
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
 
   .add_p_values <- function(.df) {
-    dplyr::mutate_(
+    dplyr::mutate(
       .df,
-      invert = ~ ifelse(direction < 0, TRUE, FALSE),
-      p_value_onetail_forward = ~ metap::two2one(p_value, invert = invert),
-      p_value_onetail_reversed = ~ metap::two2one(p_value, invert = !invert)
+      invert = ifelse(
+        .data[["direction"]] < 0, TRUE, FALSE
+      ),
+      p_value_onetail_forward = metap::two2one(
+        .data[["p_value"]], invert = .data[["invert"]]
+      ),
+      p_value_onetail_reversed = metap::two2one(
+        .data[["p_value"]], invert = !.data[["invert"]]
+      )
     )
   }
 
@@ -70,32 +77,34 @@ evaluate_coex_partners <- function(
   }
 
   .summarise_neighbours <- function(.df) {
-    dplyr::summarise_(
+    dplyr::summarise(
       .df,
-      n_partners = ~ n(),
-      z_score_forward = ~ .get_z_or_sumz(
-        n_partners, p_value_onetail_forward
+      n_partners = n(),
+      z_score_forward = .get_z_or_sumz(
+        .data[["n_partners"]],
+        .data[["p_value_onetail_forward"]]
       ),
-      z_score_reversed = ~ .get_z_or_sumz(
-        n_partners, p_value_onetail_reversed
+      z_score_reversed = .get_z_or_sumz(
+        .data[["n_partners"]],
+        .data[["p_value_onetail_reversed"]]
       ),
-      z_score = ~ (z_score_forward - z_score_reversed) / 2,
-      p_value_onesided = ~ pnorm(z_score, lower.tail = FALSE),
-      p_value = ~ ifelse(
-        z_score > 0,
-        2 * p_value_onesided,
-        2 * (1 - p_value_onesided)
+      z_score = (.data[["z_score_forward"]] - .data[["z_score_reversed"]]) / 2,
+      p_value_onesided = pnorm(.data[["z_score"]], lower.tail = FALSE),
+      p_value = ifelse(
+        .data[["z_score"]] > 0,
+        2 * .data[["p_value_onesided"]],
+        2 * (1 - .data[["p_value_onesided"]])
       )
     )
   }
 
   .format_reported_columns <- function(.df) {
-    dplyr::mutate_(
+    dplyr::mutate(
       .df,
-      gene_id = ~source_id,
-      n_partners = ~ as.integer(n_partners),
-      z_score = ~ as.numeric(z_score),
-      p_value = ~ as.numeric(p_value)
+      gene_id = .data[["source_id"]],
+      n_partners = as.integer(.data[["n_partners"]]),
+      z_score = as.numeric(.data[["z_score"]]),
+      p_value = as.numeric(.data[["p_value"]])
     )
   }
 
@@ -105,7 +114,7 @@ evaluate_coex_partners <- function(
       coex_partners,
       by.x = "gene_id", by.y = "target_id"
     ) %>%
-    dplyr::group_by_(~source_id) %>%
+    dplyr::group_by(.data[["source_id"]]) %>%
     .summarise_neighbours() %>%
     dplyr::ungroup() %>%
     .format_reported_columns() %>%
@@ -118,8 +127,13 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
-#' @importFrom   dplyr         rename_   select_
-#' @importFrom   magrittr      %>%
+#' .format_unsorted_nodes_for_tidygraph
+#'
+#' @importFrom   dplyr         rename
+#' @importFrom   magrittr      %>%   extract
+#' @importFrom   rlang         .data
+#'
+#' @noRd
 #'
 .format_unsorted_nodes_for_tidygraph <- function(
                                                  coex_partners) {
@@ -131,14 +145,20 @@ evaluate_coex_partners <- function(
   }
 
   coex_partners@gene_statistics %>%
-    dplyr::rename_(.dots = list(name = "gene_id")) %>%
-    dplyr::select_(.dots = c("name", "z_score", "p_value", "direction"))
+    dplyr::rename(name = .data[["gene_id"]]) %>%
+    magrittr::extract(c("name", "z_score", "p_value", "direction"))
 }
 
 ###############################################################################
 
-#' @importFrom   dplyr         filter_   transmute_
+#' .format_coex_edges_for_tidygraph
+#'
+#' @importFrom   dplyr         rename
 #' @importFrom   magrittr      %>%
+#' @importFrom   methods       is
+#' @importFrom   rlang         .data
+#'
+#' @noRd
 #'
 .format_coex_edges_for_tidygraph <- function(
                                              coex_partners,
@@ -147,10 +167,13 @@ evaluate_coex_partners <- function(
   stopifnot(all(dim(coex_partners@partners) > 0))
 
   relabelled <- coex_partners@partners %>%
-    dplyr::rename_(from = ~source_id, to = ~target_id)
+    dplyr::rename(
+      from = .data[["source_id"]], to = .data[["target_id"]]
+    )
 
   if (cluster_source_nodes_only) {
-    dplyr::filter_(relabelled, ~ to %in% from)
+    keep_rows <- relabelled[["to"]] %in% relabelled[["from"]]
+    relabelled[keep_rows, ]
   } else {
     relabelled
   }
@@ -158,6 +181,15 @@ evaluate_coex_partners <- function(
 
 ###############################################################################
 
+#' .add_direction_parities_to_coex_edges
+#'
+#' @importFrom   dplyr      inner_join   mutate
+#' @importFrom   magrittr   %>%   extract
+#' @importFrom   methods    is
+#' @importFrom   rlang      .data
+#'
+#' @noRd
+#'
 .add_direction_parities_to_coex_edges <- function(
                                                   coex_partners) {
   # both gene-statistics and partners should be defined in coex_partners
@@ -167,17 +199,21 @@ evaluate_coex_partners <- function(
   stopifnot(all(dim(coex_partners@gene_statistics) > 0))
   stopifnot(all(dim(coex_partners@partners) > 0))
 
-  gene_to_gene <- coex_partners@partners[c("source_id", "target_id")]
+  gene_to_gene <- coex_partners@partners[
+    c("source_id", "target_id")
+  ]
 
-  gene_sub_statistics <- extract(
-    coex_partners@gene_statistics, c("gene_id", "direction")
-  )
+  gene_sub_statistics <- coex_partners@gene_statistics[
+    c("gene_id", "direction")
+  ]
 
   direction_matches <- gene_to_gene %>%
     merge(y = gene_sub_statistics, by.x = "source_id", by.y = "gene_id") %>%
     merge(y = gene_sub_statistics, by.x = "target_id", by.y = "gene_id") %>%
-    dplyr::mutate_(direction_parity = ~ direction.x == direction.y) %>%
-    dplyr::select_(.dots = c("source_id", "target_id", "direction_parity"))
+    dplyr::mutate(
+      direction_parity = .data[["direction.x"]] == .data[["direction.y"]]
+    ) %>%
+    magrittr::extract(c("source_id", "target_id", "direction_parity"))
 
   coex_partners@partners <- dplyr::inner_join(
     x = coex_partners@partners,
@@ -202,8 +238,9 @@ evaluate_coex_partners <- function(
 #' differentially expressed in the opposite direction from each other? Default:
 #' TRUE.
 #'
-#' @importFrom   dplyr         filter_   left_join
+#' @importFrom   dplyr         filter   left_join
 #' @importFrom   igraph        get.vertex.attribute   vertex_attr
+#' @importFrom   rlang         .data
 #' @importFrom   tibble        tibble   as_tibble
 #' @importFrom   tidygraph     as_tbl_graph
 #'
@@ -217,7 +254,7 @@ cluster_by_coex_partnership <- function(
   )
 
   .edge_filter <- if (drop_disparities) {
-    function(x) dplyr::filter_(x, ~direction_parity)
+    function(x) dplyr::filter(x, .data[["direction_parity"]])
   } else {
     identity
   }
@@ -231,7 +268,7 @@ cluster_by_coex_partnership <- function(
     .format_coex_edges_for_tidygraph(
       cluster_source_nodes_only = TRUE
     ) %>%
-    dplyr::filter_(~ to %in% from) %>%
+    dplyr::filter(.data[["to"]] %in% .data[["from"]]) %>%
     .edge_filter()
 
   graph <- tidygraph::as_tbl_graph(
