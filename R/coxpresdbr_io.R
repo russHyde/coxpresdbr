@@ -5,14 +5,14 @@
 
 ###############################################################################
 
-#' checks if a file has a zip extension
+#' Checks if a file has a .zip extension
 #'
 #' @noRd
 .is_zip_file <- function(x) {
   grepl(pattern = ".*\\.zip$", x = x)
 }
 
-#' checks if a file has a tar or tar.bz2 extension
+#' Checks if a file has a .tar or .tar.bz2 extension
 #'
 #' @noRd
 .is_tar_file <- function(x) {
@@ -40,26 +40,26 @@
 #' Constructor for the CoxpresDbImporter class - Use this to obtain data from
 #' a CoxpresDB.jp archive
 #'
-#' The db_archive should be a .tar or a .tar.bz2, if it's a .tar.bz2 then
-#' \code{temp_dir} should be defined and a random copy of the uncompressed
-#' archive will be made. All access to the stored data will be made via the
-#' uncompressed copy of the archive, so make a CoxpresDbImporter _once_ during
-#' any given script.
+#' The \code{db_archive} should be a \code{.zip}, \code{.tar} or a
+#' \code{.tar.bz2}, if it's a \code{.tar.bz2} then \code{temp_dir} should be
+#' defined and a random copy of the uncompressed archive will be made. All
+#' access to the stored data will be made via the uncompressed copy of the
+#' archive, so make a \code{CoxpresDbImporter} _once_ during any given script.
 #'
 #' @inheritParams   .is_coxpresdb_archive
 #'
 #' @param        temp_dir      A directory into which a compressed CoxpresDB
-#' archive will be decompressed. By default this is the temp_dir for the
-#' current R session. Only relevant if the coxpresdb archive is compressed.
+#'   archive will be decompressed. By default this is the temp_dir for the
+#'   current R session. Only relevant if the coxpresdb archive is compressed.
 #'
 #' @param        overwrite_in_bunzip2   Boolean. If the CoxpresDB archive is
-#' compressed, and a decompressed copy of the archive is found in the target
-#' directory, should the function throw an exception? See \code{overwrite} in
-#' \code{R.utils::bunzip2}
+#'   compressed, and a decompressed copy of the archive is found in the target
+#'   directory, should the function throw an exception? See \code{overwrite} in
+#'   \code{R.utils::bunzip2}
 #'
 #' @param        remove_in_bunzip2   Boolean. If a compressed CoxpresDB archive
-#' is provided, should the compressed version be deleted after decompression?
-#' See \code{remove} in \code{R.utils::bunzip2}
+#'   is provided, should the compressed version be deleted after decompression?
+#'   See \code{remove} in \code{R.utils::bunzip2}
 #'
 #' @importFrom   methods       new
 #' @importFrom   R.utils       isBzipped   bunzip2
@@ -68,7 +68,7 @@
 #'
 #' @include      coxpresdbr_classes.R
 #'
-#' @return       A CoxpresDbImporter object.
+#' @return       A \code{CoxpresDbImporter} object.
 #' @export
 #'
 CoxpresDbImporter <- function(
@@ -131,11 +131,11 @@ CoxpresDbImporter <- function(
 #' Obtains all the file-paths that are present in a CoxpresDb archive
 #'
 #' @param        x             A \code{CoxpresDbImporter} object corresponding
-#' to a CoxpresDb.jp archive
+#'   to a CoxpresDb.jp archive
 #'
-#' @return       A tibble of gene_id:file_path pairs, each file is present
-#' in the archive (referenced within CoxpresDbImporter) and represents the
-#' coexpression data for a particular gene.
+#' @return       A tibble of gene_id:file_path pairs, each file is present in
+#'   the archive (referenced within \code{CoxpresDbImporter}) and represents
+#'   the coexpression data for a particular gene.
 #'
 #' @importFrom   methods       .valueClassTest
 #'
@@ -172,7 +172,7 @@ setMethod(
 #' Generic method for getting gene identifiers.
 #'
 #' @param        x             A \code{CoexpresDbImporter} corresponding to a
-#' CoxpresDB archive.
+#'   CoxpresDB archive.
 #'
 setGeneric("get_gene_ids", valueClass = "character", function(x) {
   standardGeneric("get_gene_ids")
@@ -182,10 +182,10 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 #' CoxpresDB.jp archive
 #'
 #' @param        x             A \code{CoexpresDbImporter} corresponding to a
-#' CoxpresDB archive.
+#'   CoxpresDB archive.
 #'
 #' @return       A vector of gene-ids; data for each such gene is present in
-#' the user-supplied archive
+#'   the user-supplied archive
 #'
 #' @export
 #'
@@ -231,15 +231,16 @@ setGeneric(
 #' Import all the coexpression partner data for a single gene from a given
 #' CoxpresDb archive.
 #'
-#' Users should use get_coex_partners(gene_ids, importer) rather than this
-#' method.
+#' Users should use \code{get_coex_partners(gene_ids, importer)} rather than
+#' this method.
 #'
 #' @param        gene_id       A gene-identifier in the same format as present
-#' throughout the CoxpresDb archive.
-#' @param        importer      CoxpresDbImporter object.
+#'   throughout the CoxpresDb archive.
+#'
+#' @param        importer      \code{CoxpresDbImporter} object.
 #'
 #' @return       A single dataframe containing the source -> target mappings,
-#' and both the mutual ranks and correlations between the gene pairs.
+#'   and both the mutual ranks and correlations between the gene pairs.
 #'
 #' @importFrom   data.table    fread
 #' @importFrom   tibble        tibble

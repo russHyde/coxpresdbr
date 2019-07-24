@@ -13,13 +13,13 @@ CoxpresDb archive.}
 \item{gene_id}{A gene-identifier in the same format as present
 throughout the CoxpresDb archive.}
 
-\item{importer}{CoxpresDbImporter object.}
+\item{importer}{\code{CoxpresDbImporter} object.}
 }
 \value{
 A single dataframe containing the source -> target mappings,
-and both the mutual ranks and correlations between the gene pairs.
+  and both the mutual ranks and correlations between the gene pairs.
 }
 \description{
-Users should use get_coex_partners(gene_ids, importer) rather than this
-method.
+Users should use \code{get_coex_partners(gene_ids, importer)} rather than
+this method.
 }

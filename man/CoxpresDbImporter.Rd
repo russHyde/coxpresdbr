@@ -30,9 +30,9 @@ See \code{remove} in \code{R.utils::bunzip2}}
 A CoxpresDbImporter object.
 }
 \description{
-The db_archive should be a .tar or a .tar.bz2, if it's a .tar.bz2 then
-\code{temp_dir} should be defined and a random copy of the uncompressed
-archive will be made. All access to the stored data will be made via the
-uncompressed copy of the archive, so make a CoxpresDbImporter _once_ during
-any given script.
+The \code{db_archive} should be a \code{.zip}, \code{.tar} or a
+\code{.tar.bz2}, if it's a \code{.tar.bz2} then \code{temp_dir} should be
+defined and a random copy of the uncompressed archive will be made. All
+access to the stored data will be made via the uncompressed copy of the
+archive, so make a \code{CoxpresDbImporter} _once_ during any given script.
 }

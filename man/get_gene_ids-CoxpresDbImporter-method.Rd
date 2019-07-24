@@ -14,7 +14,7 @@ CoxpresDB archive.}
 }
 \value{
 A vector of gene-ids; data for each such gene is present in
-the user-supplied archive
+  the user-supplied archive
 }
 \description{
 Imports the gene identifiers that are represented within a given

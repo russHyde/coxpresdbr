@@ -1,5 +1,9 @@
 # coxpresdbr 0.0.0.9000
 
+- User can use `.tar.bz2`, `.tar` or `.zip` archives as the source of CoxpresDB
+  data and the files can be of two-column (`target_id, mutual_rank`) or
+  three-column (`target_id, mutual_rank, correlation_coefficient`) format
+
 - Added a `NEWS.md` file to track changes to the package.
 
 - Added functions for importing CoxpresDB datasets from an existing archive.

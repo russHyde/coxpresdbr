@@ -11,9 +11,9 @@ get_file_paths(x)
 to a CoxpresDb.jp archive}
 }
 \value{
-A tibble of gene_id:file_path pairs, each file is present
-in the archive (referenced within CoxpresDbImporter) and represents the
-coexpression data for a particular gene.
+A tibble of gene_id:file_path pairs, each file is present in
+  the archive (referenced within \code{CoxpresDbImporter}) and represents
+  the coexpression data for a particular gene.
 }
 \description{
 Obtains all the file-paths that are present in a CoxpresDb archive
