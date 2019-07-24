@@ -176,9 +176,9 @@ test_that("run_coex_partner_workflow: valid input", {
       importer = test_importer,
       gene_universe = test_data_genes[1:4]
     )@gene_statistics,
-    expected = dplyr::filter_(
+    expected = dplyr::filter(
       test_gene_statistics,
-      ~ gene_id %in% test_data_genes[1:4]
+      .data[["gene_id"]] %in% test_data_genes[1:4]
     ),
     info = paste(
       "The `gene statistics` field stored by `run_coex_partner_workflow`",

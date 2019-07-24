@@ -29,7 +29,8 @@ Imports:
     metap,
     R.utils,
     igraph,
-    tidygraph
+    tidygraph,
+    rlang
 Collate:
     'coxpresdbr_classes.R'
     'coxpresdbr_data_validity.R'
