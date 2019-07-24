@@ -1,5 +1,10 @@
 # coxpresdbr 0.0.0.9000
 
+- `data.table::fread` is used to import data; This uses `fread`s command line
+  piping facility and so we use `fread(cmd = "...")` for security reasons. The
+  `cmd` arg was introduced in data.table 1.11.6; hence the lower-bound for
+  data.table in DESCRIPTION.
+
 - Correlation coefficients, if present in the original coxpresdb archive, are
   no longer reported in the coexpression partners since these coefficients are
   not consistently reported across the different releases of coxpresdb (and so

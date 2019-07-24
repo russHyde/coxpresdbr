@@ -22,7 +22,7 @@ Suggests:
     covr
 Imports:
     tibble,
-    data.table,
+    data.table (>= 1.11.6),
     magrittr,
     dplyr,
     methods,
