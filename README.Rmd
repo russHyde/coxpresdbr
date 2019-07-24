@@ -101,9 +101,9 @@ related file formats and two compression types (`.tar.bz2` and, more recently,
 
 The first file format had three columns (tab-separated)
 
-`target_gene   mutual_rank   correlation_coefficient`
+(`target_gene,   mutual_rank,   correlation_coefficient`)
 
-but has been replaced by a two column (`target_gene   mutual_rank`) format.
+but has been replaced by a two column (`target_gene,   mutual_rank`) format.
 Column names are not present and the `source_gene` (the name of the file) and
 `target_gene` (contents of the first column) are numeric Entrez IDs.
 
@@ -129,9 +129,10 @@ you can call:
 get_coex_partners(my_gene_set, importer = my_importer, n_partners = 10)
 ```
 
-This returns a data-frame with columns (correlation coefs, if present in the
-coxpresdb archive, are disregarded since they aren't present consistently)
-(`source_id,   target_id,   mutual_rank`)
+This returns a data-frame with columns: (
+`source_id,   target_id,   mutual_rank`; correlation coefs, if present in the
+coxpresdb archive, are disregarded since they aren't present in all coxpresdb
+releases)
 
 You can specify the universe of genes from which the top-N coexpression
 partners are chosen by using the argument `universe=...` and you can
