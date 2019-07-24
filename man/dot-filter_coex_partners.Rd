@@ -2,7 +2,8 @@
 % Please edit documentation in R/coxpresdbr_parse.R
 \name{.filter_coex_partners}
 \alias{.filter_coex_partners}
-\title{Function to filter the contents of a coxpresdb.jp gene-coexpression dataset}
+\title{Function to filter the contents of a 'coxpresdb.jp' gene-coexpression
+dataset}
 \usage{
 .filter_coex_partners(coex_df, gene_universe, n_partners, mr_threshold,
   cor_threshold)
@@ -15,10 +16,10 @@ returned by \code{import_all_coex_partners}.}
 to ensure they are all present in this set. Note that both the entries in
 \code{source_id} and \code{target_id} are filtered to be in this set.}
 
-\item{n_partners}{The maximum number of partners to return for
-the source gene(s) in \code{coex_df}. Gene partners will be sorted in
-order of mutual-rank and then correlation-coefficient before selecting the
-top partners.}
+\item{n_partners}{The maximum number of partners to return for the
+source gene(s) in \code{coex_df}. Gene partners will be sorted in order of
+mutual-rank and then correlation-coefficient before selecting the top
+partners.}
 
 \item{mr_threshold}{All gene-pairs in the returned dataset will
 have a mutual-rank of at most this value.}
@@ -27,5 +28,6 @@ have a mutual-rank of at most this value.}
 have a correlation coefficient of at least this value.}
 }
 \description{
-Function to filter the contents of a coxpresdb.jp gene-coexpression dataset
+Function to filter the contents of a 'coxpresdb.jp' gene-coexpression
+dataset
 }
