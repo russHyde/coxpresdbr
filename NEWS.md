@@ -1,5 +1,10 @@
 # coxpresdbr 0.0.0.9000
 
+- Correlation coefficients, if present in the original coxpresdb archive, are
+  no longer reported in the coexpression partners since these coefficients are
+  not consistently reported across the different releases of coxpresdb (and so
+  the user can no longer filter based on these values in `get_coex_partners`)
+
 - User can use `.tar.bz2`, `.tar` or `.zip` archives as the source of CoxpresDB
   data and the files can be of two-column (`target_id, mutual_rank`) or
   three-column (`target_id, mutual_rank, correlation_coefficient`) format
@@ -16,4 +21,3 @@
   top `k` coexpression partners of a given gene, or any partners with a mutual
   rank at-most-equal to some threshold, or any partners with a correlation
   coefficient at-least-equal to some threshold
-

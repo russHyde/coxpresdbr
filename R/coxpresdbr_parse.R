@@ -29,24 +29,19 @@
 #'
 #' @param        n_partners    The maximum number of partners to return for the
 #'   source gene(s) in \code{coex_df}. Gene partners will be sorted in order of
-#'   mutual-rank and then correlation-coefficient before selecting the top
-#'   partners.
+#'   mutual-rank before selecting the top partners.
 #'
 #' @param        mr_threshold   All gene-pairs in the returned dataset will
 #'   have a mutual-rank of at most this value.
 #'
-#' @param        cor_threshold   All gene-pairs in the returned dataset will
-#'   have a correlation coefficient of at least this value.
-#'
-#' @importFrom   dplyr         arrange_   filter_   desc
+#' @importFrom   dplyr         arrange_   filter_
 #' @importFrom   utils         head
 #'
 .filter_coex_partners <- function(
                                   coex_df,
                                   gene_universe,
                                   n_partners,
-                                  mr_threshold,
-                                  cor_threshold) {
+                                  mr_threshold) {
   if (length(unique(coex_df[["source_id"]])) > 1) {
     stop(
       "`.filter_coex_partners` has not yet been implemented for >1 source gene"
@@ -71,22 +66,13 @@
     mr_threshold
   }
 
-  cor_threshold <- if (missing(cor_threshold) || is.null(cor_threshold)) {
-    -1
-  } else {
-    cor_threshold
-  }
-
   coex_df %>%
     dplyr::filter_(
       ~ source_id %in% gene_universe &
         target_id %in% gene_universe &
-        mutual_rank <= mr_threshold &
-        correlation >= cor_threshold
+        mutual_rank <= mr_threshold
     ) %>%
-    dplyr::arrange_(
-      ~ mutual_rank + dplyr::desc(correlation)
-    ) %>%
+    dplyr::arrange_(~mutual_rank) %>%
     head(n = n_partners)
 }
 
@@ -95,9 +81,9 @@
 #' Returns the coexpression partners of a given set of genes
 #'
 #' Several filters are applied while identifying the coexpression partners of a
-#' given set of genes. Only those gene-pairs with a correlation above- and a
-#' mutual rank below- the user-selected threshold, and for a given input gene
-#' _at most_ \code{n_partners} are returned.
+#' given set of genes. Only those gene-pairs with a mutual rank below- the
+#' user-selected threshold, and for a given input gene _at most_
+#' \code{n_partners} are returned.
 #'
 #' If the user provides a \code{gene_universe}, the dataframe will only contain
 #' genes that are present in this set (the default universe is the entirety of
@@ -125,8 +111,7 @@ get_coex_partners <- function(
                               importer,
                               gene_universe = NULL,
                               n_partners = 100,
-                              mr_threshold = NULL,
-                              cor_threshold = NULL) {
+                              mr_threshold = NULL) {
   .import_fn <- function(x) {
     import_all_coex_partners(gene_id = x, importer = importer)
   }
@@ -135,7 +120,7 @@ get_coex_partners <- function(
     .filter_coex_partners(
       x,
       gene_universe = gene_universe, n_partners = n_partners,
-      mr_threshold = mr_threshold, cor_threshold = cor_threshold
+      mr_threshold = mr_threshold
     )
   }
 

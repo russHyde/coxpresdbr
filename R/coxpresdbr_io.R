@@ -286,17 +286,12 @@ setMethod(
     # In 2019, versions of the coxpresdb files do not contain a correlation
     # coefficient column (ie, target_id, mutual_rank)
     #
-    # For backwards compatibility, we include a correlation column in the
-    # returned dataset
+    # We disregard the correlation-coefficient column since it isn't
+    # consistently presented across different releases of coxpresdb
     coex_db <- tibble::tibble(
       source_id = gene_id,
       target_id = as.character(initial_db[[1]]),
-      mutual_rank = initial_db[[2]],
-      correlation = if (ncol(initial_db) >= 3) {
-        initial_db[[3]]
-      } else {
-        as.numeric(NA)
-      }
+      mutual_rank = initial_db[[2]]
     )
 
     coex_db[coex_db[["target_id"]] != gene_id, ]

@@ -368,10 +368,10 @@ test_that("import_all_coex_partners: valid input", {
 
   expect_equal(
     object = colnames(coex_db_2538791),
-    expected = c("source_id", "target_id", "mutual_rank", "correlation"),
+    expected = c("source_id", "target_id", "mutual_rank"),
     info = paste(
       "Colnames of a coexpression database should be `source_id`,",
-      "`target_id`, `mutual_rank`, and `correlation`"
+      "`target_id` and `mutual_rank`"
     )
   )
 
@@ -381,10 +381,10 @@ test_that("import_all_coex_partners: valid input", {
       FUN.VALUE = character(1),
       USE.NAMES = FALSE
     ),
-    expected = c("character", "character", "numeric", "numeric"),
+    expected = c("character", "character", "numeric"),
     info = paste(
       "Coltypes should be character for source/target-id and numeric for",
-      "mutual-rank/correlation"
+      "mutual-rank"
     )
   )
 
@@ -421,7 +421,6 @@ test_that("import all coex partners from a .zip archive", {
   )
 })
 
-# TODO: correlations should be NA if extracted from a two-column file
 # TODO: exact matching of the contents of the coex_db_2538791 files
 
 ###############################################################################

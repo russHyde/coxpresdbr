@@ -5,8 +5,7 @@
 \title{Function to filter the contents of a 'coxpresdb.jp' gene-coexpression
 dataset}
 \usage{
-.filter_coex_partners(coex_df, gene_universe, n_partners, mr_threshold,
-  cor_threshold)
+.filter_coex_partners(coex_df, gene_universe, n_partners, mr_threshold)
 }
 \arguments{
 \item{coex_df}{A dataframe containing coexpression data. As
@@ -18,14 +17,10 @@ to ensure they are all present in this set. Note that both the entries in
 
 \item{n_partners}{The maximum number of partners to return for the
 source gene(s) in \code{coex_df}. Gene partners will be sorted in order of
-mutual-rank and then correlation-coefficient before selecting the top
-partners.}
+mutual-rank before selecting the top partners.}
 
 \item{mr_threshold}{All gene-pairs in the returned dataset will
 have a mutual-rank of at most this value.}
-
-\item{cor_threshold}{All gene-pairs in the returned dataset will
-have a correlation coefficient of at least this value.}
 }
 \description{
 Function to filter the contents of a 'coxpresdb.jp' gene-coexpression

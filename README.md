@@ -120,18 +120,14 @@ genes, you can call:
 
     get_coex_partners(my_gene_set, importer = my_importer, n_partners = 10)
 
-This returns a data-frame with columns (`source_id target_id mutual_rank
-correlation`)
+This returns a data-frame with columns (correlation coefs, if present in
+the coxpresdb archive, are disregarded since they aren’t present
+consistently) (`source_id, target_id, mutual_rank`)
 
 You can specify the universe of genes from which the top-N coexpression
 partners are chosen by using the argument `universe=...` and you can
 filter to ensure that the returned gene-pairs have a mutual-rank score
-or a correlation coefficient above some threshold using `mr_threshold`
-and `cor_threshold` respectively.
-
-(Be aware that since the coxpresdb databases no longer return
-correlation coefficients, it is futile to filter a recent coxpresdb
-databse using `cor_threshold` and this argument may be deprecated.)
+below some threshold using `mr_threshold`.
 
 <!-- TODO: Annotating an imported dataset -->
 

@@ -27,7 +27,7 @@ is provided, should the compressed version be deleted after decompression?
 See \code{remove} in \code{R.utils::bunzip2}}
 }
 \value{
-A CoxpresDbImporter object.
+A \code{CoxpresDbImporter} object.
 }
 \description{
 The \code{db_archive} should be a \code{.zip}, \code{.tar} or a
