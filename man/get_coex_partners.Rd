@@ -5,7 +5,7 @@
 \title{Returns the coexpression partners of a given set of genes}
 \usage{
 get_coex_partners(gene_ids, importer, gene_universe = NULL,
-  n_partners = 100, mr_threshold = NULL, cor_threshold = NULL)
+  n_partners = 100, mr_threshold = NULL)
 }
 \arguments{
 \item{gene_ids}{A vector of gene identifiers. All of these
@@ -20,20 +20,16 @@ to ensure they are all present in this set. Note that both the entries in
 
 \item{n_partners}{The maximum number of partners to return for the
 source gene(s) in \code{coex_df}. Gene partners will be sorted in order of
-mutual-rank and then correlation-coefficient before selecting the top
-partners.}
+mutual-rank before selecting the top partners.}
 
 \item{mr_threshold}{All gene-pairs in the returned dataset will
 have a mutual-rank of at most this value.}
-
-\item{cor_threshold}{All gene-pairs in the returned dataset will
-have a correlation coefficient of at least this value.}
 }
 \description{
 Several filters are applied while identifying the coexpression partners of a
-given set of genes. Only those gene-pairs with a correlation above- and a
-mutual rank below- the user-selected threshold, and for a given input gene
-_at most_ \code{n_partners} are returned.
+given set of genes. Only those gene-pairs with a mutual rank below- the
+user-selected threshold, and for a given input gene _at most_
+\code{n_partners} are returned.
 }
 \details{
 If the user provides a \code{gene_universe}, the dataframe will only contain

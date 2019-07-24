@@ -8,15 +8,10 @@ context("Tests for dataset parsing in `coxpresdbr` package")
 ###############################################################################
 
 test_that(".filter_coex_partners", {
-  # TODO: compound tests
-
   df1 <- tibble::tibble(
     source_id = rep("A", 5),
     target_id = LETTERS[2:6],
-    mutual_rank = 1:5,
-    # nolint start
-    correlation = 1 - 0.1^seq(5, 1)
-    # nolint end
+    mutual_rank = 1:5
   )
 
   expect_equal(
@@ -56,15 +51,6 @@ test_that(".filter_coex_partners", {
     ),
     expected = df1[1:4, ],
     info = "`mr_threshold` imposes a filter on the mutual_rank value"
-  )
-
-  expect_equal(
-    object = .filter_coex_partners(
-      df1[sample(seq(nrow(df1))), ],
-      cor_threshold = 0.999
-    ),
-    expected = df1[1:3, ],
-    info = "`cor_threshold` imposes a filter on the correlation value"
   )
 })
 
