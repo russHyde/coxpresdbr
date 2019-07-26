@@ -119,7 +119,7 @@ CoxpresDbAccessor <- function(
   )
 
   methods::new(
-    "CoxpresDbAccessor",
+    "CoxpresDbArchiveAccessor",
     archive = db_archive,
     archive_uncompressed = db_uncompressed,
     file_paths = gene_file_df

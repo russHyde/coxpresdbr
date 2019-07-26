@@ -30,32 +30,41 @@ test_that("CoxpresDbAccessor: Constructor", {
       db_archive = test_data_bz2,
       overwrite_in_bunzip2 = TRUE
     ),
-    "CoxpresDbAccessor",
-    info = "Construction of a CoxpresDbAccessor from a bz2-compressed archive"
+    "CoxpresDbArchiveAccessor",
+    info = paste(
+      "Construction of a `CoxpresDbArchiveAccessor` from a bz2-compressed",
+      "archive"
+    )
   )
 
   expect_is(
     object = CoxpresDbAccessor(db_archive = test_data_tar),
-    "CoxpresDbAccessor",
-    info = "Construction of a CoxpresDbAccessor from an uncompressed archive"
+    "CoxpresDbArchiveAccessor",
+    info = paste(
+      "Construction of a `CoxpresDbArchiveAccessor` from an uncompressed",
+      "archive"
+    )
   )
 
   expect_is(
     object = CoxpresDbAccessor(db_archive = test_data_zip),
-    "CoxpresDbAccessor",
-    info = "Construction of a CoxpresDbAccessor from a zip-compressed archive"
+    "CoxpresDbArchiveAccessor",
+    info = paste(
+      "Construction of a `CoxpresDbArchiveAccessor` from a zip-compressed",
+      "archive"
+    )
   )
 
   expect_error(
     object = CoxpresDbAccessor(db_archive = "NOT A FILE"),
-    info = "A valid file must be passed as db_archive to CoxpresDbAccessor"
+    info = "A valid file must be passed as `db_archive` to `CoxpresDbAccessor`"
   )
 
   expect_error(
     object = CoxpresDbAccessor(db_archive = "test_coxpresdbr_io.R"),
     info = paste(
       "A valid (.tar.bz2, .tar or .zip) file must be passed as",
-      "db_archive to CoxpresDbAccessor"
+      "`db_archive` to `CoxpresDbAccessor`"
     )
   )
 })
