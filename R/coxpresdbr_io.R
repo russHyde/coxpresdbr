@@ -222,10 +222,10 @@ setMethod(
 ###############################################################################
 
 setGeneric(
-  "import_all_coex_partners",
+  "get_all_coex_partners",
   valueClass = "data.frame",
   function(gene_id, importer) {
-    standardGeneric("import_all_coex_partners")
+    standardGeneric("get_all_coex_partners")
   }
 )
 
@@ -247,12 +247,12 @@ setGeneric(
 #' @importFrom   tibble        tibble
 #'
 setMethod(
-  "import_all_coex_partners",
+  "get_all_coex_partners",
   signature("character", "CoxpresDbAccessor"),
   function(gene_id, importer) {
     if (length(gene_id) != 1) {
       stop(
-        "`gene_id` should be a single gene-id in `import_all_coex_partners`"
+        "`gene_id` should be a single gene-id in `get_all_coex_partners`"
       )
     }
 
@@ -276,7 +276,7 @@ setMethod(
     } else if (.is_zip_file(archive)) {
       paste("unzip -p", archive, gene_file)
     } else {
-      stop("archive should be either .zip or .tar in import_all_coex_partners")
+      stop("archive should be either .zip or .tar in get_all_coex_partners")
     }
 
     initial_db <- data.table::fread(cmd = import_command)
