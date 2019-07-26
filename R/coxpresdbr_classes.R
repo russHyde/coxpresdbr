@@ -1,10 +1,10 @@
 ###############################################################################
 
-#' Template for CoxpresDbImporter class
+#' Template for CoxpresDbAccessor class
 #'
 #' This is a datastructure that stores the location of a CoxpresDb archive and
 #' the relative paths of all subfiles within that archive. If the archive is
-#' compressed, on construction of CoxpresDbImporter a temporary copy of the
+#' compressed, on construction of CoxpresDbAccessor a temporary copy of the
 #' uncompressed archive is constructed. So construction may take a couple of
 #' minutes depending on the size of the archive. You may want to wrap a call to
 #' this function in a \code{future()} block.
@@ -17,13 +17,13 @@
 #' subdirectories of the archive. As a data-frame of gene_id -> file_path
 #' pairs.
 #'
-#' @name         CoxpresDbImporter-class
-#' @rdname       CoxpresDbImporter-class
+#' @name         CoxpresDbAccessor-class
+#' @rdname       CoxpresDbAccessor-class
 #'
-#' @exportClass       CoxpresDbImporter
+#' @exportClass       CoxpresDbAccessor
 #'
 methods::setClass(
-  "CoxpresDbImporter",
+  "CoxpresDbAccessor",
   slots = list(
     archive = "character",
     archive_uncompressed = "character",

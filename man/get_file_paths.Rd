@@ -7,12 +7,12 @@
 get_file_paths(x)
 }
 \arguments{
-\item{x}{A \code{CoxpresDbImporter} object corresponding
+\item{x}{A \code{CoxpresDbAccessor} object corresponding
 to a CoxpresDb.jp archive}
 }
 \value{
 A tibble of gene_id:file_path pairs, each file is present in
-  the archive (referenced within \code{CoxpresDbImporter}) and represents
+  the archive (referenced within \code{CoxpresDbAccessor}) and represents
   the coexpression data for a particular gene.
 }
 \description{

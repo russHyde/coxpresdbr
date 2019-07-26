@@ -17,7 +17,7 @@ direction-of-change and gene-ids for all genes that are to be considered
 in the analysis (any genes that are not in the \code{gene_universe} are
 disregarded).}
 
-\item{importer}{A \code{CoxpresDbImporter} object.}
+\item{importer}{A \code{CoxpresDbAccessor} object.}
 
 \item{gene_universe}{A set of gene identifiers or \code{NULL}. If
 defined, each of the gene-identifiers should have data present in a row of

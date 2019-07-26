@@ -15,7 +15,7 @@
 #'   in the analysis (any genes that are not in the \code{gene_universe} are
 #'   disregarded).
 #'
-#' @param        importer      A \code{CoxpresDbImporter} object.
+#' @param        importer      A \code{CoxpresDbAccessor} object.
 #'
 #' @param        gene_universe   A set of gene identifiers or \code{NULL}. If
 #'   defined, each of the gene-identifiers should have data present in a row of
@@ -65,7 +65,7 @@ run_coex_partner_workflow <- function(
     ))
   }
 
-  if (!(is(importer, "CoxpresDbImporter"))) {
+  if (!(is(importer, "CoxpresDbAccessor"))) {
     stop("`importer` should be defined in `run_coex_partner_workflow`")
   }
 

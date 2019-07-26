@@ -23,7 +23,7 @@ test_gene_statistics <- tibble::tibble(
   direction = sample(c(-1, 1), size = 10, replace = TRUE)
 )
 
-test_importer <- CoxpresDbImporter(db_archive = test_data_uncompressed)
+test_importer <- CoxpresDbAccessor(db_archive = test_data_uncompressed)
 
 ###############################################################################
 
@@ -54,7 +54,7 @@ test_that("run_coex_partner_workflow: invalid input", {
     ),
     info = "gene_statistics should not be NULL"
   )
-  # - fail on non-CoxpresDbImporter as importer
+  # - fail on non-CoxpresDbAccessor as importer
   expect_error(
     object = run_coex_partner_workflow(
       gene_ids = test_data_genes,
@@ -68,7 +68,7 @@ test_that("run_coex_partner_workflow: invalid input", {
       gene_statistics = test_gene_statistics,
       importer = "NOT AN IMPORTER"
     ),
-    info = "importer should be a CoxpresDbImporter"
+    info = "importer should be a `CoxpresDbAccessor`"
   )
   # - fail on gene_statistics that doesn't have gene_id, p_value, direction
   # columns

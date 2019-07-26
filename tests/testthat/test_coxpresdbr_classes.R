@@ -17,13 +17,14 @@ test_gene_statistics <- tibble::tibble(
 
 ###############################################################################
 
-test_that("CoxpresDbImporter: class definition", {
+test_that("CoxpresDbAccessor: class definition", {
   expect_is(
-    object = new("CoxpresDbImporter"),
-    class = "CoxpresDbImporter",
-    info = "new `CoxpresDbImporter` object has appropriate class-name"
+    object = new("CoxpresDbAccessor"),
+    class = "CoxpresDbAccessor",
+    info = "new `CoxpresDbAccessor` object has appropriate class-name"
   )
 })
+
 
 ###############################################################################
 

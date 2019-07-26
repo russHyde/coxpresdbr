@@ -11,7 +11,7 @@ get_coex_partners(gene_ids, importer, gene_universe = NULL,
 \item{gene_ids}{A vector of gene identifiers. All of these
 should be annotated within the 'coxpresDb' dataset.}
 
-\item{importer}{A \code{CoxpresDbImporter}. This allows access
+\item{importer}{A \code{CoxpresDbAccessor}. This allows access
 to a 'coxpresDb' archive.}
 
 \item{gene_universe}{The genes in the dataframe should be filtered

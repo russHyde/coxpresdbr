@@ -111,13 +111,13 @@ When working with the coxpresdb files, I tend to make a smaller archive
 setting up the file for each source-gene to contain only the top 100 most
 correlated genes.
 
-### The `CoxpresDbImporter` Class
+### The `CoxpresDbAccessor` Class
 
 We first define an importer object that permits access to the gene-specific
 files stored in the coxpresdb archive.
 
 ```
-my_importer <- CoxpresDbImporter(path_to_coxpresdb_archive)
+my_importer <- CoxpresDbAccessor(path_to_coxpresdb_archive)
 ```
 
 ### Importing the coexpression data & filtering

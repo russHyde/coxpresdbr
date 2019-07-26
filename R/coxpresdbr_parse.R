@@ -100,7 +100,7 @@
 #' @param        gene_ids      A vector of gene identifiers. All of these
 #'   should be annotated within the 'coxpresDb' dataset.
 #'
-#' @param        importer      A \code{CoxpresDbImporter}. This allows access
+#' @param        importer      A \code{CoxpresDbAccessor}. This allows access
 #'   to a 'coxpresDb' archive.
 #'
 #' @include      coxpresdbr_io.R
