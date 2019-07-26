@@ -130,12 +130,12 @@ CoxpresDbAccessor <- function(
 
 #' Obtains all the file-paths that are present in a CoxpresDb archive
 #'
-#' @param        x             A \code{CoxpresDbAccessor} object corresponding
-#'   to a CoxpresDb.jp archive
+#' @param        x             A \code{CoxpresDbArchiveAccessor} object
+#'   corresponding to a CoxpresDb.jp archive
 #'
 #' @return       A tibble of gene_id:file_path pairs, each file is present in
-#'   the archive (referenced within \code{CoxpresDbAccessor}) and represents
-#'   the coexpression data for a particular gene.
+#'   the archive (referenced within \code{CoxpresDbArchiveAccessor}) and
+#'   represents the coexpression data for a particular gene.
 #'
 #' @importFrom   methods       .valueClassTest
 #'
@@ -143,7 +143,7 @@ setGeneric("get_file_paths", valueClass = "data.frame", function(x) {
   standardGeneric("get_file_paths")
 })
 
-setMethod("get_file_paths", signature("CoxpresDbAccessor"), function(x) {
+setMethod("get_file_paths", signature("CoxpresDbArchiveAccessor"), function(x) {
   x@file_paths
 })
 
@@ -159,7 +159,7 @@ setGeneric(
 
 setMethod(
   "get_file_path_for_gene",
-  signature(gene_id = "character", importer = "CoxpresDbAccessor"),
+  signature(gene_id = "character", importer = "CoxpresDbArchiveAccessor"),
   function(gene_id, importer) {
     paths <- get_file_paths(importer)
     rows <- which(paths$gene_id %in% gene_id)
@@ -200,10 +200,12 @@ setGeneric("get_raw_archive", valueClass = "character", function(x) {
   standardGeneric("get_raw_archive")
 })
 
-setMethod("get_raw_archive", signature("CoxpresDbAccessor"), function(x) {
-  x@archive
-})
-
+setMethod(
+  "get_raw_archive", signature("CoxpresDbArchiveAccessor"),
+  function(x) {
+    x@archive
+  }
+)
 ###############################################################################
 
 setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
@@ -211,8 +213,7 @@ setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
 })
 
 setMethod(
-  "get_uncompressed_archive",
-  signature("CoxpresDbAccessor"),
+  "get_uncompressed_archive", signature("CoxpresDbArchiveAccessor"),
   function(x) {
     x@archive_uncompressed
   }
