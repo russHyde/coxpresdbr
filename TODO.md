@@ -41,7 +41,7 @@
 
 ## `coxpresdbr_io.R`
 
-- `import_all_coex_partners(gene_id, importer)`
+- `get_all_coex_partners(gene_id, importer)`
 
     - uses more than one gene in `gene_id` argument
 

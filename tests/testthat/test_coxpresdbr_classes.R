@@ -17,11 +17,25 @@ test_gene_statistics <- tibble::tibble(
 
 ###############################################################################
 
-test_that("CoxpresDbImporter: class definition", {
+test_that("CoxpresDbAccessor: class definition", {
+  # Can't construct a CoxpresDbAccessor since it is a virtual class
+})
+
+###############################################################################
+
+test_that("CoxpresDbArchiveAccessor: class definition", {
+  archive_accessor <- methods::new("CoxpresDbArchiveAccessor")
+
   expect_is(
-    object = new("CoxpresDbImporter"),
-    class = "CoxpresDbImporter",
-    info = "new `CoxpresDbImporter` object has appropriate class-name"
+    object = archive_accessor,
+    class = "CoxpresDbArchiveAccessor",
+    info = "new `CoxpresDbArchiveAccessor` is a `CoxpresDbArchiveAccessor`"
+  )
+
+  expect_is(
+    object = archive_accessor,
+    class = "CoxpresDbAccessor",
+    info = "new `CoxpresDbArchiveAccessor` is a subclass of `CoxpresDbAccessor`"
   )
 })
 

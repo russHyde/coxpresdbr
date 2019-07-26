@@ -37,14 +37,14 @@
 
 ###############################################################################
 
-#' Constructor for the CoxpresDbImporter class - Use this to obtain data from
+#' Constructor for the CoxpresDbAccessor class - Use this to obtain data from
 #' a CoxpresDB.jp archive
 #'
 #' The \code{db_archive} should be a \code{.zip}, \code{.tar} or a
 #' \code{.tar.bz2}, if it's a \code{.tar.bz2} then \code{temp_dir} should be
 #' defined and a random copy of the uncompressed archive will be made. All
 #' access to the stored data will be made via the uncompressed copy of the
-#' archive, so make a \code{CoxpresDbImporter} _once_ during any given script.
+#' archive, so make a \code{CoxpresDbAccessor} _once_ during any given script.
 #'
 #' @inheritParams   .is_coxpresdb_archive
 #'
@@ -68,10 +68,10 @@
 #'
 #' @include      coxpresdbr_classes.R
 #'
-#' @return       A \code{CoxpresDbImporter} object.
+#' @return       A \code{CoxpresDbAccessor} object.
 #' @export
 #'
-CoxpresDbImporter <- function(
+CoxpresDbAccessor <- function(
                               db_archive,
                               temp_dir = tempdir(),
                               overwrite_in_bunzip2 = FALSE,
@@ -119,7 +119,7 @@ CoxpresDbImporter <- function(
   )
 
   methods::new(
-    "CoxpresDbImporter",
+    "CoxpresDbArchiveAccessor",
     archive = db_archive,
     archive_uncompressed = db_uncompressed,
     file_paths = gene_file_df
@@ -130,12 +130,12 @@ CoxpresDbImporter <- function(
 
 #' Obtains all the file-paths that are present in a CoxpresDb archive
 #'
-#' @param        x             A \code{CoxpresDbImporter} object corresponding
-#'   to a CoxpresDb.jp archive
+#' @param        x             A \code{CoxpresDbArchiveAccessor} object
+#'   corresponding to a CoxpresDb.jp archive
 #'
 #' @return       A tibble of gene_id:file_path pairs, each file is present in
-#'   the archive (referenced within \code{CoxpresDbImporter}) and represents
-#'   the coexpression data for a particular gene.
+#'   the archive (referenced within \code{CoxpresDbArchiveAccessor}) and
+#'   represents the coexpression data for a particular gene.
 #'
 #' @importFrom   methods       .valueClassTest
 #'
@@ -143,7 +143,7 @@ setGeneric("get_file_paths", valueClass = "data.frame", function(x) {
   standardGeneric("get_file_paths")
 })
 
-setMethod("get_file_paths", signature("CoxpresDbImporter"), function(x) {
+setMethod("get_file_paths", signature("CoxpresDbArchiveAccessor"), function(x) {
   x@file_paths
 })
 
@@ -159,7 +159,7 @@ setGeneric(
 
 setMethod(
   "get_file_path_for_gene",
-  signature(gene_id = "character", importer = "CoxpresDbImporter"),
+  signature(gene_id = "character", importer = "CoxpresDbArchiveAccessor"),
   function(gene_id, importer) {
     paths <- get_file_paths(importer)
     rows <- which(paths$gene_id %in% gene_id)
@@ -190,7 +190,7 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 #' @export
 #'
 
-setMethod("get_gene_ids", signature("CoxpresDbImporter"), function(x) {
+setMethod("get_gene_ids", signature("CoxpresDbAccessor"), function(x) {
   get_file_paths(x)[["gene_id"]]
 })
 
@@ -200,10 +200,12 @@ setGeneric("get_raw_archive", valueClass = "character", function(x) {
   standardGeneric("get_raw_archive")
 })
 
-setMethod("get_raw_archive", signature("CoxpresDbImporter"), function(x) {
-  x@archive
-})
-
+setMethod(
+  "get_raw_archive", signature("CoxpresDbArchiveAccessor"),
+  function(x) {
+    x@archive
+  }
+)
 ###############################################################################
 
 setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
@@ -211,8 +213,7 @@ setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
 })
 
 setMethod(
-  "get_uncompressed_archive",
-  signature("CoxpresDbImporter"),
+  "get_uncompressed_archive", signature("CoxpresDbArchiveAccessor"),
   function(x) {
     x@archive_uncompressed
   }
@@ -221,10 +222,10 @@ setMethod(
 ###############################################################################
 
 setGeneric(
-  "import_all_coex_partners",
+  "get_all_coex_partners",
   valueClass = "data.frame",
   function(gene_id, importer) {
-    standardGeneric("import_all_coex_partners")
+    standardGeneric("get_all_coex_partners")
   }
 )
 
@@ -237,7 +238,7 @@ setGeneric(
 #' @param        gene_id       A gene-identifier in the same format as present
 #'   throughout the CoxpresDb archive.
 #'
-#' @param        importer      \code{CoxpresDbImporter} object.
+#' @param        importer      \code{CoxpresDbAccessor} object.
 #'
 #' @return       A single dataframe containing the source -> target mappings,
 #'   and both the mutual ranks and correlations between the gene pairs.
@@ -246,12 +247,12 @@ setGeneric(
 #' @importFrom   tibble        tibble
 #'
 setMethod(
-  "import_all_coex_partners",
-  signature("character", "CoxpresDbImporter"),
+  "get_all_coex_partners",
+  signature("character", "CoxpresDbAccessor"),
   function(gene_id, importer) {
     if (length(gene_id) != 1) {
       stop(
-        "`gene_id` should be a single gene-id in `import_all_coex_partners`"
+        "`gene_id` should be a single gene-id in `get_all_coex_partners`"
       )
     }
 
@@ -275,7 +276,7 @@ setMethod(
     } else if (.is_zip_file(archive)) {
       paste("unzip -p", archive, gene_file)
     } else {
-      stop("archive should be either .zip or .tar in import_all_coex_partners")
+      stop("archive should be either .zip or .tar in get_all_coex_partners")
     }
 
     initial_db <- data.table::fread(cmd = import_command)

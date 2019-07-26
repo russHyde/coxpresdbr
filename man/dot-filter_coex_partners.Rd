@@ -9,7 +9,7 @@ dataset}
 }
 \arguments{
 \item{coex_df}{A dataframe containing coexpression data. As
-returned by \code{import_all_coex_partners}.}
+returned by \code{get_all_coex_partners}.}
 
 \item{gene_universe}{The genes in the dataframe should be filtered
 to ensure they are all present in this set. Note that both the entries in

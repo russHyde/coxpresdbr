@@ -21,7 +21,7 @@
 #' dataset
 #'
 #' @param        coex_df       A dataframe containing coexpression data. As
-#'   returned by \code{import_all_coex_partners}.
+#'   returned by \code{get_all_coex_partners}.
 #'
 #' @param        gene_universe   The genes in the dataframe should be filtered
 #'   to ensure they are all present in this set. Note that both the entries in
@@ -100,7 +100,7 @@
 #' @param        gene_ids      A vector of gene identifiers. All of these
 #'   should be annotated within the 'coxpresDb' dataset.
 #'
-#' @param        importer      A \code{CoxpresDbImporter}. This allows access
+#' @param        importer      A \code{CoxpresDbAccessor}. This allows access
 #'   to a 'coxpresDb' archive.
 #'
 #' @include      coxpresdbr_io.R
@@ -118,7 +118,7 @@ get_coex_partners <- function(
                               n_partners = 100,
                               mr_threshold = NULL) {
   .import_fn <- function(x) {
-    import_all_coex_partners(gene_id = x, importer = importer)
+    get_all_coex_partners(gene_id = x, importer = importer)
   }
 
   .filter_fn <- function(x) {
