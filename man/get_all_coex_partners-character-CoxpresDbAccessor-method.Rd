@@ -11,13 +11,14 @@ CoxpresDb archive.}
 }
 \arguments{
 \item{gene_id}{A gene-identifier in the same format as present
-throughout the CoxpresDb archive.}
+throughout the CoxpresDb archive. If this isn't a single identifier, or
+it isn't present in the database, the function will throw an error.}
 
 \item{importer}{\code{CoxpresDbAccessor} object.}
 }
 \value{
 A single dataframe containing the source -> target mappings,
-  and both the mutual ranks and correlations between the gene pairs.
+  and the mutual ranks between the gene pairs.
 }
 \description{
 Users should use \code{get_coex_partners(gene_ids, importer)} rather than
