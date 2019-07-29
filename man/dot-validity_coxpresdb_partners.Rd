@@ -2,13 +2,13 @@
 % Please edit documentation in R/coxpresdbr_CoxpresDbPartners.R
 \name{.validity_coxpresdb_partners}
 \alias{.validity_coxpresdb_partners}
-\title{Validity checker for CoxpresDbPartners objects}
+\title{Validity checker for \code{CoxpresDbPartners} objects}
 \usage{
 .validity_coxpresdb_partners(object)
 }
 \arguments{
-\item{object}{A putative CoxpresDbPartners object}
+\item{object}{A putative \code{CoxpresDbPartners} object}
 }
 \description{
-Validity checker for CoxpresDbPartners objects
+Validity checker for \code{CoxpresDbPartners} objects
 }

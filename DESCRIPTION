@@ -33,8 +33,8 @@ Imports:
     rlang
 Collate:
     'coxpresdbr_CoxpresDbArchive.R'
-    'coxpresdbr_CoxpresDbPartners.R'
     'coxpresdbr_data_validity.R'
+    'coxpresdbr_CoxpresDbPartners.R'
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'
     'coxpresdbr_stats.R'

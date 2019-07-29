@@ -8,7 +8,7 @@ required standard}
 .is_gene_statistics_df(x)
 }
 \arguments{
-\item{x}{A putative gene_statistics data-frame}
+\item{x}{A putative \code{gene_statistics} data-frame}
 }
 \description{
 The data-frame should have columns `gene_id:char`, `p_value:numeric` and

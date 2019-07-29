@@ -2,18 +2,20 @@
 % Please edit documentation in R/coxpresdbr_CoxpresDbPartners.R
 \name{CoxpresDbPartners-class}
 \alias{CoxpresDbPartners-class}
-\title{Template for CoxpresDbPartners class}
+\title{Template for \code{CoxpresDbPartners} class}
 \arguments{
-\item{gene_statistics}{ABC}
+\item{gene_statistics}{A data-frame. Must be non-empty and have
+columns `gene_id`, `p_value` and `direction`.}
 
-\item{partners}{DEF}
+\item{partners}{A data-frame with a `source_id` and a
+`target_id` column.}
 
-\item{partner_summaries}{GHI}
+\item{partner_summaries}{A data-frame.}
 
-\item{cluster_graph}{JKL}
+\item{cluster_graph}{A igraph object (or NULL if not defined).}
 }
 \description{
 This class stores the gene-partners of a set of genes, and
-some summary statistics over those partners that are obtained from analysis
-of a user-provided \code{gene_statistics} object.
+  some summary statistics over those partners that are obtained from
+  analysis of a user-provided \code{gene_statistics} object.
 }

@@ -340,7 +340,7 @@ setMethod(
 
     # end of helper functions
 
-    if (! .is_gene_valid()) {
+    if (!.is_gene_valid()) {
       stop(
         paste(
           "`gene_id` should be a single gene-ID that is present in the",

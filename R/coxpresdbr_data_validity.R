@@ -6,7 +6,7 @@
 #' The data-frame should have columns `gene_id:char`, `p_value:numeric` and
 #' `direction:numeric` and should have at most one row for each gene_id.
 #'
-#' @param        x             A putative gene_statistics data-frame
+#' @param        x             A putative \code{gene_statistics} data-frame
 #'
 .is_gene_statistics_df <- function(x) {
   is.data.frame(x) &&
