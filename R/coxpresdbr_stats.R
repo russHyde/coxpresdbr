@@ -60,10 +60,12 @@ evaluate_coex_partners <- function(
         .data[["direction"]] < 0, TRUE, FALSE
       ),
       p_value_onetail_forward = metap::two2one(
-        .data[["p_value"]], invert = .data[["invert"]]
+        .data[["p_value"]],
+        invert = .data[["invert"]]
       ),
       p_value_onetail_reversed = metap::two2one(
-        .data[["p_value"]], invert = !.data[["invert"]]
+        .data[["p_value"]],
+        invert = !.data[["invert"]]
       )
     )
   }

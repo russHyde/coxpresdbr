@@ -1,6 +1,6 @@
 ###############################################################################
 
-context("Tests for class definitions in `coxpresdbr` package")
+context("Tests for `CoxpresDbPartners` objects in `coxpresdbr` package")
 
 ###############################################################################
 
@@ -14,30 +14,6 @@ test_gene_statistics <- tibble::tibble(
   p_value = c(0.1, 0.3, 0.5, 0.2, 1.0, 0.0, 0.0000001, 0.5, 0.5, 0.5),
   direction = sample(c(-1, 1), size = 10, replace = TRUE)
 )
-
-###############################################################################
-
-test_that("CoxpresDbAccessor: class definition", {
-  # Can't construct a CoxpresDbAccessor since it is a virtual class
-})
-
-###############################################################################
-
-test_that("CoxpresDbArchiveAccessor: class definition", {
-  archive_accessor <- methods::new("CoxpresDbArchiveAccessor")
-
-  expect_is(
-    object = archive_accessor,
-    class = "CoxpresDbArchiveAccessor",
-    info = "new `CoxpresDbArchiveAccessor` is a `CoxpresDbArchiveAccessor`"
-  )
-
-  expect_is(
-    object = archive_accessor,
-    class = "CoxpresDbAccessor",
-    info = "new `CoxpresDbArchiveAccessor` is a subclass of `CoxpresDbAccessor`"
-  )
-})
 
 ###############################################################################
 
@@ -100,7 +76,7 @@ test_that("CoxpresDbPartners: field matches", {
     )@gene_statistics,
     expected = test_gene_statistics,
     info = paste(
-      "The input to the gene_statistics field of CoxpresDbPartners",
+      "The input to the `gene_statistics` field of `CoxpresDbPartners`",
       "should match it's output"
     )
   )
@@ -116,9 +92,9 @@ test_that("CoxpresDbPartners: method checks", {
     ),
     expected = test_gene_statistics$gene_id,
     info = paste(
-      "A CoxpresDbPartners made from just a gene_statistics",
-      "should return a gene_universe that matches the gene set in the",
-      "gene_statistics used to construct it"
+      "A `CoxpresDbPartners` made from just a `gene_statistics`",
+      "should return a `gene_universe` that matches the gene set in the",
+      "`gene_statistics` used to construct it"
     )
   )
 
@@ -133,8 +109,9 @@ test_that("CoxpresDbPartners: method checks", {
     ),
     expected = letters[1:3],
     info = paste(
-      "A CoxpresDbPartners made from a partners data-frame should return",
-      "the entries in the source_id column when get_source_genes() is called"
+      "A `CoxpresDbPartners` made from a partners data-frame should return",
+      "the entries in the `source_id` column when `get_source_genes()` is",
+      "called"
     )
   )
   expect_equal(
@@ -143,8 +120,8 @@ test_that("CoxpresDbPartners: method checks", {
     ),
     expected = character(0),
     info = paste(
-      "A `CoxpresDbPartners` with no `partners` field should return NULL",
-      "when get_source_genes() is called"
+      "A `CoxpresDbPartners` with no `partners` field should return `NULL`",
+      "when `get_source_genes()` is called"
     )
   )
 })
@@ -154,7 +131,7 @@ test_that("CoxpresDbPartners: method checks", {
 test_that("compute z scores from 2-tailed p and direction", {
   expect_error(
     object = .compute_z_scores(),
-    info = "No input to .compute_z_scores"
+    info = "No input to `.compute_z_scores`"
   )
 
   p_vals <- c(0.5, 0.5, 0, 0, 1, 1, 1, 0.1, 0.1)
@@ -168,11 +145,11 @@ test_that("compute z scores from 2-tailed p and direction", {
   )
   expect_error(
     object = .compute_z_scores(p_values = p_vals),
-    info = "No directions in .compute_z_scores"
+    info = "No directions in `.compute_z_scores`"
   )
   expect_error(
     object = .compute_z_scores(directions = dirs),
-    info = "No p-values in .compute_z_scores"
+    info = "No p-values in `.compute_z_scores`"
   )
   expect_error(
     object = .compute_z_scores(p_values = -1, directions = 1),
@@ -204,7 +181,7 @@ test_that("compute z scores from 2-tailed p and direction", {
 })
 
 test_that(
-  "add z-scores to the gene-statistics of an existing CoxpresDbPartners", {
+  "add z-scores to the gene-statistics of an existing `CoxpresDbPartners`", {
     coex_partners <- new(
       "CoxpresDbPartners",
       gene_statistics = test_gene_statistics
@@ -213,7 +190,7 @@ test_that(
     expect_is(
       object = .add_z_scores(coex_partners),
       "CoxpresDbPartners",
-      info = ".add_z_scores should return a CoxpresDbPartners object"
+      info = "`.add_z_scores` should return a `CoxpresDbPartners` object"
     )
 
     expect_equal(
@@ -222,7 +199,9 @@ test_that(
         coex_partners@gene_statistics$p_value,
         coex_partners@gene_statistics$direction
       ),
-      info = "add z-scores to a CoxpresDbPartners"
+      info = "add z-scores to a `CoxpresDbPartners`"
     )
   }
 )
+
+###############################################################################
