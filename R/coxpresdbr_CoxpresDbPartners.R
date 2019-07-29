@@ -1,8 +1,10 @@
 ###############################################################################
 
-#' Validity checker for CoxpresDbPartners objects
+#' Validity checker for \code{CoxpresDbPartners} objects
 #'
-#' @param        object        A putative CoxpresDbPartners object
+#' @param        object        A putative \code{CoxpresDbPartners} object
+#'
+#' @include      coxpresdbr_data_validity.R
 #'
 .validity_coxpresdb_partners <- function(object) {
   # S3 tests:
@@ -11,7 +13,7 @@
   ) {
     return(
       paste(
-        "`cluster_graph` should be NULL or inherit from `igraph` in",
+        "`cluster_graph` should be `NULL` or inherit from `igraph` in",
         "`CoxpresDbPartners`"
       )
     )
@@ -44,16 +46,18 @@
 
 ###############################################################################
 
-#' @title        Template for CoxpresDbPartners class
+#' @title        Template for \code{CoxpresDbPartners} class
 #'
 #' @description   This class stores the gene-partners of a set of genes, and
-#' some summary statistics over those partners that are obtained from analysis
-#' of a user-provided \code{gene_statistics} object.
+#'   some summary statistics over those partners that are obtained from
+#'   analysis of a user-provided \code{gene_statistics} object.
 #'
-#' @param        gene_statistics   ABC
-#' @param        partners      DEF
-#' @param        partner_summaries   GHI
-#' @param        cluster_graph   JKL
+#' @param        gene_statistics   A data-frame. Must be non-empty and have
+#'   columns `gene_id`, `p_value` and `direction`.
+#' @param        partners      A data-frame with a `source_id` and a
+#'   `target_id` column.
+#' @param        partner_summaries   A data-frame.
+#' @param        cluster_graph   A igraph object (or NULL if not defined).
 #'
 #' @name         CoxpresDbPartners-class
 #' @rdname       CoxpresDbPartners-class
@@ -68,7 +72,7 @@ methods::setClass(
     partner_summaries = "data.frame",
     cluster_graph = "ANY"
   ),
-  validity = .validity_coxpresdb_partners
+  validity = function(object) .validity_coxpresdb_partners(object)
 )
 
 ###############################################################################
