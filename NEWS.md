@@ -1,5 +1,14 @@
 # coxpresdbr 0.0.0.9000
 
+- The user can pass in a data-frame that defines the coxpresdb database; this
+  is passed as the first argument to the function CoxpresDbAccessor(),
+  exactly as when the file path for a CoxpresDB archive is passedto the same
+  function. `get_gene_ids` and `get_all_coex_partners` work on the returned
+  object, so this should be compatible with the coexpression-analysis
+  workflows, but for datasets that fit in memory, passing a data-frame should
+  be a lot faster. The data-frame must have columns `source_id`, `target_id`
+  and `mutual_rank`.
+
 - `data.table::fread` is used to import data; This uses `fread`s command line
   piping facility and so we use `fread(cmd = "...")` for security reasons. The
   `cmd` arg was introduced in data.table 1.11.6; hence the lower-bound for
