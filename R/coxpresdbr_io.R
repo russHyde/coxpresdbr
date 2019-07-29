@@ -179,7 +179,10 @@ setMethod(
 
 #' Generic method for getting gene identifiers.
 #'
-#' @param        x             A \code{CoexpresDbImporter} corresponding to a
+#' The returned vector contains all gene IDs present in the dataset: this
+#' should include all source- and target- genes.
+#'
+#' @param        x             A \code{CoexpresDbAccessor} corresponding to a
 #'   CoxpresDB archive.
 #'
 setGeneric("get_gene_ids", valueClass = "character", function(x) {
@@ -189,17 +192,33 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 #' Imports the gene identifiers that are represented within a given
 #' CoxpresDB.jp archive
 #'
-#' @param        x             A \code{CoexpresDbImporter} corresponding to a
-#'   CoxpresDB archive.
+#' @param        x             A \code{CoexpresDbArchiveAccessor} corresponding
+#'   to a CoxpresDB archive.
 #'
 #' @return       A vector of gene-ids; data for each such gene is present in
-#'   the user-supplied archive
+#'   the user-supplied archive.
 #'
 #' @export
 #'
 
-setMethod("get_gene_ids", signature("CoxpresDbAccessor"), function(x) {
+setMethod("get_gene_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
   get_file_paths(x)[["gene_id"]]
+})
+
+#' Imports the gene identifiers that are represented within a data-frame-based
+#' CoxpresDB.jp archive
+#'
+#' @param        x             A \code{CoxpresDbDataframeAccessor}
+#'   corresponding to a CoxpresDB archive.
+#'
+#' @return       A vector of gene-ids; data for each such gene is present in
+#'   the user-supplied archive.
+#'
+#' @export
+#'
+
+setMethod("get_gene_ids", signature("CoxpresDbDataframeAccessor"), function(x) {
+  with(x@df, sort(union(source_id, target_id)))
 })
 
 ###############################################################################
@@ -244,66 +263,101 @@ setGeneric(
 #' this method.
 #'
 #' @param        gene_id       A gene-identifier in the same format as present
-#'   throughout the CoxpresDb archive.
+#'   throughout the CoxpresDb archive. If this isn't a single identifier, or
+#'   it isn't present in the database, the function will throw an error.
 #'
 #' @param        importer      \code{CoxpresDbAccessor} object.
 #'
 #' @return       A single dataframe containing the source -> target mappings,
-#'   and both the mutual ranks and correlations between the gene pairs.
+#'   and the mutual ranks between the gene pairs.
 #'
 #' @importFrom   data.table    fread
+#' @importFrom   dplyr         arrange
 #' @importFrom   tibble        tibble
 #'
 setMethod(
   "get_all_coex_partners",
   signature("character", "CoxpresDbAccessor"),
   function(gene_id, importer) {
-    if (length(gene_id) != 1) {
-      stop(
-        "`gene_id` should be a single gene-id in `get_all_coex_partners`"
+    # helper functions
+
+    .is_gene_valid <- function() {
+      length(gene_id) == 1 &&
+        gene_id %in% get_gene_ids(importer)
+    }
+
+    .format_and_filter <- function(df) {
+      # returned data-frames should contain a single gene in the source column,
+      # and that gene should be absent from the target column, and the rows
+      # should be ordered by increasing mutual-rank value.
+      rows <- df[["source_id"]] == gene_id &
+        df[["target_id"]] != gene_id
+
+      dplyr::arrange(
+        df[rows, ], .data[["mutual_rank"]]
       )
     }
 
-    if (!(gene_id %in% get_gene_ids(importer))) {
-      stop(
-        sprintf(
-          "Gene-ID %s is not present in the CoxpresDB archive %s",
-          gene_id, get_raw_archive(importer)
+    .get_coexdb_for_dframe_accessor <- function() {
+      .format_and_filter(importer@df)
+    }
+
+    .get_coexdb_for_archive_accessor <- function() {
+      gene_file <- get_file_path_for_gene(gene_id, importer)
+
+      stopifnot(length(gene_file) == 1)
+
+      archive <- get_uncompressed_archive(importer)
+
+      import_command <- if (.is_tar_file(archive)) {
+        paste("tar --to-stdout -xf", archive, gene_file)
+      } else if (.is_zip_file(archive)) {
+        paste("unzip -p", archive, gene_file)
+      } else {
+        stop("archive should be either .zip or .tar in `get_all_coex_partners`")
+      }
+
+      initial_db <- data.table::fread(cmd = import_command)
+
+      # Original versions of coxpresdb files were of the format (target_id,
+      # mutual_rank, correlation), with each seed gene having a separate file
+      #
+      # In 2019, versions of the coxpresdb files do not contain a correlation
+      # coefficient column (ie, target_id, mutual_rank)
+      #
+      # We disregard the correlation-coefficient column since it isn't
+      # consistently presented across different releases of coxpresdb
+
+      .format_and_filter(
+        tibble::tibble(
+          source_id = gene_id,
+          target_id = as.character(initial_db[[1]]),
+          mutual_rank = initial_db[[2]]
         )
       )
     }
 
-    gene_file <- get_file_path_for_gene(gene_id, importer)
 
-    stopifnot(length(gene_file) == 1)
+    # end of helper functions
 
-    archive <- get_uncompressed_archive(importer)
-
-    import_command <- if (.is_tar_file(archive)) {
-      paste("tar --to-stdout -xf", archive, gene_file)
-    } else if (.is_zip_file(archive)) {
-      paste("unzip -p", archive, gene_file)
-    } else {
-      stop("archive should be either .zip or .tar in `get_all_coex_partners`")
+    if (! .is_gene_valid()) {
+      stop(
+        paste(
+          "`gene_id` should be a single gene-ID that is present in the",
+          "CoxpresDB archive"
+        )
+      )
     }
 
-    initial_db <- data.table::fread(cmd = import_command)
-
-    # Original versions of coxpresdb files were of the format (target_id,
-    # mutual_rank, correlation), with each seed gene having a separate file
-    #
-    # In 2019, versions of the coxpresdb files do not contain a correlation
-    # coefficient column (ie, target_id, mutual_rank)
-    #
-    # We disregard the correlation-coefficient column since it isn't
-    # consistently presented across different releases of coxpresdb
-    coex_db <- tibble::tibble(
-      source_id = gene_id,
-      target_id = as.character(initial_db[[1]]),
-      mutual_rank = initial_db[[2]]
-    )
-
-    coex_db[coex_db[["target_id"]] != gene_id, ]
+    if (
+      methods::is(importer, "CoxpresDbDataframeAccessor")
+    ) {
+      .get_coexdb_for_dframe_accessor()
+    } else if (
+      methods::is(importer, "CoxpresDbArchiveAccessor")
+    ) {
+      .get_coexdb_for_archive_accessor()
+    }
   }
 )
 

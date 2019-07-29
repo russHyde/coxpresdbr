@@ -7,9 +7,10 @@
 get_gene_ids(x)
 }
 \arguments{
-\item{x}{A \code{CoexpresDbImporter} corresponding to a
+\item{x}{A \code{CoexpresDbAccessor} corresponding to a
 CoxpresDB archive.}
 }
 \description{
-Generic method for getting gene identifiers.
+The returned vector contains all gene IDs present in the dataset: this
+should include all source- and target- genes.
 }

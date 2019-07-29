@@ -20,6 +20,26 @@ test_data_genes <- as.character(c(
 
 ###############################################################################
 
+test_df <- tibble::tibble(
+  source_id = c("123", "123", "987", "123", "123"),
+  target_id = c("123", "456", "123", "987", "568"),
+  mutual_rank = c(1, 1.5, 2, 3.5, 2.2)
+)
+
+test_df_123_partners <- tibble::tibble(
+  source_id = "123",
+  target_id = c("456", "568", "987"),
+  # note this is sorted by mutual rank, even though the input (fo
+  # source = 123) isn't sorted;
+  # also note source = 987 is absent from the source id column
+  # also note target = 123 is absent from the target ids
+  mutual_rank = c(1.5, 2.2, 3.5)
+)
+
+test_df_genes <- as.character(c(123, 456, 568, 987))
+
+###############################################################################
+
 test_that("CoxpresDbAccessor: Constructor", {
 
   # Ensure that overwrite_in_bunzip2 is true whenever running unit tests that
@@ -259,6 +279,13 @@ test_that("get file path for a specific gene", {
 
 test_that(
   "get the genes that are defined in a CoxpresDb archive: invalid input", {
+
+    # These tests are invalid since the CoxpresDbAccessors cannot be
+    # constructed and tests for error during construction of these
+    # CoxpresDbAccessors is tested earlier in this script
+    # - Suggest replacement: add a subclass of CoxpresDbAccessor that is
+    # neither CoexpresDbArchiveAccessor nor CoxpresDbDataframeAccessor
+
     expect_error(
       object = get_gene_ids(
         CoxpresDbAccessor(db_archive = "NOT A FILE")
@@ -316,8 +343,17 @@ test_that(
       expected = test_data_genes,
       info = "Accessor test for gene-ids from a .zip CoxpresDb archive"
     )
+
+    expect_equal(
+      object = get_gene_ids(
+        CoxpresDbAccessor(test_df)
+      ),
+      expected = test_df_genes,
+      info = "Accessor test for gene-ids from a data-frame based CoxpresDb"
+    )
   }
 )
+
 ###############################################################################
 
 test_that("get_all_coex_partners: invalid input", {
@@ -351,16 +387,14 @@ test_that("get_all_coex_partners: invalid input", {
 
 ###############################################################################
 
-test_that("get_all_coex_partners: valid input", {
-  message(getwd())
-
+test_that("get_all_coex_partners: input from file", {
   importer <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
 
-  # expect_silent(
-  #  object = get_all_coex_partners(
-  #    gene_id = "2538791", importer = importer
-  #  )
-  # )
+  expect_silent(
+    object = get_all_coex_partners(
+      gene_id = "2538791", importer = importer
+    )
+  )
 
   coex_db_2538791 <- get_all_coex_partners(
     gene_id = "2538791", importer = importer
@@ -417,7 +451,7 @@ test_that("get_all_coex_partners: valid input", {
 
 ###############################################################################
 
-test_that("import all coex partners from a .zip archive", {
+test_that("get all coex partners from a .zip archive", {
   importer <- CoxpresDbAccessor(test_data_zip)
 
   coex_db_2538791 <- get_all_coex_partners(
@@ -433,3 +467,20 @@ test_that("import all coex partners from a .zip archive", {
 # TODO: exact matching of the contents of the coex_db_2538791 files
 
 ###############################################################################
+
+test_that("get all coex partners from a data-frame archive", {
+  importer <- CoxpresDbAccessor(test_df)
+
+  coex_db_123 <- get_all_coex_partners(
+    gene_id = "123", importer = importer
+  )
+
+  expect_equal(
+    object = coex_db_123,
+    expected = test_df_123_partners,
+    info = paste(
+      "Coexpression dataframe can be obtained from a dataframe-based CoxpresDb",
+      "accessor"
+    )
+  )
+})
