@@ -76,6 +76,14 @@ CoxpresDbAccessor <- function(
                               temp_dir = tempdir(),
                               overwrite_in_bunzip2 = FALSE,
                               remove_in_bunzip2 = FALSE) {
+  # Make an object for in-memory access to the coxpresDb data
+  if (is.data.frame(db_archive)) {
+    return(
+      new("CoxpresDbDataframeAccessor", df = db_archive)
+    )
+  }
+
+  # Make an object for from-file access to the coxpresDb adata
   stopifnot(.is_coxpresdb_archive(db_archive))
 
   db_uncompressed <- if (R.utils::isBzipped(db_archive)) {
@@ -276,7 +284,7 @@ setMethod(
     } else if (.is_zip_file(archive)) {
       paste("unzip -p", archive, gene_file)
     } else {
-      stop("archive should be either .zip or .tar in get_all_coex_partners")
+      stop("archive should be either .zip or .tar in `get_all_coex_partners`")
     }
 
     initial_db <- data.table::fread(cmd = import_command)

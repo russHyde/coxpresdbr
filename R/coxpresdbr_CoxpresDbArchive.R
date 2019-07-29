@@ -10,9 +10,7 @@
 #'
 #' @exportClass       CoxpresDbAccessor
 #'
-methods::setClass(
-  "CoxpresDbAccessor"
-)
+methods::setClass("CoxpresDbAccessor")
 
 #' Constructor for the concrete class `CoxpresDbArchiveAccessor`
 #'
@@ -42,6 +40,40 @@ methods::setClass(
     file_paths = "data.frame"
   ),
   contains = "CoxpresDbAccessor"
+)
+
+###############################################################################
+
+.validity_coxpresdb_df_accessor <- function(object) {
+  if (
+    !all(c("source_id", "target_id", "mutual_rank") %in% colnames(object@df))
+  ) {
+    return(
+      paste(
+        "`data.frame` should have a `source_id`, `target_id`, `mutual_rank`",
+        "column in a `CoxpresDbDataframeAccessor`"
+      )
+    )
+  }
+}
+
+#' Constructor for the concrete class `CoxpresDbDataframeAccessor`
+#'
+#' @param        df            A dataframe.
+#'
+#' @name         CoxpresDbDataframeAccessor-class
+#' @rdname       CoxpresDbDataframeAccessor-class
+#'
+methods::setClass(
+  "CoxpresDbDataframeAccessor",
+  slots = list(
+    df = "data.frame"
+  ),
+  contains = "CoxpresDbAccessor",
+  # Note that we use `validity = function(object) some_f(object)` rather than
+  # `validity = some_f`; we do this to ensure that .validity_cox... is ran
+  # during `covr` tests of test coverage
+  validity = function(object) .validity_coxpresdb_df_accessor(object)
 )
 
 ###############################################################################
