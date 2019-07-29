@@ -32,7 +32,8 @@ Imports:
     tidygraph,
     rlang
 Collate:
-    'coxpresdbr_classes.R'
+    'coxpresdbr_CoxpresDbArchive.R'
+    'coxpresdbr_CoxpresDbPartners.R'
     'coxpresdbr_data_validity.R'
     'coxpresdbr_io.R'
     'coxpresdbr_parse.R'

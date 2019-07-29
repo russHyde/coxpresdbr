@@ -66,7 +66,7 @@
 #' @importFrom   tibble        tibble
 #' @importFrom   utils         untar
 #'
-#' @include      coxpresdbr_classes.R
+#' @include      coxpresdbr_CoxpresDbArchive.R
 #'
 #' @return       A \code{CoxpresDbAccessor} object.
 #' @export
