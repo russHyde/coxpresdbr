@@ -10,8 +10,8 @@ evaluate_coex_partners(x, coex_partners)
 \arguments{
 \item{x}{A data-frame containing columns \code{gene_id},
 \code{p_value} and \code{direction} (at least). The \code{p_value} column
-should contain two-tailed p-values. There should be no duplicate rows in
-the data-frame.}
+should contain two-tailed p-values. There should be no duplicate gene
+identifiers in the data-frame.}
 
 \item{coex_partners}{A subset of the coexpresDB.jp database
 containing the coexpression partners of a set of source-genes. As returned

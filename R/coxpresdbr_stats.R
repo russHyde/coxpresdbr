@@ -22,8 +22,8 @@
 #'
 #' @param       x              A data-frame containing columns \code{gene_id},
 #'   \code{p_value} and \code{direction} (at least). The \code{p_value} column
-#'   should contain two-tailed p-values. There should be no duplicate rows in
-#'   the data-frame.
+#'   should contain two-tailed p-values. There should be no duplicate gene
+#'   identifiers in the data-frame.
 #'
 #' @param       coex_partners   A subset of the coexpresDB.jp database
 #'   containing the coexpression partners of a set of source-genes. As returned
@@ -52,7 +52,7 @@ evaluate_coex_partners <- function(
   if (!.is_gene_statistics_df(x)) {
     stop(
       "`x` should contain columns `gene_id`, `p_value`, `direction`",
-      "and should have no duplicate rows in `evaluate_coex_partners`"
+      "and should have no duplicate gene-IDs in `evaluate_coex_partners`"
     )
   }
 
@@ -174,9 +174,9 @@ evaluate_coex_partners <- function(
   stopifnot(all(dim(coex_partners@partners) > 0))
 
   relabelled <- dplyr::rename(
-      coex_partners@partners,
-      from = .data[["source_id"]], to = .data[["target_id"]]
-    )
+    coex_partners@partners,
+    from = .data[["source_id"]], to = .data[["target_id"]]
+  )
 
   if (cluster_source_nodes_only) {
     keep_rows <- relabelled[["to"]] %in% relabelled[["from"]]
