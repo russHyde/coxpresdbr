@@ -10,17 +10,18 @@ evaluate_coex_partners(x, coex_partners)
 \arguments{
 \item{x}{A data-frame containing columns \code{gene_id},
 \code{p_value} and \code{direction} (at least). The \code{p_value} column
-should contain two-tailed p-values.}
+should contain two-tailed p-values. There should be no duplicate rows in
+the data-frame.}
 
 \item{coex_partners}{A subset of the coexpresDB.jp database
 containing the coexpression partners of a set of source-genes. As returned
-by get_coex_partners. Must contain columns \code{source_id} and
+by \code{get_coex_partners}. Must contain columns \code{source_id} and
 \code{target_id}.}
 }
 \value{
 A data-frame containing a row for each source gene in the input
-and a summary of the number of partner-genes, the average z-score across
-all partner genes and the p-value equivalent to this z-score.
+  and a summary of the number of partner-genes, the average z-score across
+  all partner genes and the p-value equivalent to this z-score.
 }
 \description{
 TODO: description

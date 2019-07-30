@@ -21,17 +21,18 @@
 #' TODO: description
 #'
 #' @param       x              A data-frame containing columns \code{gene_id},
-#' \code{p_value} and \code{direction} (at least). The \code{p_value} column
-#' should contain two-tailed p-values.
+#'   \code{p_value} and \code{direction} (at least). The \code{p_value} column
+#'   should contain two-tailed p-values. There should be no duplicate rows in
+#'   the data-frame.
 #'
 #' @param       coex_partners   A subset of the coexpresDB.jp database
-#' containing the coexpression partners of a set of source-genes. As returned
-#' by get_coex_partners. Must contain columns \code{source_id} and
-#' \code{target_id}.
+#'   containing the coexpression partners of a set of source-genes. As returned
+#'   by \code{get_coex_partners}. Must contain columns \code{source_id} and
+#'   \code{target_id}.
 #'
 #' @return      A data-frame containing a row for each source gene in the input
-#' and a summary of the number of partner-genes, the average z-score across
-#' all partner genes and the p-value equivalent to this z-score.
+#'   and a summary of the number of partner-genes, the average z-score across
+#'   all partner genes and the p-value equivalent to this z-score.
 #'
 #' @include      coxpresdbr_data_validity.R
 #'
@@ -48,7 +49,12 @@
 evaluate_coex_partners <- function(
                                    x,
                                    coex_partners) {
-  stopifnot(.is_gene_statistics_df(x))
+  if (!.is_gene_statistics_df(x)) {
+    stop(
+      "`x` should contain columns `gene_id`, `p_value`, `direction`",
+      "and should have no duplicate rows in `evaluate_coex_partners`"
+    )
+  }
 
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
@@ -156,7 +162,6 @@ evaluate_coex_partners <- function(
 #' .format_coex_edges_for_tidygraph
 #'
 #' @importFrom   dplyr         rename
-#' @importFrom   magrittr      %>%
 #' @importFrom   methods       is
 #' @importFrom   rlang         .data
 #'
@@ -168,8 +173,8 @@ evaluate_coex_partners <- function(
   stopifnot(methods::is(coex_partners, "CoxpresDbPartners"))
   stopifnot(all(dim(coex_partners@partners) > 0))
 
-  relabelled <- coex_partners@partners %>%
-    dplyr::rename(
+  relabelled <- dplyr::rename(
+      coex_partners@partners,
       from = .data[["source_id"]], to = .data[["target_id"]]
     )
 
@@ -231,14 +236,14 @@ evaluate_coex_partners <- function(
 #' Obtain a graph containing clusters of genes, where known co-expression
 #' partners are linked if their expression is consistent in the user's data
 #'
-#' @param        coex_partners   A CoxpresDbPartners object containing
-#' gene-statistics from the user's experiment and gene-gene associations
-#' between highly correlated partners as derived from `coxpresdb.jp`.
+#' @param        coex_partners   A \code{CoxpresDbPartners} object containing
+#'   gene-statistics from the user's experiment and gene-gene associations
+#'   between highly correlated partners as derived from `coxpresdb.jp`.
 #'
-#' @param        drop_disparities   Boolean. Should the clustering of
-#' known coexpression partners disregard associations between genes that are
-#' differentially expressed in the opposite direction from each other? Default:
-#' TRUE.
+#' @param        drop_disparities   Boolean. Should the clustering of known
+#'   coexpression partners disregard associations between genes that are
+#'   differentially expressed in the opposite direction from each other?
+#'   Default: TRUE.
 #'
 #' @importFrom   dplyr         filter   left_join
 #' @importFrom   igraph        get.vertex.attribute   vertex_attr

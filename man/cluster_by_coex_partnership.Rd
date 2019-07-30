@@ -8,14 +8,14 @@ partners are linked if their expression is consistent in the user's data}
 cluster_by_coex_partnership(coex_partners, drop_disparities = TRUE)
 }
 \arguments{
-\item{coex_partners}{A CoxpresDbPartners object containing
+\item{coex_partners}{A \code{CoxpresDbPartners} object containing
 gene-statistics from the user's experiment and gene-gene associations
 between highly correlated partners as derived from `coxpresdb.jp`.}
 
-\item{drop_disparities}{Boolean. Should the clustering of
-known coexpression partners disregard associations between genes that are
-differentially expressed in the opposite direction from each other? Default:
-TRUE.}
+\item{drop_disparities}{Boolean. Should the clustering of known
+coexpression partners disregard associations between genes that are
+differentially expressed in the opposite direction from each other?
+Default: TRUE.}
 }
 \description{
 Obtain a graph containing clusters of genes, where known co-expression
