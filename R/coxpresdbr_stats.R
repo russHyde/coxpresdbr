@@ -100,7 +100,7 @@ evaluate_coex_partners <- function(
         n_partners = as.integer(n()),
         z_score = sum(.data[["z_score"]]) / sqrt(n()),
         p_value = pchisq(
-          .data[["z_score"]]^2,
+          .data[["z_score"]] ^ 2,
           df = 1, lower.tail = FALSE
         )
       ) %>%
