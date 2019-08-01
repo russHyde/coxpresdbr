@@ -26,7 +26,6 @@ Imports:
     magrittr,
     dplyr,
     methods,
-    metap,
     R.utils,
     igraph,
     tidygraph,
