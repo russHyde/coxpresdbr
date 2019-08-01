@@ -63,7 +63,7 @@ test_that("evaluate_coex_partners-data.frame: invalid input", {
 
 ###############################################################################
 
-test_that("evaluate_coex_partners-data.frame: valid input", {
+test_that("evaluate_coex_partners-data.frame: valid input, few partners", {
   # source gene has no partners: no-row data-frame returns
   pval <- data.frame(
     gene_id = letters[1:3],
@@ -153,7 +153,74 @@ test_that("evaluate_coex_partners-data.frame: valid input", {
   )
 
   # TODO: input p-values are identical for each target gene: returned p-value
-  # should match the input p-vaue / sqrt(num_targets)
+  # should match the input p-value / sqrt(num_targets)
+})
+
+test_that("evaluate_coex_partners: multiple partners", {
+  # Highly significant input genes that all have the same direction
+  # threw a bug (2019-07; all with negative sign) where the output p-value
+  # was zero (this resulted from passing rows with p_value = 0 into
+  # metap::sumz; something which happened because of numerical rounding while
+  # converting two-tailed p-values to z-scores via one-tailed p-values within
+  # metap).
+
+  # this is a two-tailed p-value
+  common_p_value <- 1e-17
+
+  # the z-score corresponding to the equivalent one-tailed p-value is
+  common_z_score <- qnorm(common_p_value / 2)
+
+  # If all neighbours of a given node have this common z-score
+  # then the neighbourhood z-score will be sqrt(# neighbours) * z
+  # ... because we use the sum-of-z-scores method to summarise p-values, and
+  # this has the form sum(z_i : i = 1..n) / sqrt(n)
+
+  p_vals <- data.frame(
+    gene_id = letters,
+    p_value = common_p_value,
+    direction = -1L,
+    stringsAsFactors = FALSE
+  )
+
+  coex_partners <- data.frame(
+    source_id = "a",
+    target_id = letters[-1],
+    stringsAsFactors = FALSE
+  )
+
+  expect_equal(
+    object = evaluate_coex_partners(p_vals, coex_partners)$z_score,
+    expected = common_z_score * sqrt(25),
+    info = paste(
+      "when all targets have the same z_score and direction (all -ve), the",
+      "neighbourhood z-score should be common_z_score * sqrt(# targets)"
+    )
+  )
+
+  expect_equal(
+    object = evaluate_coex_partners(
+      dplyr::mutate(p_vals, direction = 1L),
+      coex_partners
+    )$z_score,
+    expected = -1 * common_z_score * sqrt(25),
+    info = paste(
+      "when all targets have the same z_score and direction (all +ve), the",
+      "neighbourhood z_score should be common_z_score * sqrt(# targets)"
+    )
+  )
+
+  expect_equal(
+    object = evaluate_coex_partners(
+      p_vals, coex_partners
+    )$p_value,
+    expected = evaluate_coex_partners(
+      dplyr::mutate(p_vals, direction = 1L), coex_partners
+    )$p_value,
+    info = paste(
+      "p-values should be two-tailed; hence should be the same upon swapping",
+      "directions"
+    )
+  )
 })
 
 ###############################################################################

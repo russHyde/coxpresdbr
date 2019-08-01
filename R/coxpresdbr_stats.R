@@ -18,7 +18,20 @@
 #' Summarise whether the coexpression partners of each source-gene in the input
 #' behave consistently
 #'
-#' TODO: description
+#' For each source gene in the dataset, there is a set of target genes (the
+#' neighbourhood of that source gene). A two-tailed p-value for both the
+#' source and target genes should be defined (with respect to some experimental
+#' comparison).
+#'
+#' For each source gene, this function combines the p-values observed in its
+#' neighbourhood into a single summary score. We use the sum-of-z-scores method
+#' as used in the `metap` package (although we have reimplemented it for
+#' numerical stability); for a source gene with `n` neighbouring genes, a
+#' z-score is computed for each neighbouring gene, and then we take sumz =
+#' sum(z_i : i = 1 .. n) / sqrt(n) as the combined score. A two-tailed p-value
+#' corresponding to `sumz` is also returned. (the z-score for a given
+#' neighbour is obtained by comparing its p-value against the standard normal
+#' distribution).
 #'
 #' @param       x              A data-frame containing columns \code{gene_id},
 #'   \code{p_value} and \code{direction} (at least). The \code{p_value} column
@@ -36,12 +49,11 @@
 #'
 #' @include      coxpresdbr_data_validity.R
 #'
-#' @importFrom   dplyr         group_by   mutate   n   summarise   ungroup
+#' @importFrom   dplyr         group_by   mutate   n   summarise   ungroup   rename
 #' @importFrom   magrittr      extract   %>%
-#' @importFrom   metap         sumz   two2one
 #' @importFrom   methods       is
 #' @importFrom   rlang         .data
-#' @importFrom   stats         pnorm   qnorm
+#' @importFrom   stats         pchisq   qnorm
 #' @importFrom   tibble        tibble
 #'
 #' @export
@@ -49,6 +61,21 @@
 evaluate_coex_partners <- function(
                                    x,
                                    coex_partners) {
+  # An earlier implementation used `metap::sumz` to summarise over p-values.
+  # We have decided against using that package: it required one-tailed p-values
+  # and this led to numerical inaccuracies, eg, when an input one-tailed
+  # p-value was > 1 - 1e-17, this was numerically rounded to 1 before
+  # conversion to a z-score
+
+  # We now do the same calculation as metap::sumz, but we construct z-scores
+  # from the two-tailed p-values and direction-of-change
+
+  # The sum-of-z-scores method for summarising p-values takes the form
+  # sumz = sum(z_i : i = 1..n) / sqrt(n)
+  # The resulting sumz value is converted back to a two-tailed p-value by
+  # comparing to the standard normal distribution (or equivalently, it's square
+  # is compared to ChiSquare with 1-df)
+
   if (!.is_gene_statistics_df(x)) {
     stop(
       "`x` should contain columns `gene_id`, `p_value`, `direction`",
@@ -59,73 +86,35 @@ evaluate_coex_partners <- function(
   stopifnot(methods::is(coex_partners, "data.frame"))
   stopifnot(all(c("source_id", "target_id") %in% colnames(coex_partners)))
 
-  .add_p_values <- function(.df) {
-    dplyr::mutate(
-      .df,
-      invert = ifelse(
-        .data[["direction"]] < 0, TRUE, FALSE
-      ),
-      p_value_onetail_forward = metap::two2one(
-        .data[["p_value"]],
-        invert = .data[["invert"]]
-      ),
-      p_value_onetail_reversed = metap::two2one(
-        .data[["p_value"]],
-        invert = !.data[["invert"]]
+  .add_z_scores <- function(.df) {
+    .df %>%
+      dplyr::mutate(
+        z_score = qnorm(.data[["p_value"]] / 2) * (-1 * .data[["direction"]])
       )
-    )
-  }
-
-  .get_z_or_sumz <- function(n_partners, p_vals) {
-    ifelse(
-      n_partners > 1,
-      metap::sumz(p_vals)$z,
-      stats::qnorm(p_vals, lower.tail = FALSE)
-    )
   }
 
   .summarise_neighbours <- function(.df) {
-    dplyr::summarise(
-      .df,
-      n_partners = n(),
-      z_score_forward = .get_z_or_sumz(
-        .data[["n_partners"]],
-        .data[["p_value_onetail_forward"]]
-      ),
-      z_score_reversed = .get_z_or_sumz(
-        .data[["n_partners"]],
-        .data[["p_value_onetail_reversed"]]
-      ),
-      z_score = (.data[["z_score_forward"]] - .data[["z_score_reversed"]]) / 2,
-      p_value_onesided = pnorm(.data[["z_score"]], lower.tail = FALSE),
-      p_value = ifelse(
-        .data[["z_score"]] > 0,
-        2 * .data[["p_value_onesided"]],
-        2 * (1 - .data[["p_value_onesided"]])
-      )
-    )
-  }
-
-  .format_reported_columns <- function(.df) {
-    dplyr::mutate(
-      .df,
-      gene_id = .data[["source_id"]],
-      n_partners = as.integer(.data[["n_partners"]]),
-      z_score = as.numeric(.data[["z_score"]]),
-      p_value = as.numeric(.data[["p_value"]])
-    )
+    .df %>%
+      dplyr::group_by(.data[["source_id"]]) %>%
+      dplyr::summarise(
+        n_partners = as.integer(n()),
+        z_score = sum(.data[["z_score"]]) / sqrt(n()),
+        p_value = pchisq(
+          .data[["z_score"]] ^ 2,
+          df = 1, lower.tail = FALSE
+        )
+      ) %>%
+      dplyr::ungroup()
   }
 
   res <- x %>%
-    .add_p_values() %>%
+    .add_z_scores() %>%
     merge(
       coex_partners,
       by.x = "gene_id", by.y = "target_id"
     ) %>%
-    dplyr::group_by(.data[["source_id"]]) %>%
     .summarise_neighbours() %>%
-    dplyr::ungroup() %>%
-    .format_reported_columns() %>%
+    dplyr::rename(gene_id = .data[["source_id"]]) %>%
     magrittr::extract(
       c("gene_id", "n_partners", "z_score", "p_value")
     )

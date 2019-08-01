@@ -24,5 +24,19 @@ A data-frame containing a row for each source gene in the input
   all partner genes and the p-value equivalent to this z-score.
 }
 \description{
-TODO: description
+For each source gene in the dataset, there is a set of target genes (the
+neighbourhood of that source gene). A two-tailed p-value for both the
+source and target genes should be defined (with respect to some experimental
+comparison).
+}
+\details{
+For each source gene, this function combines the p-values observed in its
+neighbourhood into a single summary score. We use the sum-of-z-scores method
+as used in the `metap` package (although we have reimplemented it for
+numerical stability); for a source gene with `n` neighbouring genes, a
+z-score is computed for each neighbouring gene, and then we take sumz =
+sum(z_i : i = 1 .. n) / sqrt(n) as the combined score. A two-tailed p-value
+corresponding to `sumz` is also returned. (the z-score for a given
+neighbour is obtained by comparing its p-value against the standard normal
+distribution).
 }
