@@ -151,9 +151,6 @@ test_that("evaluate_coex_partners-data.frame: valid input, few partners", {
       "z-score should reverse"
     )
   )
-
-  # TODO: input p-values are identical for each target gene: returned p-value
-  # should match the input p-value / sqrt(num_targets)
 })
 
 test_that("evaluate_coex_partners: multiple partners", {
