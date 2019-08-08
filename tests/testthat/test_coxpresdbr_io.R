@@ -268,39 +268,6 @@ test_that("get file path for a specific gene", {
 ###############################################################################
 
 test_that(
-  "get the genes that are defined in a CoxpresDb archive: invalid input", {
-
-    # These tests are invalid since the CoxpresDbAccessors cannot be
-    # constructed and tests for error during construction of these
-    # CoxpresDbAccessors is tested earlier in this script
-    # - Suggest replacement: add a subclass of CoxpresDbAccessor that is
-    # neither CoexpresDbArchiveAccessor nor CoxpresDbDataframeAccessor
-
-    expect_error(
-      object = get_gene_ids(
-        CoxpresDbAccessor(db_archive = "NOT A FILE")
-      ),
-      info = paste(
-        "Attempt to load a gene-universe from a missing file as",
-        "coxpresdb archive"
-      )
-    )
-
-    expect_error(
-      object = get_gene_ids(
-        CoxpresDbAccessor(db_archive = "test_coxpresdbr_io.R")
-      ),
-      info = paste(
-        "Attempt to load a gene-universe from an existing file that",
-        "is not a .tar.bz2 coxpresdb archive"
-      )
-    )
-  }
-)
-
-###############################################################################
-
-test_that(
   "get the genes that are defined in a CoxpresDB archive: valid input", {
     expect_silent(
       object = get_gene_ids(
@@ -458,7 +425,7 @@ test_that("get all coex partners from a .zip archive", {
 
 ###############################################################################
 
-# Recommend unit testing get_all_coex_partners for a data-frame based
+# Recommend unit testing `get_all_coex_partners` for a data-frame based
 # CoxpresDB archive by using the exported function `get_coex_partners`
 
 ###############################################################################
