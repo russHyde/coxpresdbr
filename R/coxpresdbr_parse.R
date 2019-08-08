@@ -77,8 +77,12 @@
   )
 
   coex_df[keep_rows, ] %>%
-    dplyr::arrange(.data[["mutual_rank"]]) %>%
-    head(n = n_partners)
+    dplyr::top_n(
+      n = -n_partners, wt = .data[["mutual_rank"]]
+    ) %>%
+    dplyr::arrange(
+      .data[["mutual_rank"]]
+    )
 }
 
 ###############################################################################
