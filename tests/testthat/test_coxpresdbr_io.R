@@ -281,7 +281,8 @@ test_that(
       db_archive = test_data_bz2, overwrite_in_bunzip2 = TRUE
     )
     tar_accessor <- CoxpresDbAccessor(
-      test_data_tar, overwrite_in_bunzip2 = TRUE
+      test_data_tar,
+      overwrite_in_bunzip2 = TRUE
     )
     zip_accessor <- CoxpresDbAccessor(test_data_zip)
     df_accessor <- CoxpresDbAccessor(test_df)
@@ -319,12 +320,16 @@ test_that(
 ###############################################################################
 
 test_that("get_all_coex_partners: input from an archive", {
+  # TODO: rewrite these tests to use `get_coex_partners` rather than the
+  #   non-exported `get_all_coex_partners` function
+
   bz2_accessor <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
   zip_accessor <- CoxpresDbAccessor(test_data_zip)
 
   expect_error(
     object = get_all_coex_partners(
-      test_data_genes[1:2], importer = bz2_accessor
+      test_data_genes[1:2],
+      importer = bz2_accessor
     ),
     info = paste(
       "User should only request the coexpression database for a",
@@ -339,7 +344,9 @@ test_that("get_all_coex_partners: input from an archive", {
     expected = coex_data_2538791,
     info = paste(
       "Given: a single gene ID and a bz2-based CoexpresDB accessor;",
+
       "When: the user requests all coexpression partners of that gene;",
+
       "Then: the returned data should have `source_id`, `target_id` and",
       "`mutual_rank` columns, the source gene should be absent from the",
       "target gene columns and the mutual-rank values should be presented in",
@@ -354,7 +361,9 @@ test_that("get_all_coex_partners: input from an archive", {
     expected = coex_data_2538791,
     info = paste(
       "Given: a single gene ID and a zip-based CoexpresDB accessor;",
+
       "When: the user requests all coexpression partners of that gene;",
+
       "Then: the returned data should have `source_id`, `target_id` and",
       "`mutual_rank` columns, the source gene should be absent from the target",
       "gene columns and the mutual rank values should be presented in

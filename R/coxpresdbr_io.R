@@ -318,13 +318,13 @@ setGeneric(
 #' CoxpresDb archive.
 #'
 #' Users should use \code{get_coex_partners(gene_ids, importer)} rather than
-#' this method.
+#' this (unexported) method.
 #'
 #' @param        gene_id       A gene-identifier in the same format as present
 #'   throughout the CoxpresDb archive. If this isn't a single identifier, or
 #'   it isn't present in the database, the function will throw an error.
 #'
-#' @param        importer      \code{CoxpresDbAccessor} object.
+#' @param        importer      \code{CoxpresDbArchiveAccessor} object.
 #'
 #' @return       A single dataframe containing the source -> target mappings,
 #'   and the mutual ranks between the gene pairs.
@@ -335,7 +335,7 @@ setGeneric(
 #'
 setMethod(
   "get_all_coex_partners",
-  signature("character", "CoxpresDbAccessor"),
+  signature("character", "CoxpresDbArchiveAccessor"),
   function(gene_id, importer) {
     # This function is not exported.
 
@@ -345,76 +345,52 @@ setMethod(
 
     # TODO: implement for multiple 'gene_id's
 
-    # helper functions
-
-    .format_and_filter <- function(df) {
+    .drop_self_edges <- function(df) {
       # returned data-frames should contain a single gene in the source column,
       # and that gene should be absent from the target column, and the rows
       # should be ordered by increasing mutual-rank value.
-      rows <- df[["source_id"]] == gene_id &
-        df[["target_id"]] != gene_id
+      rows <- which(df[["source_id"]] != df[["target_id"]])
 
-      dplyr::arrange(
-        df[rows, ], .data[["mutual_rank"]]
+      df[rows, ]
+    }
+
+    gene_file <- get_file_path_for_gene(gene_id, importer)
+
+    if (length(gene_file) != 1) {
+      stop(
+        "Either > 1 gene_id passed to `get_all_coex_partners`,",
+        "or no file was found in the archive for this gene,",
+        "or > 1 file was found in the archive for this gene"
       )
     }
 
-    .get_coexdb_for_dframe_accessor <- function() {
-      .format_and_filter(importer@df)
+    archive <- get_uncompressed_archive(importer)
+
+    import_command <- if (.is_tar_file(archive)) {
+      paste("tar --to-stdout -xf", archive, gene_file)
+    } else if (.is_zip_file(archive)) {
+      paste("unzip -p", archive, gene_file)
+    } else {
+      stop("archive should be either .zip or .tar in `get_all_coex_partners`")
     }
 
-    .get_coexdb_for_archive_accessor <- function() {
-      gene_file <- get_file_path_for_gene(gene_id, importer)
+    initial_db <- data.table::fread(cmd = import_command)
 
-      if(length(gene_file) != 1) {
-        stop(
-          "Either > 1 gene_id passed to get_all_coex_partners,",
-          "No file was found in the archive for this gene,",
-          "Or > 1 file was found in the archive for this gene"
-        )
-      }
+    # Original versions of coxpresdb files were of the format (target_id,
+    # mutual_rank, correlation), with each seed gene having a separate file
+    #
+    # In 2019, versions of the coxpresdb files do not contain a correlation
+    # coefficient column (ie, target_id, mutual_rank)
+    #
+    # We disregard the correlation-coefficient column since it isn't
+    # consistently presented across different releases of coxpresdb
 
-      archive <- get_uncompressed_archive(importer)
-
-      import_command <- if (.is_tar_file(archive)) {
-        paste("tar --to-stdout -xf", archive, gene_file)
-      } else if (.is_zip_file(archive)) {
-        paste("unzip -p", archive, gene_file)
-      } else {
-        stop("archive should be either .zip or .tar in `get_all_coex_partners`")
-      }
-
-      initial_db <- data.table::fread(cmd = import_command)
-
-      # Original versions of coxpresdb files were of the format (target_id,
-      # mutual_rank, correlation), with each seed gene having a separate file
-      #
-      # In 2019, versions of the coxpresdb files do not contain a correlation
-      # coefficient column (ie, target_id, mutual_rank)
-      #
-      # We disregard the correlation-coefficient column since it isn't
-      # consistently presented across different releases of coxpresdb
-
-      .format_and_filter(
-        tibble::tibble(
-          source_id = gene_id,
-          target_id = as.character(initial_db[[1]]),
-          mutual_rank = initial_db[[2]]
-        )
-      )
-    }
-
-    # end of helper functions
-
-    if (
-      methods::is(importer, "CoxpresDbDataframeAccessor")
-    ) {
-      .get_coexdb_for_dframe_accessor()
-    } else if (
-      methods::is(importer, "CoxpresDbArchiveAccessor")
-    ) {
-      .get_coexdb_for_archive_accessor()
-    }
+    tibble::tibble(
+      source_id = gene_id,
+      target_id = as.character(initial_db[[1]]),
+      mutual_rank = initial_db[[2]]
+    ) %>%
+      .drop_self_edges()
   }
 )
 
