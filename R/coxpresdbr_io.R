@@ -202,7 +202,11 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 #'
 
 setMethod("get_gene_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
-  get_file_paths(x)[["gene_id"]]
+  # Note that without opening every file in the archive, there is no way of
+  # knowing whether there are some genes mentioned inside one of those files
+  # which is not a source gene (for an archive, the source genes are the
+  # filenames present in the archive)
+  get_source_ids(x)
 })
 
 #' Imports the gene identifiers that are represented within a data-frame-based
@@ -218,8 +222,61 @@ setMethod("get_gene_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
 #'
 
 setMethod("get_gene_ids", signature("CoxpresDbDataframeAccessor"), function(x) {
-  with(x@df, sort(union(source_id, target_id)))
+  sort(union(get_source_ids(x), x@df[["target_id"]]))
 })
+
+###############################################################################
+
+#' Generic method for getting source-gene identifiers.
+#'
+#' The returned vector contains all gene IDs for which coexpression partners
+#' can be obtained from the dataset. There may be target-genes that are not
+#' source-genes.
+#'
+#' @param        x             A \code{CoexpresDbAccessor} corresponding to a
+#'   CoxpresDB archive.
+#'
+setGeneric("get_source_ids", valueClass = "character", function(x) {
+  standardGeneric("get_source_ids")
+})
+
+#' Imports the source-gene identifiers that are represented within a given
+#' CoxpresDB.jp archive
+#'
+#' @param        x             A \code{CoexpresDbArchiveAccessor} corresponding
+#'   to a CoxpresDB archive.
+#'
+#' @return       A vector of gene-ids; coexpression partners for each such gene
+#'   are available in the user-supplied archive.
+#'
+#' @export
+#'
+
+setMethod("get_source_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
+  get_file_paths(x)[["gene_id"]]
+})
+
+#' Imports the source gene identifiers that are represented within a
+#' data-frame-based CoxpresDB.jp archive
+#'
+#' @param        x             A \code{CoxpresDbDataframeAccessor}
+#'   corresponding to a CoxpresDB archive.
+#'
+#' @return       A vector of gene-ids; coexpression partners for each such gene
+#'   are present in the user-supplied archive.
+#'
+#' @export
+#'
+
+setMethod(
+  "get_source_ids",
+  signature("CoxpresDbDataframeAccessor"),
+  function(x) {
+    sort(unique(x@df[["source_id"]]))
+  }
+)
+
+# TODO: `get_target_ids`
 
 ###############################################################################
 
@@ -233,6 +290,7 @@ setMethod(
     x@archive
   }
 )
+
 ###############################################################################
 
 setGeneric("get_uncompressed_archive", valueClass = "character", function(x) {
@@ -279,11 +337,13 @@ setMethod(
   "get_all_coex_partners",
   signature("character", "CoxpresDbAccessor"),
   function(gene_id, importer) {
+    # TODO: implement for multiple 'gene_id's
+
     # helper functions
 
     .is_gene_valid <- function() {
       length(gene_id) == 1 &&
-        gene_id %in% get_gene_ids(importer)
+        gene_id %in% get_source_ids(importer)
     }
 
     .format_and_filter <- function(df) {

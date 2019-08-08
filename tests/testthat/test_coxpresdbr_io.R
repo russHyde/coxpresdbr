@@ -26,16 +26,6 @@ test_df <- tibble::tibble(
   mutual_rank = c(1, 1.5, 2, 3.5, 2.2)
 )
 
-test_df_123_partners <- tibble::tibble(
-  source_id = "123",
-  target_id = c("456", "568", "987"),
-  # note this is sorted by mutual rank, even though the input (fo
-  # source = 123) isn't sorted;
-  # also note source = 987 is absent from the source id column
-  # also note target = 123 is absent from the target ids
-  mutual_rank = c(1.5, 2.2, 3.5)
-)
-
 test_df_genes <- as.character(c(123, 456, 568, 987))
 
 ###############################################################################
@@ -468,19 +458,7 @@ test_that("get all coex partners from a .zip archive", {
 
 ###############################################################################
 
-test_that("get all coex partners from a data-frame archive", {
-  importer <- CoxpresDbAccessor(test_df)
+# Recommend unit testing get_all_coex_partners for a data-frame based
+# CoxpresDB archive by using the exported function `get_coex_partners`
 
-  coex_db_123 <- get_all_coex_partners(
-    gene_id = "123", importer = importer
-  )
-
-  expect_equal(
-    object = coex_db_123,
-    expected = test_df_123_partners,
-    info = paste(
-      "Coexpression dataframe can be obtained from a dataframe-based CoxpresDb",
-      "accessor"
-    )
-  )
-})
+###############################################################################
