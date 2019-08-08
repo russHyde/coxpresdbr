@@ -66,7 +66,7 @@
 #' @importFrom   tibble        tibble
 #' @importFrom   utils         untar
 #'
-#' @include      coxpresdbr_CoxpresDbArchive.R
+#' @include      coxpresdbr_CoxpresDbAccessor.R
 #'
 #' @return       A \code{CoxpresDbAccessor} object.
 #' @export
@@ -396,7 +396,6 @@ setMethod(
         )
       )
     }
-
 
     # end of helper functions
 
