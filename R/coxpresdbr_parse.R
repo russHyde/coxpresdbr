@@ -67,6 +67,7 @@
     which(
       source_id %in% gene_universe &
         target_id %in% gene_universe &
+        source_id != target_id &
         mutual_rank <= mr_threshold
     )
   )
@@ -143,8 +144,16 @@ get_coex_partners <- function(
     .are_genes_valid()
   )
 
-  imported <- Map(.import_fn, gene_ids) %>%
+  imported <- if (is(importer, "CoxpresDbArchiveAccessor")) {
+    Map(.import_fn, gene_ids) %>%
     dplyr::bind_rows()
+  } else {
+    # since all genes are valid source IDs, every gene_id should be present in
+    # the filtered data-frame
+    rows <- which(importer@df[["source_id"]] %in% gene_ids)
+
+    importer@df[rows, ]
+    }
 
   .filter_fn(imported)
 }
