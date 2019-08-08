@@ -29,7 +29,8 @@ Imports:
     R.utils,
     igraph,
     tidygraph,
-    rlang
+    rlang,
+    purrr
 Collate:
     'coxpresdbr_CoxpresDbAccessor.R'
     'coxpresdbr_data_validity.R'

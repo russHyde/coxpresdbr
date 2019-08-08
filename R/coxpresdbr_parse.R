@@ -112,6 +112,7 @@
 #' @inheritParams   .filter_coex_partners
 #'
 #' @importFrom   dplyr         bind_rows
+#' @importFrom   purrr         map_df
 #'
 #' @export
 #'
@@ -121,41 +122,35 @@ get_coex_partners <- function(
                               gene_universe = NULL,
                               n_partners = 100,
                               mr_threshold = NULL) {
-
   .are_genes_valid <- function() {
-    ! any(duplicated(gene_ids)) &
+    !any(duplicated(gene_ids)) &
       all(gene_ids %in% get_source_ids(importer))
-    }
-
-  .import_fn <- function(x) {
-    get_all_coex_partners(gene_id = x, importer = importer)
-  }
-
-  .filter_fn <- function(x) {
-    .filter_coex_partners(
-      x,
-      gene_universe = gene_universe, n_partners = n_partners,
-      mr_threshold = mr_threshold
-    )
   }
 
   stopifnot(
     is(importer, "CoxpresDbAccessor") &&
-    .are_genes_valid()
+      .are_genes_valid()
   )
 
   imported <- if (is(importer, "CoxpresDbArchiveAccessor")) {
-    Map(.import_fn, gene_ids) %>%
-    dplyr::bind_rows()
+    purrr::map_df(
+      gene_ids,
+      get_all_coex_partners,
+      importer = importer
+    )
   } else {
-    # since all genes are valid source IDs, every gene_id should be present in
-    # the filtered data-frame
+    # must be a CoxpresDbDataframeAccessor
+    # - extract the source-gene rows directly from the dataframe
     rows <- which(importer@df[["source_id"]] %in% gene_ids)
 
     importer@df[rows, ]
-    }
+  }
 
-  .filter_fn(imported)
+  .filter_coex_partners(
+    imported,
+    gene_universe = gene_universe, n_partners = n_partners,
+    mr_threshold = mr_threshold
+  )
 }
 
 ###############################################################################
