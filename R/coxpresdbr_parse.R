@@ -77,12 +77,14 @@
   )
 
   coex_df[keep_rows, ] %>%
+    dplyr::group_by(.data[["source_id"]]) %>%
     dplyr::top_n(
       n = -n_partners, wt = .data[["mutual_rank"]]
     ) %>%
     dplyr::arrange(
       .data[["mutual_rank"]]
-    )
+    ) %>%
+    dplyr::ungroup()
 }
 
 ###############################################################################
