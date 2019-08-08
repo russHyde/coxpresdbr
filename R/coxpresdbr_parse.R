@@ -20,8 +20,9 @@
 #' Function to filter the contents of a 'coxpresdb.jp' gene-coexpression
 #' dataset
 #'
-#' @param        coex_df       A dataframe containing coexpression data. As
-#'   returned by \code{get_all_coex_partners}.
+#' @param        coex_df       A dataframe containing coexpression data. Should
+#'   contain columns \code{source_id}, \code{target_id} and \code{mutual_rank}.
+#'   May contain multiple distinct \code{source_id}s
 #'
 #' @param        gene_universe   The genes in the dataframe should be filtered
 #'   to ensure they are all present in this set. Note that both the entries in
@@ -43,12 +44,6 @@
                                   gene_universe,
                                   n_partners,
                                   mr_threshold) {
-  if (length(unique(coex_df[["source_id"]])) > 1) {
-    stop(
-      "`.filter_coex_partners` has not yet been implemented for >1 source gene"
-    )
-  }
-
   gene_universe <- if (missing(gene_universe) || is.null(gene_universe)) {
     .define_default_gene_universe(coex_df)
   } else {
@@ -77,7 +72,9 @@
   )
 
   coex_df[keep_rows, ] %>%
-    dplyr::group_by(.data[["source_id"]]) %>%
+    dplyr::group_by(
+      .data[["source_id"]]
+    ) %>%
     dplyr::top_n(
       n = -n_partners, wt = .data[["mutual_rank"]]
     ) %>%
@@ -146,11 +143,10 @@ get_coex_partners <- function(
     .are_genes_valid()
   )
 
-  imported <- Map(.import_fn, gene_ids)
+  imported <- Map(.import_fn, gene_ids) %>%
+    dplyr::bind_rows()
 
-  filtered <- Map(.filter_fn, imported)
-
-  dplyr::bind_rows(filtered)
+  .filter_fn(imported)
 }
 
 ###############################################################################
