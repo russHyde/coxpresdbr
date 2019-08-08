@@ -337,14 +337,15 @@ setMethod(
   "get_all_coex_partners",
   signature("character", "CoxpresDbAccessor"),
   function(gene_id, importer) {
+    # This function is not exported.
+
+    # We assume that any function which calls this has passed in a single gene
+    # and has already checked that the gene_id passed in is a valid identifier
+    # for this coexpression dataset
+
     # TODO: implement for multiple 'gene_id's
 
     # helper functions
-
-    .is_gene_valid <- function() {
-      length(gene_id) == 1 &&
-        gene_id %in% get_source_ids(importer)
-    }
 
     .format_and_filter <- function(df) {
       # returned data-frames should contain a single gene in the source column,
@@ -365,7 +366,13 @@ setMethod(
     .get_coexdb_for_archive_accessor <- function() {
       gene_file <- get_file_path_for_gene(gene_id, importer)
 
-      stopifnot(length(gene_file) == 1)
+      if(length(gene_file) != 1) {
+        stop(
+          "Either > 1 gene_id passed to get_all_coex_partners,",
+          "No file was found in the archive for this gene,",
+          "Or > 1 file was found in the archive for this gene"
+        )
+      }
 
       archive <- get_uncompressed_archive(importer)
 
@@ -398,15 +405,6 @@ setMethod(
     }
 
     # end of helper functions
-
-    if (!.is_gene_valid()) {
-      stop(
-        paste(
-          "`gene_id` should be a single gene-ID that is present in the",
-          "CoxpresDB archive"
-        )
-      )
-    }
 
     if (
       methods::is(importer, "CoxpresDbDataframeAccessor")

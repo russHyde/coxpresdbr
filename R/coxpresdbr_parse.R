@@ -117,6 +117,12 @@ get_coex_partners <- function(
                               gene_universe = NULL,
                               n_partners = 100,
                               mr_threshold = NULL) {
+
+  .are_genes_valid <- function() {
+    ! any(duplicated(gene_ids)) &
+      all(gene_ids %in% get_source_ids(importer))
+    }
+
   .import_fn <- function(x) {
     get_all_coex_partners(gene_id = x, importer = importer)
   }
@@ -129,7 +135,13 @@ get_coex_partners <- function(
     )
   }
 
+  stopifnot(
+    is(importer, "CoxpresDbAccessor") &&
+    .are_genes_valid()
+  )
+
   imported <- Map(.import_fn, gene_ids)
+
   filtered <- Map(.filter_fn, imported)
 
   dplyr::bind_rows(filtered)
