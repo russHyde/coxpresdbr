@@ -7,6 +7,10 @@ context("Tests for dataset parsing in `coxpresdbr` package")
 
 ###############################################################################
 
+test_data_bz2 <- "spo_v14_subset.tar.bz2"
+
+###############################################################################
+
 test_that(".filter_coex_partners", {
   df1 <- tibble::tibble(
     source_id = rep("A", 5),
@@ -109,8 +113,32 @@ test_that("get_coex_partners", {
 
 ###############################################################################
 
+test_that("get_coex_partners from an archive: invalid input", {
+  bz2_accessor <- CoxpresDbAccessor(
+    db_archive = test_data_bz2, overwrite_in_bunzip2 = TRUE
+  )
+
+  expect_error(
+    object = get_coex_partners(
+      gene_id = "2538791", importer = "NOT AN IMPORTER"
+    ),
+    info = paste(
+      "Attempt to load gene-partners from a string, not an `CoxpresDbAccessor`"
+    )
+  )
+
+  expect_error(
+    object = get_coex_partners("NOT_A_GENE", importer = bz2_accessor),
+    info = "Attempt to import a missing gene from a coxpresdb archive"
+  )
+})
+
+###############################################################################
+
 test_that("get_coex_partners from a dataframe", {
+
   # --- test data
+
   test_df <- tibble::tibble(
     source_id = c("123", "123", "987", "123", "123", "987"),
     target_id = c("123", "456", "123", "987", "568", "456"),
@@ -144,9 +172,11 @@ test_that("get_coex_partners from a dataframe", {
     expected = test_df_123_partners,
     info = paste(
       "Given: a dataframe-based CoxpresDbAccessor and a single gene ID;",
+
       "When: the user requests the coexpression partners of that gene;",
+
       "Then: the coexpression partners are returned in order of increasing",
-      "mutual rank and the source gene is not a partner of itself"
+      "mutual-rank and the source gene is not a partner of itself"
     )
   )
 
@@ -157,7 +187,9 @@ test_that("get_coex_partners from a dataframe", {
     info = paste(
       "Given: a dataframe-based CoxpresDbAccessor and a gene that is not",
       "present in that dataframe;",
+
       "When: the user requests the coexpression partners of that gene;",
+
       "Then: an error is thrown"
     )
   )

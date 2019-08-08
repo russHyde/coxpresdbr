@@ -318,24 +318,9 @@ test_that(
 
 ###############################################################################
 
-test_that("get_all_coex_partners: invalid input", {
-  bz2_accessor <- CoxpresDbAccessor(
-    db_archive = test_data_bz2, overwrite_in_bunzip2 = TRUE
-  )
-
-  expect_error(
-    object = get_all_coex_partners(
-      gene_id = "2538791", importer = "NOT AN IMPORTER"
-    ),
-    info = paste(
-      "Attempt to load gene-partners from a string, not an `CoxpresDbAccessor`"
-    )
-  )
-
-  expect_error(
-    object = get_all_coex_partners("NOT_A_GENE", importer = bz2_accessor),
-    info = "Attempt to import a missing gene from a coxpresdb archive"
-  )
+test_that("get_all_coex_partners: input from an archive", {
+  bz2_accessor <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
+  zip_accessor <- CoxpresDbAccessor(test_data_zip)
 
   expect_error(
     object = get_all_coex_partners(
@@ -346,13 +331,6 @@ test_that("get_all_coex_partners: invalid input", {
       "single gene"
     )
   )
-})
-
-###############################################################################
-
-test_that("get_all_coex_partners: input from an archive", {
-  bz2_accessor <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
-  zip_accessor <- CoxpresDbAccessor(test_data_zip)
 
   expect_equal(
     object = get_all_coex_partners(
