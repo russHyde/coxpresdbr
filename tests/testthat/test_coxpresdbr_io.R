@@ -18,6 +18,19 @@ test_data_genes <- as.character(c(
   2542210, 2542294, 2543492, 3361219, 3361512
 ))
 
+coex_data_2538791 <- tibble::tibble(
+  # copied & reformatted from the file
+  source_id = "2538791",
+  target_id = c(
+    "2543492", "2539499", "3361512", "2540594", "2541907", "2542294",
+    "2542210", "2541560", "3361219"
+  ),
+  mutual_rank = c(
+    631.52, 875.09, 1125.90, 1214.15, 1261.86, 2939.49,
+    4110.55, 4184.63, 4250.63
+  )
+)
+
 ###############################################################################
 
 test_df <- tibble::tibble(
@@ -337,83 +350,40 @@ test_that("get_all_coex_partners: invalid input", {
 
 ###############################################################################
 
-test_that("get_all_coex_partners: input from file", {
+test_that("get_all_coex_partners: input from an archive", {
   bz2_accessor <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
-
-  expect_silent(
-    object = get_all_coex_partners(
-      gene_id = "2538791", importer = bz2_accessor
-    )
-  )
-
-  coex_db_2538791 <- get_all_coex_partners(
-    gene_id = "2538791", importer = bz2_accessor
-  )
-
-  # TODO: replace these separate tests with an explicit test against the
-  # contents of the coexpression file for 2538791
-
-  expect_is(
-    object = coex_db_2538791,
-    class = "tbl_df",
-    info = "Coexpression database should be returned as a tibble::tbl_df"
-  )
-
-  expect_equal(
-    object = colnames(coex_db_2538791),
-    expected = c("source_id", "target_id", "mutual_rank"),
-    info = paste(
-      "Colnames of a coexpression database should be `source_id`,",
-      "`target_id` and `mutual_rank`"
-    )
-  )
-
-  expect_equal(
-    object = vapply(
-      coex_db_2538791, function(x) class(x)[1],
-      FUN.VALUE = character(1),
-      USE.NAMES = FALSE
-    ),
-    expected = c("character", "character", "numeric"),
-    info = paste(
-      "Coltypes should be character for source/target-id and numeric for",
-      "mutual-rank"
-    )
-  )
-
-  expect_equal(
-    object = unique(coex_db_2538791[["source_id"]]),
-    expected = "2538791",
-    info = paste(
-      "A single source-gene should be present in a returned",
-      "coexpression database"
-    )
-  )
-
-  expect_false(
-    object = "2538791" %in% coex_db_2538791[["target_id"]],
-    info = paste(
-      "The source-gene should be absent from the targets in its",
-      "coexpression database"
-    )
-  )
-})
-
-###############################################################################
-
-test_that("get all coex partners from a .zip archive", {
   zip_accessor <- CoxpresDbAccessor(test_data_zip)
 
-  expect_is(
+  expect_equal(
+    object = get_all_coex_partners(
+      gene_id = "2538791", importer = bz2_accessor
+    ),
+    expected = coex_data_2538791,
+    info = paste(
+      "Given: a single gene ID and a bz2-based CoexpresDB accessor;",
+      "When: the user requests all coexpression partners of that gene;",
+      "Then: the returned data should have `source_id`, `target_id` and",
+      "`mutual_rank` columns, the source gene should be absent from the",
+      "target gene columns and the mutual-rank values should be presented in",
+      "increasing order"
+    )
+  )
+
+  expect_equal(
     object = get_all_coex_partners(
       gene_id = "2538791", importer = zip_accessor
     ),
-    class = "tbl_df",
-    info = "Coexpression database should be returned as a tibble::tbl_df"
+    expected = coex_data_2538791,
+    info = paste(
+      "Given: a single gene ID and a zip-based CoexpresDB accessor;",
+      "When: the user requests all coexpression partners of that gene;",
+      "Then: the returned data should have `source_id`, `target_id` and",
+      "`mutual_rank` columns, the source gene should be absent from the target",
+      "gene columns and the mutual rank values should be presented in
+      increasing order"
+    )
   )
 })
-
-# TODO: exact matching of the contents of the coex_db_2538791 files
 
 ###############################################################################
 
