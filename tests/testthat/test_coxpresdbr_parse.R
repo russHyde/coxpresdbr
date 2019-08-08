@@ -120,7 +120,7 @@ test_that("get_coex_partners from a dataframe", {
   test_df_123_partners <- tibble::tibble(
     source_id = "123",
     target_id = c("456", "568", "987"),
-    # note this is sorted by mutual rank, even though the input (fo
+    # note this is sorted by mutual rank, even though the input (eg, for
     # source = 123) isn't sorted;
     # also note source = 987 is absent from the source id column
     # also note target = 123 is absent from the target ids
@@ -133,13 +133,13 @@ test_that("get_coex_partners from a dataframe", {
     mutual_rank = c(1.2, 2)
   )
 
-  importer <- CoxpresDbAccessor(test_df)
+  df_accessor <- CoxpresDbAccessor(test_df)
 
   # --- tests
 
   expect_equal(
     object = get_coex_partners(
-      gene_ids = "123", importer = importer
+      gene_ids = "123", importer = df_accessor
     ),
     expected = test_df_123_partners,
     info = paste(
@@ -152,7 +152,7 @@ test_that("get_coex_partners from a dataframe", {
 
   expect_error(
     object = get_coex_partners(
-      gene_ids = "NOT PRESENT", importer = importer
+      gene_ids = "NOT PRESENT", importer = df_accessor
     ),
     info = paste(
       "Given: a dataframe-based CoxpresDbAccessor and a gene that is not",
@@ -164,7 +164,7 @@ test_that("get_coex_partners from a dataframe", {
 
   expect_error(
     object = get_coex_partners(
-      gene_ids = "456", importer = importer
+      gene_ids = "456", importer = df_accessor
     ),
     info = paste(
       "Given: a dataframe-based CoxpresDbAccessor and a gene that is not",
@@ -176,7 +176,7 @@ test_that("get_coex_partners from a dataframe", {
 
   expect_equal(
     object = get_coex_partners(
-      gene_ids = c("987", "123"), importer = importer
+      gene_ids = c("987", "123"), importer = df_accessor
     ),
     expected = dplyr::bind_rows(
       test_df_987_partners, test_df_123_partners
@@ -184,9 +184,49 @@ test_that("get_coex_partners from a dataframe", {
     info = paste(
       "Given: a dataframe-based CoxpresDbAccessor and two genes that are",
       "'source' genes in that dataframe;",
+
       "When: the user requests the coexpression partners of those genes;",
+
       "Then: the coexpression partners are returned in source-gene associated",
       "blocks, and the source genes are ordered as in the input"
+    )
+  )
+
+  expect_equal(
+    object = get_coex_partners(
+      gene_ids = c("987", "123"), importer = df_accessor, n_partners = 1
+    ),
+    expected = dplyr::bind_rows(
+      test_df_987_partners[1, ], test_df_123_partners[1, ]
+    ),
+    info = paste(
+      "Given: a dataframe-based CoxpresDbAccessor, and two genes that are",
+      "'source' genes in that dataframe;",
+
+      "When: the user requests the top coexpression partner of each gene;",
+
+      "Then: a single coexpression partner is returned in a dataframe ordered",
+      "by the input order of the source-genes"
+    )
+  )
+
+  expect_equal(
+    object = get_coex_partners(
+      gene_ids = c("987", "123"), importer = df_accessor, mr_threshold = 2.1
+    ),
+    expected = dplyr::bind_rows(
+      dplyr::filter(test_df_987_partners, mutual_rank <= 2.1),
+      dplyr::filter(test_df_123_partners, mutual_rank <= 2.1)
+    ),
+    info = paste(
+      "Given: a dataframe-based CoxpresDbAccessor, and two genes that are",
+      "'source' genes in that dataframe;",
+
+      "When: the user requests coexpression partners up to a mutual-rank",
+      "threshold;",
+
+      "Then: all coexpression partners returned should have mutual-rank <=",
+      "that threshold"
     )
   )
 })
