@@ -133,9 +133,8 @@ get_coex_partners <- function(
   )
 
   imported <- if (is(importer, "CoxpresDbArchiveAccessor")) {
-    purrr::map_df(
+    get_all_coex_partners(
       gene_ids,
-      get_all_coex_partners,
       importer = importer
     )
   } else {

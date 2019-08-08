@@ -326,14 +326,19 @@ test_that("get_all_coex_partners: input from an archive", {
   bz2_accessor <- CoxpresDbAccessor(test_data_bz2, overwrite_in_bunzip2 = TRUE)
   zip_accessor <- CoxpresDbAccessor(test_data_zip)
 
-  expect_error(
-    object = get_all_coex_partners(
-      test_data_genes[1:2],
-      importer = bz2_accessor
+  gene_pair <- test_data_genes[1:2]
+  expect_true(
+    object = all(
+      gene_pair %in%
+        get_all_coex_partners(gene_pair, importer = bz2_accessor)[["source_id"]]
     ),
     info = paste(
-      "User should only request the coexpression database for a",
-      "single gene"
+      "Given: >= 1 gene IDs and a bz2-based CoxpresDB accessor;",
+
+      "When: the user requests all coexpression partners for those genes;",
+
+      "Then: all input genes should be present in the `source_id` column of",
+      "the returned tibble / data-frame."
     )
   )
 

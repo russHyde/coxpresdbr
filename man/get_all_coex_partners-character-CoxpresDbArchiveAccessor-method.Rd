@@ -7,13 +7,13 @@
 CoxpresDb archive.}
 \usage{
 
-  \S4method{get_all_coex_partners}{character,CoxpresDbArchiveAccessor}(gene_id,
+  \S4method{get_all_coex_partners}{character,CoxpresDbArchiveAccessor}(gene_ids,
   importer)
 }
 \arguments{
-\item{gene_id}{A gene-identifier in the same format as present
-throughout the CoxpresDb archive. If this isn't a single identifier, or
-it isn't present in the database, the function will throw an error.}
+\item{gene_ids}{A vector of gene-identifiers in the same format
+as present throughout the CoxpresDb archive. If any of these identifiers
+is absent from the archive, the function will throw an error.}
 
 \item{importer}{\code{CoxpresDbArchiveAccessor} object.}
 }

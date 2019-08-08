@@ -309,7 +309,7 @@ setMethod(
 setGeneric(
   "get_all_coex_partners",
   valueClass = "data.frame",
-  function(gene_id, importer) {
+  function(gene_ids, importer) {
     standardGeneric("get_all_coex_partners")
   }
 )
@@ -320,9 +320,9 @@ setGeneric(
 #' Users should use \code{get_coex_partners(gene_ids, importer)} rather than
 #' this (unexported) method.
 #'
-#' @param        gene_id       A gene-identifier in the same format as present
-#'   throughout the CoxpresDb archive. If this isn't a single identifier, or
-#'   it isn't present in the database, the function will throw an error.
+#' @param        gene_ids       A vector of gene-identifiers in the same format
+#'   as present throughout the CoxpresDb archive. If any of these identifiers
+#'   is absent from the archive, the function will throw an error.
 #'
 #' @param        importer      \code{CoxpresDbArchiveAccessor} object.
 #'
@@ -331,19 +331,26 @@ setGeneric(
 #'
 #' @importFrom   data.table    fread
 #' @importFrom   dplyr         arrange
+#' @importFrom   purrr         map_df
 #' @importFrom   tibble        tibble
 #'
 setMethod(
   "get_all_coex_partners",
   signature("character", "CoxpresDbArchiveAccessor"),
-  function(gene_id, importer) {
+  function(gene_ids, importer) {
     # This function is not exported.
 
-    # We assume that any function which calls this has passed in a single gene
-    # and has already checked that the gene_id passed in is a valid identifier
-    # for this coexpression dataset
+    # We assume that any function which calls this has already checked that the
+    # `gene_ids` passed in are valid identifiers for this coexpression dataset
 
-    # TODO: implement for multiple 'gene_id's
+    if (length(gene_ids) > 1) {
+      return(
+        purrr::map_df(gene_ids, get_all_coex_partners, importer = importer)
+      )
+    }
+
+    # We can assume that a single gene ID is being used from here
+    gene_id <- gene_ids
 
     .drop_self_edges <- function(df) {
       # returned data-frames should contain a single gene in the source column,
@@ -358,9 +365,9 @@ setMethod(
 
     if (length(gene_file) != 1) {
       stop(
-        "Either > 1 gene_id passed to `get_all_coex_partners`,",
-        "or no file was found in the archive for this gene,",
-        "or > 1 file was found in the archive for this gene"
+        "Either no file was found in the archive for the gene `", gene_id, "`,",
+        "or > 1 file was found in the archive for this gene",
+        "in `get_all_coex_partners`"
       )
     }
 
