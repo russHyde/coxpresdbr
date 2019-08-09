@@ -20,8 +20,9 @@
 #' Function to filter the contents of a 'coxpresdb.jp' gene-coexpression
 #' dataset
 #'
-#' @param        coex_df       A dataframe containing coexpression data. As
-#'   returned by \code{get_all_coex_partners}.
+#' @param        coex_df       A dataframe containing coexpression data. Should
+#'   contain columns \code{source_id}, \code{target_id} and \code{mutual_rank}.
+#'   May contain multiple distinct \code{source_id}s.
 #'
 #' @param        gene_universe   The genes in the dataframe should be filtered
 #'   to ensure they are all present in this set. Note that both the entries in
@@ -43,12 +44,6 @@
                                   gene_universe,
                                   n_partners,
                                   mr_threshold) {
-  if (length(unique(coex_df[["source_id"]])) > 1) {
-    stop(
-      "`.filter_coex_partners` has not yet been implemented for >1 source gene"
-    )
-  }
-
   gene_universe <- if (missing(gene_universe) || is.null(gene_universe)) {
     .define_default_gene_universe(coex_df)
   } else {
@@ -72,13 +67,22 @@
     which(
       source_id %in% gene_universe &
         target_id %in% gene_universe &
+        source_id != target_id &
         mutual_rank <= mr_threshold
     )
   )
 
   coex_df[keep_rows, ] %>%
-    dplyr::arrange(.data[["mutual_rank"]]) %>%
-    head(n = n_partners)
+    dplyr::group_by(
+      .data[["source_id"]]
+    ) %>%
+    dplyr::top_n(
+      n = -n_partners, wt = .data[["mutual_rank"]]
+    ) %>%
+    dplyr::arrange(
+      .data[["mutual_rank"]]
+    ) %>%
+    dplyr::ungroup()
 }
 
 ###############################################################################
@@ -108,6 +112,8 @@
 #' @inheritParams   .filter_coex_partners
 #'
 #' @importFrom   dplyr         bind_rows
+#' @importFrom   methods       is
+#' @importFrom   purrr         map_df
 #'
 #' @export
 #'
@@ -117,22 +123,34 @@ get_coex_partners <- function(
                               gene_universe = NULL,
                               n_partners = 100,
                               mr_threshold = NULL) {
-  .import_fn <- function(x) {
-    get_all_coex_partners(gene_id = x, importer = importer)
+  .are_genes_valid <- function() {
+    !any(duplicated(gene_ids)) &
+      all(gene_ids %in% get_source_ids(importer))
   }
 
-  .filter_fn <- function(x) {
-    .filter_coex_partners(
-      x,
-      gene_universe = gene_universe, n_partners = n_partners,
-      mr_threshold = mr_threshold
+  stopifnot(
+    is(importer, "CoxpresDbAccessor") &&
+      .are_genes_valid()
+  )
+
+  imported <- if (is(importer, "CoxpresDbArchiveAccessor")) {
+    get_all_coex_partners(
+      gene_ids,
+      importer = importer
     )
+  } else {
+    # must be a CoxpresDbDataframeAccessor
+    # - extract the source-gene rows directly from the dataframe
+    rows <- which(importer@df[["source_id"]] %in% gene_ids)
+
+    importer@df[rows, ]
   }
 
-  imported <- Map(.import_fn, gene_ids)
-  filtered <- Map(.filter_fn, imported)
-
-  dplyr::bind_rows(filtered)
+  .filter_coex_partners(
+    imported,
+    gene_universe = gene_universe, n_partners = n_partners,
+    mr_threshold = mr_threshold
+  )
 }
 
 ###############################################################################
