@@ -9,9 +9,11 @@ CoxpresDbAccessor(db_archive, temp_dir = tempdir(),
   overwrite_in_bunzip2 = FALSE, remove_in_bunzip2 = FALSE)
 }
 \arguments{
-\item{db_archive}{A file path. Should be a single
-\code{`*`.tar.bz2}, \code{`*`.tar}, or \code{`*`.zip} file as downloaded
-from the _coxpresdb.jp_ website.}
+\item{db_archive}{Either a data-frame or a file path. If a
+file-path, it should be a single \code{`*`.tar.bz2}, \code{`*`.tar}, or
+\code{`*`.zip} file as downloaded from the _coxpresdb.jp_ website. If a
+data-frame it should have columns \code{source_id}, \code{target_id} and
+\code{mutual_rank}.}
 
 \item{temp_dir}{A directory into which a compressed CoxpresDB
 archive will be decompressed. By default this is the temp_dir for the
@@ -30,9 +32,16 @@ See \code{remove} in \code{R.utils::bunzip2}}
 A \code{CoxpresDbAccessor} object.
 }
 \description{
-The \code{db_archive} should be a \code{.zip}, \code{.tar} or a
-\code{.tar.bz2}, if it's a \code{.tar.bz2} then \code{temp_dir} should be
+The \code{db_archive} should be a data-frame, a \code{.zip}, \code{.tar} or
+a \code{.tar.bz2}.
+}
+\details{
+If \code{db_archive} is a \code{.tar.bz2} then \code{temp_dir} should be
 defined and a random copy of the uncompressed archive will be made. All
 access to the stored data will be made via the uncompressed copy of the
 archive, so make a \code{CoxpresDbAccessor} _once_ during any given script.
+
+Data-frame access is the fastest approach (but works 'in memory'). Access
+via an archive is useful if you want to set up a reduced-size coxpresDB file
+for subsequent 'in-memory' use in your analysis workflow.
 }
