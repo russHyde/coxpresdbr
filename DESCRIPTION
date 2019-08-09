@@ -1,6 +1,6 @@
 Package: coxpresdbr
 Title: Parses and Summarises Data from coxpresdb.jp
-Version: 0.0.0.9000
+Version: 0.0.0.9001
 Authors@R: person(
     "Russ", "Hyde", email = "russ_hyde@hotmail.com",
     role = c("aut", "cre")
