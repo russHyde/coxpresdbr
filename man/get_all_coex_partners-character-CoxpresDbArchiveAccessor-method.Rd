@@ -3,7 +3,7 @@
 \docType{methods}
 \name{get_all_coex_partners,character,CoxpresDbArchiveAccessor-method}
 \alias{get_all_coex_partners,character,CoxpresDbArchiveAccessor-method}
-\title{Import all the coexpression partner data for a single gene from a given
+\title{Import all the coexpression partner data for a set of genes from a given
 CoxpresDb archive.}
 \usage{
 

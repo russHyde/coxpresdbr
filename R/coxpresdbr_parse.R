@@ -22,7 +22,7 @@
 #'
 #' @param        coex_df       A dataframe containing coexpression data. Should
 #'   contain columns \code{source_id}, \code{target_id} and \code{mutual_rank}.
-#'   May contain multiple distinct \code{source_id}s
+#'   May contain multiple distinct \code{source_id}s.
 #'
 #' @param        gene_universe   The genes in the dataframe should be filtered
 #'   to ensure they are all present in this set. Note that both the entries in
@@ -112,6 +112,7 @@
 #' @inheritParams   .filter_coex_partners
 #'
 #' @importFrom   dplyr         bind_rows
+#' @importFrom   methods       is
 #' @importFrom   purrr         map_df
 #'
 #' @export

@@ -10,7 +10,7 @@ dataset}
 \arguments{
 \item{coex_df}{A dataframe containing coexpression data. Should
 contain columns \code{source_id}, \code{target_id} and \code{mutual_rank}.
-May contain multiple distinct \code{source_id}s}
+May contain multiple distinct \code{source_id}s.}
 
 \item{gene_universe}{The genes in the dataframe should be filtered
 to ensure they are all present in this set. Note that both the entries in

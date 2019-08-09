@@ -200,7 +200,6 @@ setGeneric("get_gene_ids", valueClass = "character", function(x) {
 #'
 #' @export
 #'
-
 setMethod("get_gene_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
   # Note that without opening every file in the archive, there is no way of
   # knowing whether there are some genes mentioned inside one of those files
@@ -220,7 +219,6 @@ setMethod("get_gene_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
 #'
 #' @export
 #'
-
 setMethod("get_gene_ids", signature("CoxpresDbDataframeAccessor"), function(x) {
   sort(union(get_source_ids(x), x@df[["target_id"]]))
 })
@@ -251,7 +249,6 @@ setGeneric("get_source_ids", valueClass = "character", function(x) {
 #'
 #' @export
 #'
-
 setMethod("get_source_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
   get_file_paths(x)[["gene_id"]]
 })
@@ -267,7 +264,6 @@ setMethod("get_source_ids", signature("CoxpresDbArchiveAccessor"), function(x) {
 #'
 #' @export
 #'
-
 setMethod(
   "get_source_ids",
   signature("CoxpresDbDataframeAccessor"),
@@ -314,7 +310,7 @@ setGeneric(
   }
 )
 
-#' Import all the coexpression partner data for a single gene from a given
+#' Import all the coexpression partner data for a set of genes from a given
 #' CoxpresDb archive.
 #'
 #' Users should use \code{get_coex_partners(gene_ids, importer)} rather than
