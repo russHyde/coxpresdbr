@@ -7,7 +7,7 @@ context("Tests for data-structure validity in `coxpresdbr` package")
 test_that(".is_gene_statistics_df", {
   # should be a non-null dataframe
   expect_error(
-    expected = .is_gene_statistics_df(),
+    object = .is_gene_statistics_df(),
     info = "x should be defined in .is_gene_statistics_df"
   )
   expect_false(
