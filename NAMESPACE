@@ -2,6 +2,7 @@
 
 export(CoxpresDbAccessor)
 export(cluster_by_coex_partnership)
+export(compute_cor)
 export(evaluate_coex_partners)
 export(get_coex_partners)
 export(run_coex_partner_workflow)

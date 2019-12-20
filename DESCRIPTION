@@ -17,7 +17,7 @@ BugReports: https://github.com/russHyde/coxpresdbr/issues
 LazyData: true
 RoxygenNote: 6.1.1
 Suggests:
-    testthat,
+    testthat (>= 2.1.0),
     lintr,
     covr
 Imports:
@@ -30,8 +30,10 @@ Imports:
     igraph,
     tidygraph,
     rlang,
-    purrr
+    purrr,
+    ppcor
 Collate:
+    'compute_cor.R'
     'coxpresdbr_CoxpresDbAccessor.R'
     'coxpresdbr_data_validity.R'
     'coxpresdbr_CoxpresDbPartners.R'

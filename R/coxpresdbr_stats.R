@@ -49,7 +49,8 @@
 #'
 #' @include      coxpresdbr_data_validity.R
 #'
-#' @importFrom   dplyr         group_by   mutate   n   summarise   ungroup   rename
+#' @importFrom   dplyr         group_by   mutate   n   summarise   ungroup
+#' @importFrom   dplyr         rename
 #' @importFrom   magrittr      extract   %>%
 #' @importFrom   methods       is
 #' @importFrom   rlang         .data
